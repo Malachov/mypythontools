@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+from mypythontools import githooks
+
+githooks.sphinx_docs_regenerate('mypythontools')
+githooks.generate_readme_from_init('mypythontools')

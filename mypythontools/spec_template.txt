@@ -1,0 +1,45 @@
+
+import sys
+from pathlib import Path
+import os
+import inspect
+import sysconfig
+
+sys.setrecursionlimit(5000)
+block_cipher = None
+
+my_file = my_path / main_file
+
+a = Analysis([my_file],
+             pathex=[my_path.as_posix()],
+             binaries=[],
+             datas=add_datas,
+             hiddenimports=add_hidden_imports,
+             hookspath=[],
+             runtime_hooks=[my_path / 'build_tools' / 'env_vars.py'],
+             excludes=add_ignored_packages,
+             win_no_prefer_redirects=False,
+             win_private_assemblies=False,
+             cipher=block_cipher,
+             noarchive=False)
+pyz = PYZ(a.pure, a.zipped_data,
+             cipher=block_cipher)
+exe = EXE(pyz,
+          a.scripts,
+          [],
+          exclude_binaries=True,
+          name=name,
+          debug=debug,
+          bootloader_ignore_signals=False,
+          strip=False,
+          upx=True,
+          console=console,
+          icon=icon)
+coll = COLLECT(exe,
+               a.binaries,
+               a.zipfiles,
+               a.datas,
+               strip=False,
+               upx=True,
+               upx_exclude=[],
+               name='app')
