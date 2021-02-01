@@ -2,12 +2,12 @@
 githooks
 ========
 
-This module is to be used in githooks (some code automatically executed for example before commit).
+This module is to be used in githooks (some code automatically executed before commit for example).
 
 How to
 ------
 
-Create folder git_hooks with file git_hook (with no extension)
+Create folder git_hooks with git hook file - for prec commit name must be `pre-commit` (with no extension)
 Hooks in git folder are gitignored by default (and hooks is not visible on first sight).
 
 Then add hook to git settings - run in terminal (last arg is path (created folder))
@@ -21,7 +21,13 @@ In created folder on first two lines copy this
 # -*- coding: UTF-8 -*-
 ```
 
-Then just import any function from here and call with desired params.
+Then just import any function from here and call with desired params. E.g.
+
+Examples:
+    >>> mypythontools.githooks.generate_readme_from_init('mypythontools')
+    >>> mypythontools.githooks.sphinx_docs_regenerate('mypythontools')
+
+That will generate readme from __init__.py and call sphinx-apidoc and create rst files ind doc source folder.
 """
 
 import subprocess
@@ -50,6 +56,9 @@ def sphinx_docs_regenerate(project_name, build_locally=0):
 
         If you are issuing error, try set project root path with `set_root`
     """
+
+    if not importlib.find_loader('sphinx'):
+        raise ImportError("Sphinx library is necessary for docs generation. Install via `pip install sphinx`")
 
     root_path = misc.root_path
     docs_path = root_path / 'docs'

@@ -1,4 +1,21 @@
 
+console = False
+debug = True
+
+name = 'app'
+main_file = 'app.py'
+
+icon = (my_path / 'gui' / 'public' / 'logo.ico').as_posix()
+
+add_hidden_imports = [
+    'bottle_websocket',
+    'scipy.spatial.transform._rotation_groups',
+]
+
+add_ignored_packages = ['tensorflow', 'keras', 'notebook', 'pytest', 'pyzmq', 'zmq', 'sqlalchemy', 'sphinx', 'PyQt5', 'PIL', 'matplotlib', 'qt5', 'PyQt5', 'qt4', 'pillow']
+
+add_datas = [((my_path / 'gui' / 'web_builded').as_posix(), 'gui/web_builded')]
+
 import sys
 from pathlib import Path
 import os
@@ -16,7 +33,7 @@ a = Analysis([my_file],
              datas=add_datas,
              hiddenimports=add_hidden_imports,
              hookspath=[],
-             runtime_hooks=[my_path / 'build_tools' / 'env_vars.py'],
+             runtime_hooks=runtime_hook,
              excludes=add_ignored_packages,
              win_no_prefer_redirects=False,
              win_private_assemblies=False,

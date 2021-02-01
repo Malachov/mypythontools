@@ -1,9 +1,8 @@
-#%%
 from setuptools import setup, find_packages
 import pkg_resources
-import my_library
+import mypythontools
 
-version = my_library.__version__
+version = mypythontools.__version__
 
 with open('README.md') as readme_file:
     readme = readme_file.read()
@@ -12,9 +11,9 @@ with open('requirements.txt') as f:
     myreqs = [str(requirement) for requirement in pkg_resources.parse_requirements(f)]
 
 setup(
-    name='my_library',
+    name='mypythontools',
     version=version,
-    url='https://github.com/Malachov/my_library',
+    url='https://github.com/Malachov/mypythontools',
     license='mit',
     author='Daniel Malachov',
     author_email='malachovd@seznam.cz',
@@ -36,10 +35,8 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
-        'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
         'Intended Audience :: Education'],
     extras_require={
