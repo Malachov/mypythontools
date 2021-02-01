@@ -19,7 +19,7 @@ githooks
 
 Some functions runned every each git action (usually before commit).
 
-Can derive README.md from __init__.py or generate rst files necessary for sphinx docs generator.
+Can derive `README.md` from `__init__.py` or generate rst files necessary for sphinx docs generator.
 
 Check module docstrings for how to use it.
 """
