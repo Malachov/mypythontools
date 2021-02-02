@@ -33,8 +33,28 @@ import subprocess
 import inspect
 from pathlib import Path
 import importlib
+import pytest
 
 from . import misc
+
+
+def run_tests(test_path=None):
+    """Run tests and if not passing, raise an error.
+
+    Args:
+        test_path ((str, pathlib.Path)), optional): Usually autodetected (if cwd / tests). Defaults to None.
+
+    Raises:
+        Exception: If any test fail, it will raise exception (git hook do not continue...).
+    """
+
+    if not test_path:
+        test_path = misc.root_path / 'tests'
+
+    pytested = pytest.main(["-x", test_path.as_posix()])
+
+    if pytested == 1:
+        raise Exception("Pytest failed")
 
 
 def sphinx_docs_regenerate(project_name, root_path=None, app_path=None, docs_path=None, build_locally=0, git_add=True):

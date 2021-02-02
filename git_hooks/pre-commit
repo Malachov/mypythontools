@@ -3,21 +3,17 @@
 
 from pathlib import Path
 import sys
-import pytest
 
+# Root path is not necessary, only here because import from local not site-packages
 root_path = Path(__file__).parents[1]
-
 if root_path.as_posix() not in sys.path:
     sys.path.insert(0, root_path.as_posix())
 
 from mypythontools import githooks, deploy
 
-pytested = pytest.main(["-x", (root_path / 'tests').as_posix(), "-vv"])
-
-if pytested == 1:
-    raise Exception("Pytest failed")
-
 githooks.sphinx_docs_regenerate('mypythontools')
 githooks.generate_readme_from_init('mypythontools')
+
+githooks.run_tests()
 
 deploy.deploy_to_pypi()
