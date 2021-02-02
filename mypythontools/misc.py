@@ -1,11 +1,8 @@
 from pathlib import Path
 import sys
 
-# Try to find root folder of python project based on where the script run
+# Root is usually current working directory, if not, use `set_root` function.
 root_path = Path.cwd()
-
-if not (root_path / 'docs').exists():
-    root_path = root_path.parent
 
 
 def set_root(set_root_path=None):
