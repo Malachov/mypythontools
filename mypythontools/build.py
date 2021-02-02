@@ -1,52 +1,141 @@
 """
 This module build the app via pyinstaller.
 It help to build applications build with eel.
+
+There is one main function `build_app`. Check it's help for how to use
+it (should be very simple).
 """
 
 import subprocess
-import pathlib
 import os
 import shutil
-import json
-
-import mylogging
+from pathlib import Path
+from . import misc
 
 
 def build_app(
-        build_settings={
-            'console': False,
-            'debug': False,
-            'name': 'app',
-            'main_file': 'app.py',
-            'icon': (my_path / 'gui' / 'public' / 'logo.ico').as_posix(),
-            'add_hidden_imports': ['bottle_websocket', 'scipy.spatial.transform._rotation_groups']
-            'add_ignored_packages': ['tensorflow', 'keras', 'notebook', 'pytest', 'pyzmq', 'zmq', 'sqlalchemy', 'sphinx', 'PyQt5', 'PIL', 'matplotlib', 'qt5', 'PyQt5', 'qt4', 'pillow'],
-            'add_datas': [((my_path / 'gui' / 'web_builded').as_posix(), 'gui/web_builded')]
-        },
-        build_web=1, remove_last_builds=0):
+        main_file='app.py', app_path=None, root_path=None,
+        preset=None,
+        build_web=False, remove_last_build=False,
+        console=False, debug=False, name='app', icon=False, hidden_imports=[],
+        ignored_packages=[], datas=[], env_vars={}):
+    """One script to build .exe app from source code. it use pyinstaller, which must be localy installed.
+    Build pyinstaller bootloader manually to avoid antivirus problems.
+    This script automatically generate .spec file, build node web files and add environment variables during build.
 
-    spec_settings = f"""
-    console = False
-    debug = True
+    This script suppose some structure of the app. You can use python app starter on the same repository.
 
-    name = 'app'
-    main_file = 'app.py'
+    You can use presets (or create your own.) - then you don't need to set other except the main_file.
 
-    icon = (my_path / 'gui' / 'public' / 'logo.ico').as_posix()
-
-    add_hidden_imports = [
-        'bottle_websocket',
-        'scipy.spatial.transform._rotation_groups',
-    ]
-
-    add_ignored_packages = ['tensorflow', 'keras', 'notebook', 'pytest', 'pyzmq', 'zmq', 'sqlalchemy', 'sphinx', 'PyQt5', 'PIL', 'matplotlib', 'qt5', 'PyQt5', 'qt4', 'pillow']
-
-    add_datas = [((my_path / 'gui' / 'web_builded').as_posix(), 'gui/web_builded')]
+    Args:
+        main_file (str, optional): Main file with extension. Defaults to 'app.py'.
+        app_path ((Path, str), optional): Path where main.py is. If main.py file in cwd, not necessary. Defaults to None.
+        root_path ((Path, str), optional): Root where build and dist folders are (as well as docs, travis.yaml are). If None,
+            cwd (current working directory) infered. Defaults to None.
+        preset (str, optional): Edit other params for specific use cases (append to hidden_imports, datas etc.)
+            Options ['eel'].
+        build_web (bool, optional): If application contain package.json in folder 'gui', build it. Defaults to False.
+        remove_last_build (bool, optional): If some problems, it is possible to delete build and dist folders. Defaults to False.
+        console (bool, optional): Before app run terminal window appears (good for debugging). Defaults to False.
+        debug (bool, optional): If no console, then dialog window with traceback appears. Defaults to False.
+        name (str, optional): Name of the app. Defaults to 'app'.
+        icon ((Path, str), optional): Path to .ico file. Defaults to None.
+        hidden_imports (list, optional): If app is not working, it can be because some library was not builded. Add such
+            libraries into this list. Defaults to [].
+        ignored_packages (list, optional): Libraries take space even if not necessary. Defaults to [].
+        datas (list, optional): Add static files to build. Example: [('my_source_path, 'destination_path')].
+        env_vars (dict, optional): Add some env vars during build. Mostly to tell main script that it's production (ne development) mode. Defaults to {}.
     """
 
-    root_path = misc.root_path
+    root_path = root_path if root_path else misc.root_path
 
-    if remove_last_builds:
+    build_path = root_path / 'build'
+
+    if not build_path.exists():
+        build_path.mkdir(parents=True, exist_ok=True)
+
+    if app_path:
+        app_path = Path(app_path)
+
+    elif (root_path / main_file).exists():
+        app_path = root_path
+
+    elif (root_path / name / main_file).exists():
+        app_path = root_path / name
+    else:
+        raise KeyError("app_path not configured, not infered and must be configured in params...")
+
+    if preset == 'eel':
+        hidden_imports = [*hidden_imports, 'bottle_websocket']
+        datas = tuple([*datas, ((app_path / 'gui' / 'web_builded').as_posix(), 'gui/web_builded')])
+        ignored_packages = [*ignored_packages, 'tensorflow', 'keras', 'notebook', 'pytest', 'pyzmq', 'zmq', 'sqlalchemy', 'sphinx', 'PyQt5', 'PIL', 'matplotlib', 'qt5', 'PyQt5', 'qt4', 'pillow']
+        env_vars = {**env_vars, 'MY_PYTHON_VUE_ENVIRONMENT': 'production'}
+
+    if env_vars:
+        env_vars_template = f"""
+import os
+for i, j in {env_vars}.items()
+    os.environ[i] = j"""
+
+        with open(build_path / 'env_vars.py', 'w') as env_vars_py:
+            env_vars_py.write(env_vars_template)
+        runtime_hooks = ['env_vars.py']
+    else:
+        runtime_hooks = None
+
+    spec_template = f"""
+#########################
+### File is generated ###
+#########################
+
+# Do not edit this file, edit build_script
+
+import sys
+from pathlib import Path
+import os
+
+sys.setrecursionlimit(5000)
+block_cipher = None
+
+a = Analysis(['{(app_path / main_file).as_posix()}'],
+            pathex=['{app_path.as_posix()}'],
+            binaries=[],
+            datas={datas},
+            hiddenimports={hidden_imports},
+            hookspath=[],
+            runtime_hooks={runtime_hooks},
+            excludes={ignored_packages},
+            win_no_prefer_redirects=False,
+            win_private_assemblies=False,
+            cipher=block_cipher,
+            noarchive=False)
+pyz = PYZ(a.pure, a.zipped_data,
+            cipher=block_cipher)
+exe = EXE(pyz,
+        a.scripts,
+        [],
+        exclude_binaries=True,
+        name='{name}',
+        debug={debug},
+        bootloader_ignore_signals=False,
+        strip=False,
+        upx=True,
+        console={console},
+        icon={f'{str(icon)}' if icon else None})
+coll = COLLECT(exe,
+            a.binaries,
+            a.zipfiles,
+            a.datas,
+            strip=False,
+            upx=True,
+            upx_exclude=[],
+            name='{name}')
+"""
+
+    with open(build_path / 'app.spec', 'w') as spec_file:
+        spec_file.write(spec_template)
+
+    if remove_last_build:
         try:
             shutil.rmtree('build', ignore_errors=True)
             shutil.rmtree('dist', ignore_errors=True)
@@ -55,15 +144,9 @@ def build_app(
 
     # Build JS to static asset
     if build_web:
-        os.chdir(root_path / 'gui')
-        subprocess.run(['npm', 'run', 'build'], shell=True)
+        os.chdir(app_path / 'gui')
+        subprocess.run(['npm', 'run', 'build'], shell=True, check=True)
 
     # Build py to exe
-    os.chdir(root_path)
-    subprocess.run(['pyinstaller', '-y', 'build_tools/app.spec'], shell=True)
-
-
-def _generate_spec_file():
-    with open('app.spec') as spec_file:
-        spec_file.write(
-"""
+    os.chdir(app_path)
+    subprocess.run(['pyinstaller', '-y', f"{(build_path / 'app.spec').as_posix()}"], shell=True, check=True)

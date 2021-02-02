@@ -1,4 +1,3 @@
-"""
 mypythontools
 =============
 
@@ -35,17 +34,3 @@ deploy
 ------
 
 Deploy app on Pypi.
-
-"""
-
-from . import githooks
-from . import build
-from . import misc
-
-__version__ = "0.0.1"
-
-__author__ = "Daniel Malachov"
-__license__ = "MIT"
-__email__ = "malachovd@seznam.cz"
-
-__all__ = ['githooks', 'build', 'deploy', 'misc']
