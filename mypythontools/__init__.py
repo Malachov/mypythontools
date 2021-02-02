@@ -36,6 +36,11 @@ deploy
 
 Deploy app on Pypi.
 
+misc
+------
+
+Miscellaneous. Set up root path if not cwd.
+
 """
 
 from . import githooks
