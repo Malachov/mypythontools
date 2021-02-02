@@ -36,13 +36,18 @@ deploy
 
 Deploy app on Pypi.
 
+misc
+------
+
+Miscellaneous. Set up root path if not cwd.
+
 """
 
 from . import githooks
 from . import build
 from . import misc
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

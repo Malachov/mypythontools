@@ -62,6 +62,7 @@ def build_app(
 
     elif (root_path / name / main_file).exists():
         app_path = root_path / name
+
     else:
         raise KeyError("app_path not configured, not infered and must be configured in params...")
 

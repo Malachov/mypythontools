@@ -101,7 +101,7 @@ def sphinx_docs_regenerate(project_name, root_path=None, app_path=None, docs_pat
     if build_locally:
         subprocess.run(['make', 'html'], shell=True, cwd=docs_path, check=True)
 
-    subprocess.run(['sphinx-apidoc', '-f', '-e', '-o', 'source', app_path], shell=True, cwd=docs_path, check=True)
+    subprocess.run(['sphinx-apidoc', '-f', '-e', '-o', 'source', app_path.as_posix()], shell=True, cwd=docs_path, check=True)
 
     if git_add:
         subprocess.run(['git', 'add', 'docs'], shell=True, cwd=root_path, check=True)
