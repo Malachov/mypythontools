@@ -1,27 +1,32 @@
 """
-githooks
-========
-
-This module is to be used in githooks (some code automatically executed for example before commit).
+This module is to be used in githooks (some code automatically executed before commit for example).
 
 How to
 ------
 
-Create folder git_hooks with file git_hook (with no extension)
+Create folder git_hooks with git hook file - for prec commit name must be `pre-commit` (with no extension)
 Hooks in git folder are gitignored by default (and hooks is not visible on first sight).
 
 Then add hook to git settings - run in terminal (last arg is path (created folder))
 
-`git config core.hooksPath git_hooks`
+```shell
+git config core.hooksPath git_hooks
+```
 
 In created folder on first two lines copy this
 
-```
+```python
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 ```
 
-Then just import any function from here and call with desired params.
+Then just import any function from here and call with desired params. E.g.
+
+Examples:
+    >>> mypythontools.githooks.generate_readme_from_init('mypythontools')
+    >>> mypythontools.githooks.sphinx_docs_regenerate('mypythontools')
+
+That will generate readme from __init__.py and call sphinx-apidoc and create rst files ind doc source folder.
 """
 
 import subprocess
@@ -32,14 +37,19 @@ import importlib
 from . import misc
 
 
-def sphinx_docs_regenerate(project_name, build_locally=0):
+def sphinx_docs_regenerate(project_name, root_path=None, app_path=None, docs_path=None, build_locally=0, git_add=True):
     """This will generate all rst files necessary for sphinx documentation generation.
     It automatically delete removed and renamed files.
 
+    Function suppose sphinx build and source in separate folders...
+
     Args:
+        root_path ((str, Path), optional): Where docs folder is. Usually infered automatically. Defaults to None.
+        app_path ((str, Path), optional): Where application scripts are. Usually infered automatically. Defaults to None.
+        docs_path ((str, Path), optional): Where source folder is. Usually infered automatically. Defaults to None.
         project_name (str): Name of your project (used in sphinx-apidoc).
         build_locally (bool, optional): If true, build build folder with html files locally. Defaults to 0.
-
+        git_add (bool, optional): Whether to add generated files to stage. False mostly for testing reasons.
     Note:
         Function suppose structure of docs like
 
@@ -51,9 +61,18 @@ def sphinx_docs_regenerate(project_name, build_locally=0):
         If you are issuing error, try set project root path with `set_root`
     """
 
-    root_path = misc.root_path
-    docs_path = root_path / 'docs'
+    if not importlib.find_loader('sphinx'):
+        raise ImportError("Sphinx library is necessary for docs generation. Install via `pip install sphinx`")
+
+    if not root_path:
+        root_path = misc.root_path
+    if not docs_path:
+        docs_path = root_path / 'docs'
+
     docs_source_path = root_path / 'docs' / 'source'
+
+    if not app_path:
+        app_path = root_path / project_name
 
     for p in Path(docs_source_path).iterdir():
         if p.name not in ['conf.py', 'index.rst', '_static', '_templates']:
@@ -62,11 +81,13 @@ def sphinx_docs_regenerate(project_name, build_locally=0):
     if build_locally:
         subprocess.run(['make', 'html'], shell=True, cwd=docs_path, check=True)
 
-    subprocess.run(['sphinx-apidoc', '-f', '-e', '-o', 'source', f'../{project_name}'], shell=True, cwd=docs_path, check=True)
-    subprocess.run(['git', 'add', 'docs'], shell=True, cwd=root_path, check=True)
+    subprocess.run(['sphinx-apidoc', '-f', '-e', '-o', 'source', app_path], shell=True, cwd=docs_path, check=True)
+
+    if git_add:
+        subprocess.run(['git', 'add', 'docs'], shell=True, cwd=root_path, check=True)
 
 
-def generate_readme_from_init(project_name):
+def generate_readme_from_init(project_name, git_add=True):
     """Because i had very similar things in main __init__.py and in readme. It was to maintain news in code.
     For better simplicity i prefer write docs once and then generate. One code, two use cases.
 
@@ -75,6 +96,7 @@ def generate_readme_from_init(project_name):
 
     Args:
         project_name (str): Module name (module must be imported).
+        git_add (bool, optional): Whether to add generated files to stage. False mostly for testing reasons.
     """
 
     ## Generate README.md from __init__.py
@@ -86,4 +108,5 @@ def generate_readme_from_init(project_name):
     with open(root_path / 'README.md', 'w') as file:
         file.write(docstrings)
 
-    subprocess.run(['git', 'add', 'README.md'], shell=True, cwd=root_path, check=True)
+    if git_add:
+        subprocess.run(['git', 'add', 'README.md'], shell=True, cwd=root_path, check=True)

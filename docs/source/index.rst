@@ -1,18 +1,24 @@
-.. mdinclude:: ../../README.md
+mypythontools
+=============
 
-Submodules
-==========
+Some tools/functions/snippets used across projects.
 
-`name <mypythontools.githooks.html>`_
------------------------------------------------
+Usually used from IDE. Root path is infered and things like docs generation on pre-commit
+githook, building application with pyinstaller or deploying to Pypi is matter of calling one function.
 
+Many projects - one codebase.
+
+`build <../latest/mypythontools.build.html>`_
+--------------------
+.. automodule:: mypythontools.build
+
+`deploy <../latest/mypythontools.deploy.html>`_
+--------------------
+.. automodule:: mypythontools.deploy
+
+`githooks <../latest/mypythontools.githooks.html>`_
+--------------------
 .. automodule:: mypythontools.githooks
-
-`name <mypythontools.build_to_app.html>`_
------------------------------------------------
-
-.. automodule:: mypythontools.githooks
-
 
 Index
 =====

@@ -1,0 +1,4 @@
+pytest
+pytest-cov
+m2r2
+flake8

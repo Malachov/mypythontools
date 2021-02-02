@@ -1,0 +1,5 @@
+sphinx
+pyinstaller
+setuptools
+wheel
+twine
