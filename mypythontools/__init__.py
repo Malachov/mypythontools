@@ -46,6 +46,7 @@ Miscellaneous. Set up root path if not cwd.
 from . import githooks
 from . import build
 from . import misc
+from . import pyvueel
 
 __version__ = "0.0.3"
 
@@ -53,4 +54,4 @@ __author__ = "Daniel Malachov"
 __license__ = "MIT"
 __email__ = "malachovd@seznam.cz"
 
-__all__ = ['githooks', 'build', 'deploy', 'misc']
+__all__ = ['githooks', 'build', 'deploy', 'misc', 'pyvueel']
