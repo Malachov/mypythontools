@@ -48,7 +48,7 @@ from . import build
 from . import misc
 from . import pyvueel
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
