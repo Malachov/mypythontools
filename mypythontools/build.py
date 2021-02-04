@@ -4,6 +4,16 @@ It help to build applications build with eel.
 
 There is one main function `build_app`. Check it's help for how to use
 it (should be very simple).
+
+Note:
+    Build pyinstaller on your pc, otherwise antivirus can check the file for a while on first run.
+    Download from github, cd to bootloader and 
+
+    ```
+    python ./waf all
+    ```
+
+    Back to pyinstaller folder and python `setup.py`
 """
 
 import subprocess

@@ -36,11 +36,18 @@ deploy
 
 Deploy app on Pypi.
 
+
+pyvueel
+-------
+Common functions for Python / Vue / Eel project.
+
+Run `mypythontools.pyvueel.help_starter_pack_vue_app()` for tutorial how to create such an app.
+
+
 misc
-------
-
-Miscellaneous. Set up root path if not cwd.
-
+----
+Miscellaneous
+Set up root path if not cwd for example.
 """
 
 from . import githooks

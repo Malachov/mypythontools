@@ -1,9 +1,23 @@
+"""
+Common functions for Python / Vue / Eel project.
+
+Run `mypythontools.pyvueel.help_starter_pack_vue_app()` for tutorial how to create such an app.
+
+"""
+
 import os
 import sys
 from pathlib import Path
-import eel
+import warnings
+import pandas as pd
+import numpy as np
 
 import mylogging
+
+with warnings.catch_warnings():
+    warnings.filterwarnings('ignore', module='eel', category=ResourceWarning)
+
+    import eel
 
 
 def run_gui(multiprocessing=False, log_file_path=None):
@@ -28,7 +42,6 @@ def run_gui(multiprocessing=False, log_file_path=None):
         else:
             log_file = 'log.log' if not devel else None
 
-        mylogging.co
         mylogging.config.TO_FILE = log_file
 
         if getattr(sys, 'frozen', False):
@@ -101,7 +114,7 @@ def help_starter_pack_vue_app():
         - app.py
 
     ############
-    ### app.py 
+    ### app.py
     ###########
 
     # Expose python functions to Js with decorator
@@ -162,7 +175,7 @@ def help_starter_pack_vue_app():
     In public folder
 
     ```
-    <script type="text/javascript" src="<% VUE_APP_EEL_URL %>"></script>
+    <script type="text/javascript" src="<%= VUE_APP_EEL_URL %>"></script>
     ```
 
     #################
@@ -177,3 +190,39 @@ def help_starter_pack_vue_app():
     """
 
     print(help_starter_pack_vue_app.__doc__)
+
+
+
+def json_to_py(json):
+    evaluated = {}
+    for i, j in json.items():
+        try:
+            evaluated[i] = eval(j)
+        except Exception:
+            evaluated[i] = j
+    return evaluated
+
+
+def to_vue_plotly(data, names=None):
+
+    if isinstance(data, (np.ndarray, np.generic)):
+        data = pd.DataFrame(data, columns=names)
+
+    numeric_data = data.select_dtypes(include='number').round(decimals=3)
+    numeric_data = numeric_data.where(np.isfinite(numeric_data), None)
+    # numeric_data = add_none_to_gaps(numeric_data)
+
+    return {'x_axis': numeric_data.index.to_list(), 'y_axis': numeric_data.values.T.tolist(), 'names': numeric_data.columns.values.tolist()}
+
+
+def to_table(df):
+
+    data = df.copy()
+    data = data.round(decimals=3)
+
+    # Numpy nan cannot be send to json - replace with None
+    data = data.where(~data.isin([np.nan, np.inf, -np.inf]), None)
+
+    headers = [{'text': i, 'value': i, 'sortable': True} for i in data.columns]
+
+    return {'table': data.to_dict('records'), 'headers': headers}
