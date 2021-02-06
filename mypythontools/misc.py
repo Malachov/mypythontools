@@ -25,3 +25,8 @@ def set_root(set_root_path=None):
 
     if not root_path.as_posix() in sys.path:
         sys.path.insert(0, root_path.as_posix())
+
+
+# TODO
+# Write a function, that from accept parameter - name of file and return Path of Folder in it
+# Use it in build and generate_readme_from_init 
