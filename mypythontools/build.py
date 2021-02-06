@@ -24,7 +24,7 @@ from . import misc
 
 
 def build_app(
-        main_file='app.py', app_path=None, root_path=None,
+        main_file='app.py', app_path=None, root_path=None, web_path=None,
         preset=None,
         build_web=False, remove_last_build=False,
         console=False, debug=False, name='app', icon=False, hidden_imports=[],
@@ -42,6 +42,7 @@ def build_app(
         app_path ((Path, str), optional): Path where main.py is. If main.py file in cwd, not necessary. Defaults to None.
         root_path ((Path, str), optional): Root where build and dist folders are (as well as docs, travis.yaml are). If None,
             cwd (current working directory) infered. Defaults to None.
+        web_path ((Path, str), optional): Folder with index
         preset (str, optional): Edit other params for specific use cases (append to hidden_imports, datas etc.)
             Options ['eel'].
         build_web (bool, optional): If application contain package.json in folder 'gui', build it. Defaults to False.
@@ -57,6 +58,7 @@ def build_app(
         env_vars (dict, optional): Add some env vars during build. Mostly to tell main script that it's production (ne development) mode. Defaults to {}.
     """
 
+    # Try to recognize the structure of app
     root_path = root_path if root_path else misc.root_path
 
     build_path = root_path / 'build'
@@ -76,10 +78,13 @@ def build_app(
     else:
         raise KeyError("app_path not configured, not infered and must be configured in params...")
 
+    if not web_path:
+        web_path = app_path / 'gui' / 'web_builded'
+
     if preset == 'eel':
-        hidden_imports = [*hidden_imports, 'bottle_websocket']
-        datas = tuple([*datas, ((app_path / 'gui' / 'web_builded').as_posix(), 'gui/web_builded')])
-        ignored_packages = [*ignored_packages, 'tensorflow', 'keras', 'notebook', 'pytest', 'pyzmq', 'zmq', 'sqlalchemy', 'sphinx', 'PyQt5', 'PIL', 'matplotlib', 'qt5', 'PyQt5', 'qt4', 'pillow']
+        hidden_imports = list(set([*hidden_imports, 'bottle_websocket']))
+        datas = tuple([*datas, ((web_path).as_posix(), 'gui/web_builded')])
+        ignored_packages = list(set([*ignored_packages, 'tensorflow', 'keras', 'notebook', 'pytest', 'pyzmq', 'zmq', 'sqlalchemy', 'sphinx', 'PyQt5', 'PIL', 'matplotlib', 'qt5', 'PyQt5', 'qt4', 'pillow'])
         env_vars = {**env_vars, 'MY_PYTHON_VUE_ENVIRONMENT': 'production'}
 
     if env_vars:
