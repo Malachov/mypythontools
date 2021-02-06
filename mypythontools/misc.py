@@ -4,6 +4,11 @@ Only internal helping module for other modules. Not supposed to be used by users
 from pathlib import Path
 import sys
 
+
+
+a = list(Path('testDir').glob('*.*'))
+
+
 # Root is usually current working directory, if not, use `set_root` function.
 root_path = Path.cwd()
 

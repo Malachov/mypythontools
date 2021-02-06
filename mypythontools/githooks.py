@@ -23,8 +23,9 @@ In created folder on first two lines copy this
 Then just import any function from here and call with desired params. E.g.
 
 Examples:
-    >>> mypythontools.githooks.generate_readme_from_init('mypythontools')
-    >>> mypythontools.githooks.sphinx_docs_regenerate('mypythontools')
+    >>> mypythontools.githooks.run_tests()
+    >>> mypythontools.githooks.generate_readme_from_init('mylibrary')
+    >>> mypythontools.githooks.sphinx_docs_regenerate('mylibrary')
 
 That will generate readme from __init__.py and call sphinx-apidoc and create rst files ind doc source folder.
 """

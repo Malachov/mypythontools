@@ -20,15 +20,14 @@ import subprocess
 import os
 import shutil
 from pathlib import Path
-from . import misc
+# from . import misc
 
 
 def build_app(
-        main_file='app.py', app_path=None, root_path=None, web_path=None,
-        preset=None,
-        build_web=False, remove_last_build=False,
-        console=False, debug=False, name='app', icon=False, hidden_imports=[],
-        ignored_packages=[], datas=[], env_vars={}):
+        main_file='app.py', preset=None,
+        root_path=None, build_web=False, remove_last_build=False,
+        console=False, debug=False, icon=False, hidden_imports=[],
+        ignored_packages=[], datas=[], name=None, env_vars={}):
     """One script to build .exe app from source code. it use pyinstaller, which must be localy installed.
     Build pyinstaller bootloader manually to avoid antivirus problems.
     This script automatically generate .spec file, build node web files and add environment variables during build.
@@ -38,8 +37,8 @@ def build_app(
     You can use presets (or create your own.) - then you don't need to set other except the main_file.
 
     Args:
-        main_file (str, optional): Main file with extension. Defaults to 'app.py'.
-        app_path ((Path, str), optional): Path where main.py is. If main.py file in cwd, not necessary. Defaults to None.
+        main_file (str, optional): Main file path or name with extension. Main file is found automatically
+            and don't have to be in root. Defaults to 'app.py'.
         root_path ((Path, str), optional): Root where build and dist folders are (as well as docs, travis.yaml are). If None,
             cwd (current working directory) infered. Defaults to None.
         web_path ((Path, str), optional): Folder with index
@@ -49,13 +48,13 @@ def build_app(
         remove_last_build (bool, optional): If some problems, it is possible to delete build and dist folders. Defaults to False.
         console (bool, optional): Before app run terminal window appears (good for debugging). Defaults to False.
         debug (bool, optional): If no console, then dialog window with traceback appears. Defaults to False.
-        name (str, optional): Name of the app. Defaults to 'app'.
         icon ((Path, str), optional): Path to .ico file. Defaults to None.
         hidden_imports (list, optional): If app is not working, it can be because some library was not builded. Add such
             libraries into this list. Defaults to [].
         ignored_packages (list, optional): Libraries take space even if not necessary. Defaults to [].
         datas (list, optional): Add static files to build. Example: [('my_source_path, 'destination_path')].
         env_vars (dict, optional): Add some env vars during build. Mostly to tell main script that it's production (ne development) mode. Defaults to {}.
+        name (str, optional): If name of app is different than main py file. Defaults to None.
     """
 
     # Try to recognize the structure of app
@@ -66,25 +65,32 @@ def build_app(
     if not build_path.exists():
         build_path.mkdir(parents=True, exist_ok=True)
 
-    if app_path:
-        app_path = Path(app_path)
+    # May be just name - not absolute
+    main_file_path = Path(main_file)
 
-    elif (root_path / main_file).exists():
-        app_path = root_path
+    if not main_file_path.exists():
 
-    elif (root_path / name / main_file).exists():
-        app_path = root_path / name
+        # Iter paths and find the one
+        for i in root_path.glob('**/*'):
+            if i.name == main_file_path.name:
+                main_file_path = i
 
-    else:
-        raise KeyError("app_path not configured, not infered and must be configured in params...")
+        if not main_file_path.exists():
+            raise KeyError("Main file not found, not infered and must be configured in params...")
+
+    main_folder_path = main_file_path.parent
 
     if not web_path:
         web_path = app_path / 'gui' / 'web_builded'
 
     if preset == 'eel':
-        hidden_imports = list(set([*hidden_imports, 'bottle_websocket']))
-        datas = tuple([*datas, ((web_path).as_posix(), 'gui/web_builded')])
-        ignored_packages = list(set([*ignored_packages, 'tensorflow', 'keras', 'notebook', 'pytest', 'pyzmq', 'zmq', 'sqlalchemy', 'sphinx', 'PyQt5', 'PIL', 'matplotlib', 'qt5', 'PyQt5', 'qt4', 'pillow'])
+        build_web = True
+        hidden_imports = [*hidden_imports, 'bottle_websocket']
+
+        # TODO
+        # Find by main.js
+        datas = tuple([*datas, ((main_folder_path / 'gui' / 'web_builded').as_posix(), 'gui/web_builded')])
+        ignored_packages = [*ignored_packages, 'tensorflow', 'keras', 'notebook', 'pytest', 'pyzmq', 'zmq', 'sqlalchemy', 'sphinx', 'PyQt5', 'PIL', 'matplotlib', 'qt5', 'PyQt5', 'qt4', 'pillow']
         env_vars = {**env_vars, 'MY_PYTHON_VUE_ENVIRONMENT': 'production'}
 
     if env_vars:
@@ -93,9 +99,11 @@ import os
 for i, j in {env_vars}.items()
     os.environ[i] = j"""
 
-        with open(build_path / 'env_vars.py', 'w') as env_vars_py:
+        env_path = (build_path / 'env_vars.py').as_posix()
+
+        with open(env_path, 'w') as env_vars_py:
             env_vars_py.write(env_vars_template)
-        runtime_hooks = ['env_vars.py']
+        runtime_hooks = [env_path]
     else:
         runtime_hooks = None
 
@@ -113,8 +121,8 @@ import os
 sys.setrecursionlimit(5000)
 block_cipher = None
 
-a = Analysis(['{(app_path / main_file).as_posix()}'],
-            pathex=['{app_path.as_posix()}'],
+a = Analysis(['{main_file_path.as_posix()}'],
+            pathex=['{main_folder_path.as_posix()}'],
             binaries=[],
             datas={datas},
             hiddenimports={hidden_imports},
@@ -160,9 +168,10 @@ coll = COLLECT(exe,
 
     # Build JS to static asset
     if build_web:
-        os.chdir(app_path / 'gui')
+        # TODO find by main.js
+        os.chdir(main_folder_path / 'gui')
         subprocess.run(['npm', 'run', 'build'], shell=True, check=True)
 
     # Build py to exe
-    os.chdir(app_path)
+    os.chdir(main_folder_path)
     subprocess.run(['pyinstaller', '-y', f"{(build_path / 'app.spec').as_posix()}"], shell=True, check=True)

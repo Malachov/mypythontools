@@ -4,11 +4,11 @@
 from pathlib import Path
 import sys
 
-# TODO
-# # Root path is not necessary, only here because import from local not site-packages
-# root_path = Path(__file__).parents[1]
-# if root_path.as_posix() not in sys.path:
-#     sys.path.insert(0, root_path.as_posix())
+# FIXME
+# Root path is not necessary, only here because import from local not site-packages
+root_path = Path(__file__).parents[1]
+if root_path.as_posix() not in sys.path:
+    sys.path.insert(0, root_path.as_posix())
 
 # from mypythontools import githooks, deploy
 
