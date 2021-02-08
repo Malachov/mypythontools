@@ -27,7 +27,8 @@ githooks
 
 Some functions runned every each git action (usually before commit).
 
-Can derive `README.md` from `__init__.py` or generate rst files necessary for sphinx docs generator.
+Can derive run pytest tests, `README.md` from `__init__.py` or generate rst files necessary for sphinx docs generator.
+All with one line
 
 Check module docstrings for how to use it.
 
@@ -36,11 +37,18 @@ deploy
 
 Deploy app on Pypi.
 
+
+pyvueel
+-------
+Common functions for Python / Vue / Eel project.
+
+Run `mypythontools.pyvueel.help_starter_pack_vue_app()` for tutorial how to create such an app.
+
+
 misc
-------
-
-Miscellaneous. Set up root path if not cwd.
-
+----
+Miscellaneous
+Set up root path if not cwd for example.
 """
 
 from . import githooks
@@ -48,7 +56,7 @@ from . import build
 from . import misc
 from . import pyvueel
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

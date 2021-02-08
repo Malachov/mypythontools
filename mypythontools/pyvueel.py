@@ -1,9 +1,23 @@
+"""
+Common functions for Python / Vue / Eel project.
+
+Run `mypythontools.pyvueel.help_starter_pack_vue_app()` for tutorial how to create such an app.
+
+"""
+
 import os
 import sys
 from pathlib import Path
-import eel
+import warnings
+import pandas as pd
+import numpy as np
 
 import mylogging
+
+with warnings.catch_warnings():
+    warnings.filterwarnings('ignore', module='eel', category=ResourceWarning)
+
+    import eel
 
 
 def run_gui(multiprocessing=False, log_file_path=None):
@@ -28,7 +42,6 @@ def run_gui(multiprocessing=False, log_file_path=None):
         else:
             log_file = 'log.log' if not devel else None
 
-        mylogging.co
         mylogging.config.TO_FILE = log_file
 
         if getattr(sys, 'frozen', False):
@@ -50,7 +63,7 @@ def run_gui(multiprocessing=False, log_file_path=None):
             close_callback = None
             app = 'chrome'
             page = 'index.html'
-            port = 8686
+            port = 0
 
         eel.init(directory.as_posix(), ['.vue', '.js', '.html'])
 
@@ -101,11 +114,12 @@ def help_starter_pack_vue_app():
         - app.py
 
     ############
-    ### app.py 
+    ### app.py
     ###########
 
-    # Expose python functions to Js with decorator
+    from mypythontools import pyvueel
 
+    # Expose python functions to Js with decorator
     @eel.expose
         def load_data(settings):
             # You can return dict - will be object in js
@@ -115,7 +129,7 @@ def help_starter_pack_vue_app():
 
     # End of file
     if __name__ == '__main__':
-        run_gui()
+        pyvueel.run_gui()
 
     #########
     ### gui
@@ -140,20 +154,19 @@ def help_starter_pack_vue_app():
     ############
 
     if (ProcessingInstruction.env.NODE_ENV !== 'production') {
-      window.eel.set_host("ws://locahost:8686")
+      window.eel.set_host("ws://localhost:8686")
     }
 
-    # window.eel.expose(add_HTML_element, 'add_HTML_element')
-    # window.eel.expose(create_allert, 'create_allert')
-    # window.eel.expose(mutate, 'mutate')
+    // You can expose function to be callable from python. Import and then
+    // window.eel.expose(mutate, 'mutate')
 
     ##########
     ### .env
     #########
 
-    create empty files .env.development and add `VUE_APP_EEL_URL = http://localhost:8686.eel.js`
+    create empty files .env.development and add `VUE_APP_EEL=http://localhost:8686/eel.js`
 
-    create empty .env.production and add `VUE_APP_EEL_URL = eel.js`
+    create empty .env.production and add `VUE_APP_EEL=eel.js`
 
     #################
     ### index.html
@@ -162,7 +175,7 @@ def help_starter_pack_vue_app():
     In public folder
 
     ```
-    <script type="text/javascript" src="<% VUE_APP_EEL_URL %>"></script>
+    <script type="text/javascript" src="<%= VUE_APP_EEL %>"></script>
     ```
 
     #################
@@ -177,3 +190,65 @@ def help_starter_pack_vue_app():
     """
 
     print(help_starter_pack_vue_app.__doc__)
+
+
+def json_to_py(json):
+    """Take json / json from JS side and eval it from strings.
+    If string to string, if float to float, if object then to dict.
+
+    When to use? - If sending object as parameter in function.
+
+    Args:
+        json (dict): Object from JS
+
+    Returns:
+        dict: Python dictionary with correct types.
+    """
+
+    evaluated = {}
+    for i, j in json.items():
+        try:
+            evaluated[i] = eval(j)
+        except Exception:
+            evaluated[i] = j
+    return evaluated
+
+
+def to_vue_plotly(data, names=None):
+    """Takes data (dataframe or numpy array) and transforms it to form, that vue-plotly understand.
+
+    Args:
+        data ((np.array, pd.DataFrame)): Plotted data.
+        names (list, optional): If using array, you can define names. Defaults to None.
+
+    Returns:
+        dict: Data in form for plotting in frontend.
+    """
+    if isinstance(data, (np.ndarray, np.generic)):
+        data = pd.DataFrame(data, columns=names)
+
+    numeric_data = data.select_dtypes(include='number').round(decimals=3)
+    numeric_data = numeric_data.where(np.isfinite(numeric_data), None)
+    # numeric_data = add_none_to_gaps(numeric_data)
+
+    return {'x_axis': numeric_data.index.to_list(), 'y_axis': numeric_data.values.T.tolist(), 'names': numeric_data.columns.values.tolist()}
+
+
+def to_table(df):
+    """Takes data (dataframe or numpy array) and transforms it to form, that vue-plotly understand.
+
+    Args:
+        df (pd.DataFrame): Data in table form
+
+    Returns:
+        dict: Data in form for create table.
+    """
+    data = df.copy()
+    data = data.round(decimals=3)
+
+    # Numpy nan cannot be send to json - replace with None
+    data = data.where(~data.isin([np.nan, np.inf, -np.inf]), None)
+
+    headers = [{'text': i, 'value': i, 'sortable': True} for i in data.columns]
+
+    return {'table': data.to_dict('records'), 'headers': headers}

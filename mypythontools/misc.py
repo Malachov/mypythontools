@@ -4,6 +4,7 @@ Only internal helping module for other modules. Not supposed to be used by users
 from pathlib import Path
 import sys
 
+
 # Root is usually current working directory, if not, use `set_root` function.
 root_path = Path.cwd()
 
@@ -20,3 +21,21 @@ def set_root(set_root_path=None):
 
     if not root_path.as_posix() in sys.path:
         sys.path.insert(0, root_path.as_posix())
+
+
+def find_file(file, folder=None):
+    """Look on files in folder (cwd() by default) and find file with it's folder.
+
+    Args:
+        file (str): Name with extension e.g. "app.py".
+
+    Returns:
+        Path: Path of file.
+    """
+    file = Path(file)
+
+    folder = root_path if not folder else folder
+
+    for i in root_path.glob('**/*'):
+        if i.name == file.name:
+            return i
