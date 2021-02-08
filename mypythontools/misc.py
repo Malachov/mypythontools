@@ -5,10 +5,6 @@ from pathlib import Path
 import sys
 
 
-
-a = list(Path('testDir').glob('*.*'))
-
-
 # Root is usually current working directory, if not, use `set_root` function.
 root_path = Path.cwd()
 
@@ -27,6 +23,19 @@ def set_root(set_root_path=None):
         sys.path.insert(0, root_path.as_posix())
 
 
-# TODO
-# Write a function, that from accept parameter - name of file and return Path of Folder in it
-# Use it in build and generate_readme_from_init 
+def find_file(file, folder=None):
+    """Look on files in folder (cwd() by default) and find file with it's folder.
+
+    Args:
+        file (str): Name with extension e.g. "app.py".
+
+    Returns:
+        Path: Path of file.
+    """
+    file = Path(file)
+
+    folder = root_path if not folder else folder
+
+    for i in root_path.glob('**/*'):
+        if i.name == file.name:
+            return i

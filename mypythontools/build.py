@@ -7,7 +7,7 @@ it (should be very simple).
 
 Note:
     Build pyinstaller on your pc, otherwise antivirus can check the file for a while on first run.
-    Download from github, cd to bootloader and 
+    Download from github, cd to bootloader and
 
     ```
     python ./waf all
@@ -17,17 +17,18 @@ Note:
 """
 
 import subprocess
-import os
 import shutil
 from pathlib import Path
-# from . import misc
+from . import misc
 
 
 def build_app(
         main_file='app.py', preset=None,
-        root_path=None, build_web=False, remove_last_build=False,
-        console=False, debug=False, icon=False, hidden_imports=[],
-        ignored_packages=[], datas=[], name=None, env_vars={}):
+        root_path=None, web_path=None,
+        build_web=None, remove_last_build=False,
+        console=True, debug=False, icon=False, hidden_imports=[],
+        ignored_packages=[], datas=[], name=None, env_vars={},
+        cleanit=True):
     """One script to build .exe app from source code. it use pyinstaller, which must be localy installed.
     Build pyinstaller bootloader manually to avoid antivirus problems.
     This script automatically generate .spec file, build node web files and add environment variables during build.
@@ -41,20 +42,21 @@ def build_app(
             and don't have to be in root. Defaults to 'app.py'.
         root_path ((Path, str), optional): Root where build and dist folders are (as well as docs, travis.yaml are). If None,
             cwd (current working directory) infered. Defaults to None.
-        web_path ((Path, str), optional): Folder with index
+        web_path ((Path, str), optional): Folder with index.html
         preset (str, optional): Edit other params for specific use cases (append to hidden_imports, datas etc.)
             Options ['eel'].
         build_web (bool, optional): If application contain package.json in folder 'gui', build it. Defaults to False.
         remove_last_build (bool, optional): If some problems, it is possible to delete build and dist folders. Defaults to False.
         console (bool, optional): Before app run terminal window appears (good for debugging). Defaults to False.
         debug (bool, optional): If no console, then dialog window with traceback appears. Defaults to False.
-        icon ((Path, str), optional): Path to .ico file. Defaults to None.
+        icon ((Path, str), optional): Path to .ico file (!no png!). Defaults to None.
         hidden_imports (list, optional): If app is not working, it can be because some library was not builded. Add such
             libraries into this list. Defaults to [].
         ignored_packages (list, optional): Libraries take space even if not necessary. Defaults to [].
         datas (list, optional): Add static files to build. Example: [('my_source_path, 'destination_path')].
         env_vars (dict, optional): Add some env vars during build. Mostly to tell main script that it's production (ne development) mode. Defaults to {}.
         name (str, optional): If name of app is different than main py file. Defaults to None.
+        cleanit (bool, optional): Remove spec file and var env py hook. Defaults to True.
     """
 
     # Try to recognize the structure of app
@@ -71,20 +73,34 @@ def build_app(
     if not main_file_path.exists():
 
         # Iter paths and find the one
-        for i in root_path.glob('**/*'):
-            if i.name == main_file_path.name:
-                main_file_path = i
+        main_file_path = misc.find_file(main_file_path)
 
         if not main_file_path.exists():
             raise KeyError("Main file not found, not infered and must be configured in params...")
 
+    main_file_path = main_file_path.resolve()
+
+    if not name:
+        name = main_file_path.stem
+
     main_folder_path = main_file_path.parent
 
     if not web_path:
-        web_path = app_path / 'gui' / 'web_builded'
+        for i in root_path.glob('**/*'):
+            if i.name == 'index.html':
+                if i.parent != 'public':
+                    web_path = i
+                    break
+
+    else:
+        web_path = Path(web_path)
+
+    if not web_path.exists():
+        raise KeyError("Build web assets not found, not infered and must be configured in params...")
 
     if preset == 'eel':
-        build_web = True
+
+        build_web = True if build_web is None else None
         hidden_imports = [*hidden_imports, 'bottle_websocket']
 
         # TODO
@@ -93,26 +109,32 @@ def build_app(
         ignored_packages = [*ignored_packages, 'tensorflow', 'keras', 'notebook', 'pytest', 'pyzmq', 'zmq', 'sqlalchemy', 'sphinx', 'PyQt5', 'PIL', 'matplotlib', 'qt5', 'PyQt5', 'qt4', 'pillow']
         env_vars = {**env_vars, 'MY_PYTHON_VUE_ENVIRONMENT': 'production'}
 
-    if env_vars:
-        env_vars_template = f"""
-import os
-for i, j in {env_vars}.items()
-    os.environ[i] = j"""
-
-        env_path = (build_path / 'env_vars.py').as_posix()
-
-        with open(env_path, 'w') as env_vars_py:
-            env_vars_py.write(env_vars_template)
-        runtime_hooks = [env_path]
-    else:
-        runtime_hooks = None
-
-    spec_template = f"""
+    generated_warning = """
 #########################
 ### File is generated ###
 #########################
 
-# Do not edit this file, edit build_script
+# Do not edit this file, edit build_script"""
+
+    if env_vars:
+        env_vars_template = f"""
+{generated_warning}
+
+import os
+for i, j in {env_vars}.items():
+    os.environ[i] = j
+"""
+
+        env_path = (build_path / 'env_vars.py')
+
+        with open(env_path, 'w') as env_vars_py:
+            env_vars_py.write(env_vars_template)
+        runtime_hooks = [env_path.as_posix()]
+    else:
+        runtime_hooks = None
+
+    spec_template = f"""
+{generated_warning}
 
 import sys
 from pathlib import Path
@@ -156,7 +178,9 @@ coll = COLLECT(exe,
             name='{name}')
 """
 
-    with open(build_path / 'app.spec', 'w') as spec_file:
+    spec_path = build_path / 'app.spec'
+
+    with open(spec_path, 'w') as spec_file:
         spec_file.write(spec_template)
 
     if remove_last_build:
@@ -168,10 +192,12 @@ coll = COLLECT(exe,
 
     # Build JS to static asset
     if build_web:
-        # TODO find by main.js
-        os.chdir(main_folder_path / 'gui')
-        subprocess.run(['npm', 'run', 'build'], shell=True, check=True)
+        gui_path = misc.find_file('main.js')
+        subprocess.run(['npm', 'run', 'build'], shell=True, check=True, cwd=gui_path)
 
     # Build py to exe
-    os.chdir(main_folder_path)
-    subprocess.run(['pyinstaller', '-y', f"{(build_path / 'app.spec').as_posix()}"], shell=True, check=True)
+    subprocess.run(['pyinstaller', '-y', spec_path.as_posix()], shell=True, check=True, cwd=main_folder_path)
+
+    if cleanit:
+        spec_path.unlink()
+        env_path.unlink()
