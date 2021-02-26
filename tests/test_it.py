@@ -35,9 +35,9 @@ def test_it():
     # Build app with pyinstaller example
     mypythontools.build.build_app(main_file='app.py', console=True, debug=True)
 
-    passed = (root_path / 'dist').exists() and (root_path / 'docs' / 'source' / 'modules.rst').exists()
+    passed = (root_path / 'tests' / 'dist').exists() and (root_path / 'docs' / 'source' / 'modules.rst').exists()
 
-    shutil.rmtree(root_path / 'build')
-    shutil.rmtree(root_path / 'dist')
+    shutil.rmtree(root_path / 'tests' / 'build')
+    shutil.rmtree(root_path / 'tests' / 'dist')
 
     assert passed

@@ -19,7 +19,8 @@ Note:
 import subprocess
 import shutil
 from pathlib import Path
-from . import misc
+from mypythontools import misc
+import mylogging
 
 
 def build_app(
@@ -42,14 +43,14 @@ def build_app(
             and don't have to be in root. Defaults to 'app.py'.
         root_path ((Path, str), optional): Root where build and dist folders are (as well as docs, travis.yaml are). If None,
             cwd (current working directory) infered. Defaults to None.
-        web_path ((Path, str), optional): Folder with index.html
+        web_path ((Path, str), optional): Folder with index.html. Defaults to None.
         preset (str, optional): Edit other params for specific use cases (append to hidden_imports, datas etc.)
             Options ['eel'].
-        build_web (bool, optional): If application contain package.json in folder 'gui', build it. Defaults to False.
+        build_web (bool, optional): If application contain package.json in folder 'gui', build it (if using eel). Defaults to None.
         remove_last_build (bool, optional): If some problems, it is possible to delete build and dist folders. Defaults to False.
         console (bool, optional): Before app run terminal window appears (good for debugging). Defaults to False.
         debug (bool, optional): If no console, then dialog window with traceback appears. Defaults to False.
-        icon ((Path, str), optional): Path to .ico file (!no png!). Defaults to None.
+        icon ((Path, str), optional): Path or name with extension to .ico file (!no png!). Defaults to None.
         hidden_imports (list, optional): If app is not working, it can be because some library was not builded. Add such
             libraries into this list. Defaults to [].
         ignored_packages (list, optional): Libraries take space even if not necessary. Defaults to [].
@@ -73,7 +74,7 @@ def build_app(
     if not main_file_path.exists():
 
         # Iter paths and find the one
-        main_file_path = misc.find_file(main_file_path)
+        main_file_path = misc.find_path(main_file_path, exclude=['node_modules', 'build'])
 
         if not main_file_path.exists():
             raise KeyError("Main file not found, not infered and must be configured in params...")
@@ -85,29 +86,44 @@ def build_app(
 
     main_folder_path = main_file_path.parent
 
-    if not web_path:
-        for i in root_path.glob('**/*'):
-            if i.name == 'index.html':
-                if i.parent != 'public':
-                    web_path = i
-                    break
+    if icon:
+        icon_path = Path(icon)
 
+        if not icon_path.exists():
+
+            # Iter paths and find the one
+            icon_path = misc.find_path(icon_path, exclude=['node_modules', 'build'])
+
+            if not icon_path.exists():
+                raise KeyError("Icon not found, not infered check path or name...")
     else:
-        web_path = Path(web_path)
-
-    if not web_path.exists():
-        raise KeyError("Build web assets not found, not infered and must be configured in params...")
+        icon_path = None
 
     if preset == 'eel':
+        if not web_path:
+            web_path = misc.find_path('index.html', exclude=['public', 'node_modules', 'build']).parent
 
-        build_web = True if build_web is None else None
+        else:
+            web_path = Path(web_path)
+
+        if not web_path.exists():
+            raise KeyError("Build web assets not found, not infered and must be configured in params...")
+
+        if build_web is None:
+            build_web = True
+
         hidden_imports = [*hidden_imports, 'bottle_websocket']
 
-        # TODO
-        # Find by main.js
-        datas = tuple([*datas, ((main_folder_path / 'gui' / 'web_builded').as_posix(), 'gui/web_builded')])
-        ignored_packages = [*ignored_packages, 'tensorflow', 'keras', 'notebook', 'pytest', 'pyzmq', 'zmq', 'sqlalchemy', 'sphinx', 'PyQt5', 'PIL', 'matplotlib', 'qt5', 'PyQt5', 'qt4', 'pillow']
+        datas = tuple([*datas, (web_path.as_posix(), 'gui')])
         env_vars = {**env_vars, 'MY_PYTHON_VUE_ENVIRONMENT': 'production'}
+
+    # Remove last dist manually to avoid permission error if opened in some application
+    dist_path = Path('dist').resolve()
+    if dist_path.exists():
+        try:
+            shutil.rmtree(dist_path, ignore_errors=False)
+        except (PermissionError, OSError):
+            raise PermissionError(mylogging.return_str("App is opened (May be in another app(terminal, explorer...)). Close it first."))
 
     generated_warning = """
 #########################
@@ -167,7 +183,7 @@ exe = EXE(pyz,
         strip=False,
         upx=True,
         console={console},
-        icon={f'{str(icon)}' if icon else None})
+        icon={f"'{icon_path.as_posix()}'" if icon else None})
 coll = COLLECT(exe,
             a.binaries,
             a.zipfiles,
@@ -186,18 +202,21 @@ coll = COLLECT(exe,
     if remove_last_build:
         try:
             shutil.rmtree('build', ignore_errors=True)
-            shutil.rmtree('dist', ignore_errors=True)
         except Exception:
             pass
 
     # Build JS to static asset
     if build_web:
-        gui_path = misc.find_file('main.js')
+        gui_path = misc.find_path('package.json').parent
         subprocess.run(['npm', 'run', 'build'], shell=True, check=True, cwd=gui_path)
 
     # Build py to exe
-    subprocess.run(['pyinstaller', '-y', spec_path.as_posix()], shell=True, check=True, cwd=main_folder_path)
+
+    subprocess.run(['pyinstaller', '-y', spec_path.as_posix()], shell=True, check=True, cwd=root_path)
 
     if cleanit:
-        spec_path.unlink()
-        env_path.unlink()
+        try:
+            spec_path.unlink()
+            env_path.unlink()
+        except Exception:
+            pass

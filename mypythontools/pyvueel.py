@@ -11,6 +11,9 @@ from pathlib import Path
 import warnings
 import pandas as pd
 import numpy as np
+from ast import literal_eval
+
+from . import misc
 
 import mylogging
 
@@ -20,7 +23,7 @@ with warnings.catch_warnings():
     import eel
 
 
-def run_gui(multiprocessing=False, log_file_path=None):
+def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, gui_path=None):
     """Function that init and run `eel` project.
     It will autosetup chrome mode (if installed chrome or chromium, open separate window with
     no url bar, no bookmarks etc...) if not chrome installed, it open microsoft Edge (by default on windows).
@@ -29,64 +32,67 @@ def run_gui(multiprocessing=False, log_file_path=None):
     # In devel mode, app is connected on live vue server.
 
     Args:
-        multiprocessing (bool, optional): If using multiprocessing in some library, set up to True. Defaults to False.
+        devel((bool, None), optional): If None, detected. Can be overwritten. Devel 0 run static assets, 1 run Vue server on localhost. Defaults to None.
+        is_multiprocessing (bool, optional): If using multiprocessing in some library, set up to True. Defaults to False.
         log_file_path ((str, Path, None)), optional): If not exist, it will create, if exist, it will append,
-        if None, log to relative log.log and only if in production mode.
+            if None, log to relative log.log and only if in production mode.
+        gui_path ((str, Path, None)), optional): Where the web asset is. If None, it's automatically find (but is slower then). Defaults to None.
     """
 
     try:
-        devel = False if os.environ.get('MY_PYTHON_VUE_ENVIRONMENT') == 'production' else True
+        if devel is None:
+            # env var MY_PYTHON_VUE_ENVIRONMENT is configured and added with pyinstaller automatically in build module
+            devel = False if os.environ.get('MY_PYTHON_VUE_ENVIRONMENT') == 'production' else True
+
+        # Whether run is from .exe or from python
+        is_builded = True if getattr(sys, 'frozen', False) else False
 
         if log_file_path:
             log_file = log_file_path
         else:
-            log_file = 'log.log' if not devel else None
+            log_file = 'log.log' if is_builded else None
 
         mylogging.config.TO_FILE = log_file
 
-        if getattr(sys, 'frozen', False):
+        if is_builded:
+            # gui folder is created with pyinstaller in build
             gui_path = Path(sys._MEIPASS) / 'gui'
         else:
-            gui_path = Path(__file__).resolve().parent / 'gui'
+            if not gui_path:
+                if devel:
+                    # May be not builded, so find in public
+                    gui_path = misc.find_path('index.html', exclude=['node_modules', 'build']).parents[1] / 'src'
+                else:
+                    gui_path = misc.find_path('index.html', exclude=['public', 'node_modules', 'build']).parent
+            else:
+                gui_path = Path(gui_path)
+
+        if not gui_path.exists():
+            raise FileNotFoundError('Web files not found, setup gui_path (where builded index.html is).')
 
         if devel:
-            directory = gui_path / 'src'
+            directory = gui_path
             app = None
             page = {'port': 8080}
             port = 8686
+            init_files = ['.vue', '.js', '.html']
 
             def close_callback(page, sockets):
                 pass
 
         else:
-            directory = gui_path / 'web_builded'
+            directory = gui_path
             close_callback = None
             app = 'chrome'
             page = 'index.html'
             port = 0
+            init_files = ['.js', '.html']
 
-        eel.init(directory.as_posix(), ['.vue', '.js', '.html'])
+        eel.init(directory.as_posix(), init_files)
 
-        # try:
-        # if devel:
-
-        # If server is not running, it's started automatically
-        # import psutil
-        # import subprocess
-
-        # import signal
-        # already_run = 8080 in [i.laddr.port for i in psutil.net_connections()]
-
-        # if not already_run:
-
-        #     subprocess.Popen(f"cd '{pystore.gui_path.as_posix()}' && npm run serve", stdout=subprocess.PIPE,
-        #                      shell=True)
-        #     print("\nVue starting, reload page after loaded! \n")
-        #     import webbrowser
-        #     webbrowser.open('http://localhost:8080/', new=2)
-
-        if multiprocessing:
-            multiprocessing.freeze_support()
+        if is_multiprocessing:
+            from multiprocessing import freeze_support
+            freeze_support()
 
         mylogging.info("Py side started")
 
@@ -94,7 +100,6 @@ def run_gui(multiprocessing=False, log_file_path=None):
 
     except OSError:
         eel.start(page, mode='edge', host='localhost', close_callback=close_callback, port=port, disable_cache=True),
-
 
     except Exception:
         mylogging.traceback("Py side terminated...")
@@ -117,6 +122,7 @@ def help_starter_pack_vue_app():
     ### app.py
     ###########
 
+    ```python
     from mypythontools import pyvueel
 
     # Expose python functions to Js with decorator
@@ -130,6 +136,7 @@ def help_starter_pack_vue_app():
     # End of file
     if __name__ == '__main__':
         pyvueel.run_gui()
+    ```
 
     #########
     ### gui
@@ -153,20 +160,27 @@ def help_starter_pack_vue_app():
     ### main.js
     ############
 
-    if (ProcessingInstruction.env.NODE_ENV !== 'production') {
-      window.eel.set_host("ws://localhost:8686")
+    ```js
+    if (process.env.NODE_ENV == 'development') {
+    Vue.config.productionTip = true
+    Vue.config.devtools = true
+    window.eel.set_host("ws://localhost:8686");
+    } else {
+    Vue.config.productionTip = false
+    Vue.config.devtools = false
     }
 
     // You can expose function to be callable from python. Import and then
     // window.eel.expose(mutate, 'mutate')
+    ```
 
     ##########
     ### .env
     #########
 
     create empty files .env.development and add `VUE_APP_EEL=http://localhost:8686/eel.js`
-
     create empty .env.production and add `VUE_APP_EEL=eel.js`
+
 
     #################
     ### index.html
@@ -174,8 +188,33 @@ def help_starter_pack_vue_app():
 
     In public folder
 
-    ```
+    ```html
     <script type="text/javascript" src="<%= VUE_APP_EEL %>"></script>
+    ```
+
+    ###################
+    ### vue.config.js
+    #################
+
+    ```js
+    let devtool_mode
+    if (process.env.NODE_ENV === 'development') {
+    devtool_mode = 'source-map';
+    } else {
+    devtool_mode = false;
+    }
+
+    module.exports = {
+    outputDir: "web_builded",
+    transpileDependencies: [
+        "vuetify"
+    ],
+    productionSourceMap: process.env.NODE_ENV != 'production',
+
+    configureWebpack: {
+        devtool: devtool_mode,
+    }
+    }
     ```
 
     #################
@@ -206,12 +245,17 @@ def json_to_py(json):
     """
 
     evaluated = {}
-    for i, j in json.items():
-        try:
-            evaluated[i] = eval(j)
-        except Exception:
-            evaluated[i] = j
-    return evaluated
+    if json:
+        for i, j in json.items():
+            try:
+                settigs_val = literal_eval(j)
+                # If user type 1,3 and mean decimal point
+                if isinstance(settigs_val, tuple):
+                    settigs_val = literal_eval(j.replace(',', '.'))
+                evaluated[i] = settigs_val
+            except Exception:
+                evaluated[i] = j
+        return evaluated
 
 
 def to_vue_plotly(data, names=None):

@@ -10,7 +10,6 @@ Submodules
    mypythontools.build
    mypythontools.deploy
    mypythontools.githooks
-   mypythontools.help
    mypythontools.misc
    mypythontools.pyvueel
 

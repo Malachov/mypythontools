@@ -34,12 +34,12 @@ import subprocess
 import inspect
 from pathlib import Path
 import importlib
-import pytest
 
 from . import misc
 
 
 def run_tests(test_path=None):
+    import pytest
     """Run tests and if not passing, raise an error.
 
     Args:
@@ -82,7 +82,7 @@ def sphinx_docs_regenerate(project_name, root_path=None, app_path=None, docs_pat
         If you are issuing error, try set project root path with `set_root`
     """
 
-    if not importlib.find_loader('sphinx'):
+    if not importlib.util.find_spec('sphinx'):
         raise ImportError("Sphinx library is necessary for docs generation. Install via `pip install sphinx`")
 
     if not root_path:
