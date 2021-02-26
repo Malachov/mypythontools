@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 import mylogging
 
+
 # Root is usually current working directory, if not, use `set_root` function.
 root_path = Path.cwd()
 

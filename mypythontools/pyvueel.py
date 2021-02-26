@@ -11,9 +11,6 @@ from pathlib import Path
 import warnings
 import pandas as pd
 import numpy as np
-from ast import literal_eval
-
-from . import misc
 
 import mylogging
 
@@ -86,7 +83,20 @@ def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, gui_path=N
             app = 'chrome'
             page = 'index.html'
             port = 0
-            init_files = ['.js', '.html']
+
+        eel.init(directory.as_posix(), ['.vue', '.js', '.html'])
+
+        # try:
+        # if devel:
+
+        # If server is not running, it's started automatically
+        # import psutil
+        # import subprocess
+
+        # import signal
+        # already_run = 8080 in [i.laddr.port for i in psutil.net_connections()]
+
+        # if not already_run:
 
         eel.init(directory.as_posix(), init_files)
 
@@ -122,7 +132,6 @@ def help_starter_pack_vue_app():
     ### app.py
     ###########
 
-    ```python
     from mypythontools import pyvueel
 
     # Expose python functions to Js with decorator
@@ -136,7 +145,6 @@ def help_starter_pack_vue_app():
     # End of file
     if __name__ == '__main__':
         pyvueel.run_gui()
-    ```
 
     #########
     ### gui
@@ -172,15 +180,14 @@ def help_starter_pack_vue_app():
 
     // You can expose function to be callable from python. Import and then
     // window.eel.expose(mutate, 'mutate')
-    ```
 
     ##########
     ### .env
     #########
 
     create empty files .env.development and add `VUE_APP_EEL=http://localhost:8686/eel.js`
-    create empty .env.production and add `VUE_APP_EEL=eel.js`
 
+    create empty .env.production and add `VUE_APP_EEL=eel.js`
 
     #################
     ### index.html
@@ -245,17 +252,12 @@ def json_to_py(json):
     """
 
     evaluated = {}
-    if json:
-        for i, j in json.items():
-            try:
-                settigs_val = literal_eval(j)
-                # If user type 1,3 and mean decimal point
-                if isinstance(settigs_val, tuple):
-                    settigs_val = literal_eval(j.replace(',', '.'))
-                evaluated[i] = settigs_val
-            except Exception:
-                evaluated[i] = j
-        return evaluated
+    for i, j in json.items():
+        try:
+            evaluated[i] = eval(j)
+        except Exception:
+            evaluated[i] = j
+    return evaluated
 
 
 def to_vue_plotly(data, names=None):
