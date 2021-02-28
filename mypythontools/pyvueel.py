@@ -14,13 +14,18 @@ import numpy as np
 
 import mylogging
 
+from . import misc
+
 with warnings.catch_warnings():
     warnings.filterwarnings('ignore', module='eel', category=ResourceWarning)
 
     import eel
 
 
-def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, gui_path=None):
+expose_error_callback = None
+
+
+def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, builded_gui_path=None):
     """Function that init and run `eel` project.
     It will autosetup chrome mode (if installed chrome or chromium, open separate window with
     no url bar, no bookmarks etc...) if not chrome installed, it open microsoft Edge (by default on windows).
@@ -33,7 +38,7 @@ def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, gui_path=N
         is_multiprocessing (bool, optional): If using multiprocessing in some library, set up to True. Defaults to False.
         log_file_path ((str, Path, None)), optional): If not exist, it will create, if exist, it will append,
             if None, log to relative log.log and only if in production mode.
-        gui_path ((str, Path, None)), optional): Where the web asset is. If None, it's automatically find (but is slower then). Defaults to None.
+        builded_gui_path ((str, Path, None)), optional): Where the web asset is. Only if debug is 0 but not run with pyinstaller. If None, it's automatically find (but is slower then). Defaults to None.
     """
 
     try:
@@ -55,14 +60,14 @@ def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, gui_path=N
             # gui folder is created with pyinstaller in build
             gui_path = Path(sys._MEIPASS) / 'gui'
         else:
-            if not gui_path:
-                if devel:
-                    # May be not builded, so find in public
-                    gui_path = misc.find_path('index.html', exclude=['node_modules', 'build']).parents[1] / 'src'
+            if devel:
+                gui_path = misc.find_path('index.html', exclude=['node_modules', 'build']).parents[1] / 'src'
+            else:
+                if builded_gui_path:
+                    gui_path = Path(builded_gui_path)
                 else:
                     gui_path = misc.find_path('index.html', exclude=['public', 'node_modules', 'build']).parent
-            else:
-                gui_path = Path(gui_path)
+
 
         if not gui_path.exists():
             raise FileNotFoundError('Web files not found, setup gui_path (where builded index.html is).')
@@ -84,7 +89,7 @@ def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, gui_path=N
             page = 'index.html'
             port = 0
 
-        eel.init(directory.as_posix(), ['.vue', '.js', '.html'])
+        eel.init(directory.as_posix(), ['.vue', '.js', '.html'], exlcude_patterns=['chunk-vendors'])
 
         # try:
         # if devel:
@@ -236,6 +241,19 @@ def help_starter_pack_vue_app():
     """
 
     print(help_starter_pack_vue_app.__doc__)
+
+
+def expose(f):
+    def inner(*args, **kargs):
+        try:
+            return f(*args, **kargs)
+
+        except Exception:
+            mylogging.traceback(f"Unexpected error in function `{f.__name__}`")
+            if expose_error_callback:
+                expose_error_callback()
+
+    eel._expose(f.__name__, inner)
 
 
 def json_to_py(json):
