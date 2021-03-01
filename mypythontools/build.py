@@ -68,6 +68,15 @@ def build_app(
     if not build_path.exists():
         build_path.mkdir(parents=True, exist_ok=True)
 
+    # Remove last dist manually to avoid permission error if opened in some application
+    dist_path = root_path / 'dist'
+
+    if dist_path.exists():
+        try:
+            shutil.rmtree(dist_path, ignore_errors=False)
+        except (PermissionError, OSError):
+            raise PermissionError(mylogging.return_str("App is opened (May be in another app(terminal, explorer...)). Close it first."))
+
     # May be just name - not absolute
     main_file_path = Path(main_file)
 
@@ -116,14 +125,6 @@ def build_app(
 
         datas = tuple([*datas, (web_path.as_posix(), 'gui')])
         env_vars = {**env_vars, 'MY_PYTHON_VUE_ENVIRONMENT': 'production'}
-
-    # Remove last dist manually to avoid permission error if opened in some application
-    dist_path = Path('dist').resolve()
-    if dist_path.exists():
-        try:
-            shutil.rmtree(dist_path, ignore_errors=False)
-        except (PermissionError, OSError):
-            raise PermissionError(mylogging.return_str("App is opened (May be in another app(terminal, explorer...)). Close it first."))
 
     generated_warning = """
 #########################
