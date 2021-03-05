@@ -18,5 +18,4 @@ githooks.run_tests()
 githooks.sphinx_docs_regenerate('mypythontools')
 githooks.generate_readme_from_init('mypythontools')
 
-
 deploy.deploy_to_pypi()

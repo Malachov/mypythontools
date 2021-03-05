@@ -291,6 +291,8 @@ def to_vue_plotly(data, names=None):
     if isinstance(data, (np.ndarray, np.generic)):
         data = pd.DataFrame(data, columns=names)
 
+    data = pd.DataFrame(data)
+
     numeric_data = data.select_dtypes(include='number').round(decimals=3)
     numeric_data = numeric_data.where(np.isfinite(numeric_data), None)
     # numeric_data = add_none_to_gaps(numeric_data)
