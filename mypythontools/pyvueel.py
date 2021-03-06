@@ -272,9 +272,9 @@ def json_to_py(json):
     evaluated = {}
     for i, j in json.items():
 
-        if j.lower() == 'true':
+        if j == 'true':
             j = True
-        if j.lower() == 'false':
+        if j == 'false':
             j = False
 
         try:
