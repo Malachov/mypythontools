@@ -271,10 +271,17 @@ def json_to_py(json):
 
     evaluated = {}
     for i, j in json.items():
+
+        if j.lower() == 'true':
+            j = True
+        if j.lower() == 'false':
+            j = False
+
         try:
             evaluated[i] = eval(j)
         except Exception:
             evaluated[i] = j
+
     return evaluated
 
 
