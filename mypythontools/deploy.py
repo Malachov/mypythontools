@@ -41,3 +41,4 @@ def deploy_to_pypi(setup_path=None):
     subprocess.run(['twine', 'upload', '-u', os.environ['TWINE_USERNAME'], '-p', os.environ['TWINE_PASSWORD'], 'dist/*'], cwd=setup_path, shell=True, check=True)
 
     shutil.rmtree(setup_path / 'dist')
+    shutil.rmtree(setup_path / 'build')

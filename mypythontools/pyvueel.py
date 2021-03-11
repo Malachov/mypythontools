@@ -19,7 +19,7 @@ from . import misc
 with warnings.catch_warnings():
     warnings.filterwarnings('ignore', module='eel', category=ResourceWarning)
 
-    import eel
+    import EelForkExcludeFiles as eel
 
 
 expose_error_callback = None
@@ -88,8 +88,9 @@ def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, builded_gu
             app = 'chrome'
             page = 'index.html'
             port = 0
+            init_files = ['.js', '.html']
 
-        eel.init(directory.as_posix(), ['.vue', '.js', '.html'], exlcude_patterns=['chunk-vendors'])
+        eel.init(directory.as_posix(), init_files, exlcude_patterns=['chunk-vendors'])
 
         # try:
         # if devel:
@@ -103,7 +104,6 @@ def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, builded_gu
 
         # if not already_run:
 
-        eel.init(directory.as_posix(), init_files)
 
         if is_multiprocessing:
             from multiprocessing import freeze_support
@@ -138,9 +138,10 @@ def help_starter_pack_vue_app():
     ###########
 
     from mypythontools import pyvueel
+    from mypythontools.pyvueeel import expose
 
     # Expose python functions to Js with decorator
-    @eel.expose
+    @expose
         def load_data(settings):
             # You can return dict - will be object in js
             # You can return list - will be an array in js

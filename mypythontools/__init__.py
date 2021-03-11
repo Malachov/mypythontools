@@ -57,7 +57,7 @@ from . import deploy
 from . import misc
 from . import pyvueel
 
-__version__ = "0.0.13"
+__version__ = "0.0.15"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
