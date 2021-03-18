@@ -7,3 +7,4 @@ twine
 EelForkExcludeFiles
 mylogging
 GitPython
+pandas
