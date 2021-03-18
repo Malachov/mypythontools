@@ -6,6 +6,9 @@ python:
     - requirements: requirements.txt
     - requirements: requirements-dev.txt
 
+build:
+  image: latest
+
 # Build documentation in the source/ directory with Sphinx
 sphinx:
   configuration: docs/source/conf.py

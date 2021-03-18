@@ -9,9 +9,9 @@ Submodules
 
    mypythontools.build
    mypythontools.deploy
-   mypythontools.githooks
    mypythontools.misc
    mypythontools.pyvueel
+   mypythontools.utils
 
 Module contents
 ---------------

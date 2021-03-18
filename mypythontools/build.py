@@ -1,19 +1,34 @@
 """
 This module build the app via pyinstaller.
-It help to build applications build with eel.
+It has presets to build applications build with eel.
 
 There is one main function `build_app`. Check it's help for how to use
 it (should be very simple).
 
 Note:
-    Build pyinstaller on your pc, otherwise antivirus can check the file for a while on first run.
-    Download from github, cd to bootloader and
+    You can run build for example from vs code tasks, create folder utils,
+    create build_script.py inside, add
 
-    ```
-    python ./waf all
+    ```python
+    import mypythontools
+
+    if __name__ == "__main__":
+        mypythontools.build.build_app()  # With all the params you need.
     ```
 
-    Back to pyinstaller folder and python `setup.py`
+    Then just add this task to global tasks.json
+
+    ```json
+        {
+            "label": "Build app",
+            "type": "shell",
+            "command": "python utils/build_script.py",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+    ```
 """
 
 import subprocess
@@ -24,28 +39,36 @@ import mylogging
 
 
 def build_app(
-        main_file='app.py', preset=None,
-        root_path=None, web_path=None,
+        main_file='app.py', preset=None, web_path=None,
         build_web=None, remove_last_build=False,
         console=True, debug=False, icon=False, hidden_imports=[],
         ignored_packages=[], datas=[], name=None, env_vars={},
         cleanit=True):
-    """One script to build .exe app from source code. it use pyinstaller, which must be localy installed.
-    Build pyinstaller bootloader manually to avoid antivirus problems.
+    """One script to build .exe app from source code.
+
+    Note:
+        Build pyinstaller bootloader on your pc, otherwise antivirus can check the
+        file for a while on first run.
+
+        Download from github, cd to bootloader and
+
+        ```
+        python ./waf all
+        ```
+
+        Back to pyinstaller folder and python `setup.py`
+
     This script automatically generate .spec file, build node web files and add environment variables during build.
 
-    This script suppose some structure of the app. You can use python app starter on the same repository.
-
-    You can use presets (or create your own.) - then you don't need to set other except the main_file.
+    This script suppose some structure of the app. You can use python app starter from the same repository owner,
+    if you start with application.
 
     Args:
         main_file (str, optional): Main file path or name with extension. Main file is found automatically
             and don't have to be in root. Defaults to 'app.py'.
-        root_path ((Path, str), optional): Root where build and dist folders are (as well as docs, travis.yaml are). If None,
-            cwd (current working directory) infered. Defaults to None.
-        web_path ((Path, str), optional): Folder with index.html. Defaults to None.
         preset (str, optional): Edit other params for specific use cases (append to hidden_imports, datas etc.)
             Options ['eel'].
+        web_path ((Path, str), optional): Folder with index.html. Defaults to None.
         build_web (bool, optional): If application contain package.json in folder 'gui', build it (if using eel). Defaults to None.
         remove_last_build (bool, optional): If some problems, it is possible to delete build and dist folders. Defaults to False.
         console (bool, optional): Before app run terminal window appears (good for debugging). Defaults to False.
@@ -55,21 +78,19 @@ def build_app(
             libraries into this list. Defaults to [].
         ignored_packages (list, optional): Libraries take space even if not necessary. Defaults to [].
         datas (list, optional): Add static files to build. Example: [('my_source_path, 'destination_path')].
-        env_vars (dict, optional): Add some env vars during build. Mostly to tell main script that it's production (ne development) mode. Defaults to {}.
         name (str, optional): If name of app is different than main py file. Defaults to None.
+        env_vars (dict, optional): Add some env vars during build. Mostly to tell main script that it's production (ne development) mode. Defaults to {}.
         cleanit (bool, optional): Remove spec file and var env py hook. Defaults to True.
     """
 
     # Try to recognize the structure of app
-    root_path = root_path if root_path else misc.root_path
-
-    build_path = root_path / 'build'
+    build_path = misc.root_path / 'build'
 
     if not build_path.exists():
         build_path.mkdir(parents=True, exist_ok=True)
 
     # Remove last dist manually to avoid permission error if opened in some application
-    dist_path = root_path / 'dist'
+    dist_path = misc.root_path / 'dist'
 
     if dist_path.exists():
         try:
@@ -213,7 +234,7 @@ coll = COLLECT(exe,
 
     # Build py to exe
 
-    subprocess.run(['pyinstaller', '-y', spec_path.as_posix()], shell=True, check=True, cwd=root_path)
+    subprocess.run(['pyinstaller', '-y', spec_path.as_posix()], shell=True, check=True, cwd=misc.root_path)
 
     if cleanit:
         try:

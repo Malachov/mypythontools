@@ -16,8 +16,6 @@ def deploy_to_pypi(setup_path=None):
 
     Args:
         setup_path((str, pathlib.Path)): Function suppose, that there is a setup.py in cwd. If not, pass path to setup.py.
-        username
-        password
     """
     try:
         os.environ['TWINE_USERNAME']
@@ -35,6 +33,13 @@ def deploy_to_pypi(setup_path=None):
 
         if not (setup_path / 'setup.py').exists():
             raise FileNotFoundError(mylogging.return_str("Setup.py file not found. Setup `setup_path` param."))
+
+    try:
+        shutil.rmtree(setup_path / 'dist')
+        shutil.rmtree(setup_path / 'build')
+
+    except Exception:
+        pass
 
     subprocess.run(['python', 'setup.py', 'sdist', 'bdist_wheel'], cwd=setup_path, shell=True, check=True)
 

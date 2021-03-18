@@ -1,12 +1,4 @@
-mypythontools
-=============
-
-Some tools/functions/snippets used across projects.
-
-Usually used from IDE. Root path is infered and things like docs generation on pre-commit
-githook, building application with pyinstaller or deploying to Pypi is matter of calling one function.
-
-Many projects - one codebase.
+.. mdinclude:: ../../README.md
 
 `build <../latest/mypythontools.build.html>`_
 --------------------

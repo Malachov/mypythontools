@@ -1,7 +1,7 @@
-[x] Logo
-[x] Git hooks only on selected branch option
-[x] Add misc and set root path to docs
-[x] Finish start vue in debug from python
+[ ] Unify root path param with set_root param in misc. Add misc and set root path to docs
+[ ] Logo
+[ ] Git hooks only on selected branch option
+[ ] Finish start vue in debug from python
 
 ```
     # try:

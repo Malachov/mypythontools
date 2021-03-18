@@ -2,7 +2,6 @@
 Common functions for Python / Vue / Eel project.
 
 Run `mypythontools.pyvueel.help_starter_pack_vue_app()` for tutorial how to create such an app.
-
 """
 
 import os
@@ -28,10 +27,11 @@ expose_error_callback = None
 def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, builded_gui_path=None):
     """Function that init and run `eel` project.
     It will autosetup chrome mode (if installed chrome or chromium, open separate window with
-    no url bar, no bookmarks etc...) if not chrome installed, it open microsoft Edge (by default on windows).
+    no url bar, no bookmarks etc...) if chrome is not installed, it open microsoft Edge (by default
+    on windows).
 
-    # TODO document more
-    # In devel mode, app is connected on live vue server.
+    In devel mode, app is connected on live vue server. Serve your web application and debug python file
+    caling this function. Debugger should correctly stop at breakpoints.
 
     Args:
         devel((bool, None), optional): If None, detected. Can be overwritten. Devel 0 run static assets, 1 run Vue server on localhost. Defaults to None.
@@ -92,19 +92,6 @@ def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, builded_gu
 
         eel.init(directory.as_posix(), init_files, exlcude_patterns=['chunk-vendors'])
 
-        # try:
-        # if devel:
-
-        # If server is not running, it's started automatically
-        # import psutil
-        # import subprocess
-
-        # import signal
-        # already_run = 8080 in [i.laddr.port for i in psutil.net_connections()]
-
-        # if not already_run:
-
-
         if is_multiprocessing:
             from multiprocessing import freeze_support
             freeze_support()
@@ -148,6 +135,9 @@ def help_starter_pack_vue_app():
 
             return {'Hello': 1}
 
+    # Call function from JS
+    pyvueel.eel.myfunction()
+
     # End of file
     if __name__ == '__main__':
         pyvueel.run_gui()
@@ -163,10 +153,11 @@ def help_starter_pack_vue_app():
     vue create gui
     ```
 
-    Goto folder and
+    Goto folder and optionally
 
     ```console
     vue add vuex
+    vue add vuetify
     vue add router
     ```
 
@@ -176,16 +167,24 @@ def help_starter_pack_vue_app():
 
     ```js
     if (process.env.NODE_ENV == 'development') {
+
+    try {
+        window.eel.set_host("ws://localhost:8686");
+
+    } catch (error) {
+        document.getElementById('app').innerHTML = 'Py side is not running. Start app.py with debugger.'
+        console.error(error);
+    }
+
     Vue.config.productionTip = true
     Vue.config.devtools = true
-    window.eel.set_host("ws://localhost:8686");
     } else {
     Vue.config.productionTip = false
     Vue.config.devtools = false
     }
 
     // You can expose function to be callable from python. Import and then
-    // window.eel.expose(mutate, 'mutate')
+    // window.eel.expose(function_name, 'function_name')
 
     ##########
     ### .env
@@ -244,10 +243,16 @@ def help_starter_pack_vue_app():
     print(help_starter_pack_vue_app.__doc__)
 
 
-def expose(f):
+def expose(callback_function):
+    """Wrap eel expose with try catch block and adding exception callback function 
+    (for printing error to frontend usually).
+
+    Args:
+        callback_function (function): Function that will be called if exposed function fails on some error.
+    """
     def inner(*args, **kargs):
         try:
-            return f(*args, **kargs)
+            return callback_function(*args, **kargs)
 
         except Exception:
             mylogging.traceback(f"Unexpected error in function `{f.__name__}`")
@@ -264,7 +269,7 @@ def json_to_py(json):
     When to use? - If sending object as parameter in function.
 
     Args:
-        json (dict): Object from JS
+        json (dict): Object from JS.
 
     Returns:
         dict: Python dictionary with correct types.
@@ -309,7 +314,7 @@ def to_vue_plotly(data, names=None):
 
 
 def to_table(df):
-    """Takes data (dataframe or numpy array) and transforms it to form, that vue-plotly understand.
+    """Takes data (dataframe or numpy array) and transforms it to form, that vue-plotly library understands.
 
     Args:
         df (pd.DataFrame): Data in table form
