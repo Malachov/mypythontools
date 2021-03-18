@@ -16,7 +16,7 @@ import mylogging
 from . import misc
 
 with warnings.catch_warnings():
-    warnings.filterwarnings('ignore', module='eel', category=ResourceWarning)
+    warnings.filterwarnings('ignore', module='EelForkExcludeFiles', category=ResourceWarning)
 
     import EelForkExcludeFiles as eel
 
