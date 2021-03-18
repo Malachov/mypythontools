@@ -8,9 +8,13 @@
 --------------------
 .. automodule:: mypythontools.deploy
 
-`githooks <../latest/mypythontools.githooks.html>`_
+`utils <../latest/mypythontools.utils.html>`_
 --------------------
-.. automodule:: mypythontools.githooks
+.. automodule:: mypythontools.utils
+
+`pyvueeel <../latest/mypythontools.pyvueeel.html>`_
+--------------------
+.. automodule:: mypythontools.pyvueeel
 
 Index
 =====

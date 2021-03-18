@@ -19,7 +19,7 @@ from . import utils
 from . import build
 from . import deploy
 from . import misc
-from . import pyvueel
+from . import pyvueeel
 
 __version__ = "0.0.24"
 
@@ -27,4 +27,4 @@ __author__ = "Daniel Malachov"
 __license__ = "MIT"
 __email__ = "malachovd@seznam.cz"
 
-__all__ = ['utils', 'build', 'deploy', 'misc', 'pyvueel']
+__all__ = ['utils', 'build', 'deploy', 'misc', 'pyvueeel']

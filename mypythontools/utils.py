@@ -99,9 +99,9 @@ Then just import any function from here and call with desired params. E.g.
 
 Examples:
     >>> mypythontools.misc.set_paths()
-    >>> mypythontools.githooks.run_tests()
-    >>> mypythontools.githooks.generate_readme_from_init()
-    >>> mypythontools.githooks.sphinx_docs_regenerate()
+    >>> mypythontools.utils.run_tests()
+    >>> mypythontools.utils.generate_readme_from_init()
+    >>> mypythontools.utils.sphinx_docs_regenerate()
 
 That will generate readme from __init__.py and call sphinx-apidoc and create rst files
 in doc source folder.

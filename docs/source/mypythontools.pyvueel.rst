@@ -1,7 +1,7 @@
-mypythontools.pyvueel module
+mypythontools.pyvueeel module
 ============================
 
-.. automodule:: mypythontools.pyvueel
+.. automodule:: mypythontools.pyvueeel
    :members:
    :undoc-members:
    :show-inheritance:

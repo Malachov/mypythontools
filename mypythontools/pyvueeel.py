@@ -1,7 +1,7 @@
 """
 Common functions for Python / Vue / Eel project.
 
-Run `mypythontools.pyvueel.help_starter_pack_vue_app()` for tutorial how to create such an app.
+Run `mypythontools.pyvueeel.help_starter_pack_vue_app()` for tutorial how to create such an app.
 """
 
 import os
@@ -124,7 +124,7 @@ def help_starter_pack_vue_app():
     ### app.py
     ###########
 
-    from mypythontools import pyvueel
+    from mypythontools import pyvueeel
     from mypythontools.pyvueeel import expose
 
     # Expose python functions to Js with decorator
@@ -136,11 +136,11 @@ def help_starter_pack_vue_app():
             return {'Hello': 1}
 
     # Call function from JS
-    pyvueel.eel.myfunction()
+    pyvueeel.eel.myfunction()
 
     # End of file
     if __name__ == '__main__':
-        pyvueel.run_gui()
+        pyvueeel.run_gui()
 
     #########
     ### gui
