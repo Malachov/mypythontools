@@ -6,4 +6,4 @@ wheel
 twine
 EelForkExcludeFiles
 mylogging
-python-git
+GitPython

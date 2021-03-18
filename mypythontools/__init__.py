@@ -10,7 +10,7 @@ hooks, building application with pyinstaller or deploying to Pypi is matter of c
 Many projects - one codebase.
 
 If you are not sure whether structure of app that will work with this code, there is python starter repo
-on `https://github.com/Malachov/my-python-starter`
+on [github](https://github.com/Malachov/my-python-starter)
 
 Paths are infered, but if you have atypical structure or have more projects in cwd, use `mypythontools.misc.set_paths()`.
 """
