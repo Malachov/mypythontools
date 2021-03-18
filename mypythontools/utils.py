@@ -115,6 +115,7 @@ from git import Repo
 import ast
 
 from . import misc
+from . import deploy as deploy_module
 
 
 def push_pipeline(
@@ -180,7 +181,7 @@ def push_pipeline(
             tag_message=git_params['tag_mesage'])
 
     if deploy:
-        deploy.deploy_to_pypi()
+        deploy_module.deploy_to_pypi()
 
 
 def git_push(commit_message, tag, tag_message):
