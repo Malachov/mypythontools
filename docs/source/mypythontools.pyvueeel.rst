@@ -1,5 +1,5 @@
 mypythontools.pyvueeel module
-============================
+=============================
 
 .. automodule:: mypythontools.pyvueeel
    :members:
