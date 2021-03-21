@@ -1,133 +1,119 @@
 """
 This module can be used for example in running deploy pipelines or githooks
 (some code automatically executed before commit). This module can run the tests,
-generate documentation files for sphinx, edit library version or push to git.
+edit library version or push to git or deploy app to pypi.
 
 All of that can be done with one function call - with `push_pipeline` function that
 run other functions, or you can use functions separately. If you are using other
 function then `push_pipeline`, you need to call `mypythontools.misc.set_paths()` first.
 
 
-Examples
-========
-
-VS Code Task example
---------------------
-
-You can push changes with single click with all the hooks displaying results in
-your terminal. All params changing every push (like git message or tag) can
-be configured on the beginning and therefore you don't need to wait for test finish.
-Default values can be also used, so in small starting projects, push is actually very fast.
-
-Create folder utils, create push_script.py inside, add
-
-```python
-import mypythontools
-
-if __name__ == "__main__":
-    mypythontools.utils.push_pipeline(deploy=True)  # With all the params you need.
-```
-
-Then just add this task to global tasks.json
-
-```json
-{
-    "version": "2.0.0",
-        {
-            "label": "Hooks & push & deploy",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "${workspaceFolder}/utils/push_script.py",
-                "--commit_message",
-                "${input:git-message}",
-                "--tag",
-                "${input:git-tag}",
-                "--tag_mesage",
-                "${input:git-tag-message}"
-            ],
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            }
-        }
-    ],
-    "inputs": [
-        {
-            "type": "promptString",
-            "id": "git-message",
-            "description": "Git message for commit.",
-            "default": "New commit"
-        },
-        {
-            "type": "promptString",
-            "id": "git-tag",
-            "description": "Git tag.",
-            "default": "__version__"
-        },
-        {
-            "type": "promptString",
-            "id": "git-tag-message",
-            "description": "Git tag message.",
-            "default": "New version"
-        }
-    ]
-}
-```
-
-Git hooks example
------------------
-
-Create folder git_hooks with git hook file - for prec commit name must be `pre-commit`
-(with no extension). Hooks in git folder are gitignored by default (and hooks is not visible
-on first sight).
-
-Then add hook to git settings - run in terminal (last arg is path (created folder))
-
-```shell
-git config core.hooksPath git_hooks
-```
-
-In created folder on first two lines copy this
-
-```python
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
-```
-
-Then just import any function from here and call with desired params. E.g.
-
 Examples:
+=========
+
+    VS Code Task example
+    --------------------
+
+    You can push changes with single click with all the hooks displaying results in
+    your terminal. All params changing every push (like git message or tag) can
+    be configured on the beginning and therefore you don't need to wait for test finish.
+    Default values can be also used, so in small starting projects, push is actually very fast.
+
+    Create folder utils, create push_script.py inside, add
+
+    >>> import mypythontools
+
+    >>> if __name__ == "__main__":
+    >>>     mypythontools.utils.push_pipeline(deploy=True)  # With all the params you need.
+
+    Then just add this task to global tasks.json::
+
+        {
+            "version": "2.0.0",
+            "tasks": [
+                {
+                    "label": "Hooks & push & deploy",
+                    "type": "shell",
+                    "command": "python",
+                    "args": [
+                        "${workspaceFolder}/utils/push_script.py",
+                        "--commit_message",
+                        "${input:git-message}",
+                        "--tag",
+                        "${input:git-tag}",
+                        "--tag_mesage",
+                        "${input:git-tag-message}"
+                    ],
+                    "presentation": {
+                        "reveal": "always",
+                        "panel": "new"
+                    }
+                }
+            ],
+            "inputs": [
+                {
+                    "type": "promptString",
+                    "id": "git-message",
+                    "description": "Git message for commit.",
+                    "default": "New commit"
+                },
+                {
+                    "type": "promptString",
+                    "id": "git-tag",
+                    "description": "Git tag.",
+                    "default": "__version__"
+                },
+                {
+                    "type": "promptString",
+                    "id": "git-tag-message",
+                    "description": "Git tag message.",
+                    "default": "New version"
+                }
+            ]
+        }
+
+    Git hooks example
+    -----------------
+
+    Create folder git_hooks with git hook file - for prec commit name must be `pre-commit`
+    (with no extension). Hooks in git folder are gitignored by default (and hooks is not visible
+    on first sight).
+
+    Then add hook to git settings - run in terminal (last arg is path (created folder))::
+
+        $ git config core.hooksPath git_hooks
+
+    In created folder on first two lines copy this
+
+    >>> #!/usr/bin/env python
+    >>> # -*- coding: UTF-8 -*-
+
+    Then just import any function from here and call with desired params. E.g.
+
     >>> mypythontools.misc.set_paths()
     >>> mypythontools.utils.run_tests()
-    >>> mypythontools.utils.generate_readme_from_init()
-    >>> mypythontools.utils.sphinx_docs_regenerate()
+    >>> mypythontools.set_version('increment')
 
-That will generate readme from __init__.py and call sphinx-apidoc and create rst files
-in doc source folder.
 """
 
 import subprocess
-from pathlib import Path
-import importlib
 import argparse
 from git import Repo
-import ast
 
 from . import misc
 from . import deploy as deploy_module
 
 
 def push_pipeline(
-        tests=True, version="increment", sphinx_docs=True, init_to_readme=True,
+        tests=True, version="increment",
         git_params={
             'commit_message': 'New commit',
             'tag': '__version__',
             'tag_mesage': 'New version'
         },
         deploy=False):
-    """Run pipeline for pushing and deploying app. Can run tests, generate documentation,
-    push to github and deploy to pypi. git_params can be configured not only with function params,
+    """Run pipeline for pushing and deploying app. Can run tests, push to github and deploy to pypi.
+    git_params can be configured not only with function params,
     but also from command line with params and therefore callable from terminal and optimal to run
     from IDE (for example with creating simple VS Code task).
 
@@ -137,10 +123,6 @@ def push_pipeline(
         tests (bool, optional): Whether run pytest tests. Defaults to True.
         version (str, optional): New version. E.g. '1.2.5'. If 'increment', than it's auto incremented.
             If None, then version is not changed. 'Defaults to "increment".
-        sphinx_docs (bool, optional): Whether to create files necessary for sphinx docs generation
-            - for readthedocs. Defaults to True.
-        init_to_readme (bool, optional): Whether derive readme file from __init__.py docstrings.
-            Defaults to True.
         git_params (dict, optional): Git message, tag and tag mesage. If empty dict - {},
             than files are not git pushed. If tag is '__version__', than is automatically generated
             from __init__ version. E.g from '1.0.2' to 'v1.0.2'.
@@ -156,12 +138,6 @@ def push_pipeline(
 
     if version:
         set_version(version)
-
-    if sphinx_docs:
-        sphinx_docs_regenerate()
-
-    if init_to_readme:
-        generate_readme_from_init()
 
     if git_params:
 
@@ -288,75 +264,81 @@ def run_tests(test_path=None):
         raise Exception("Pytest failed")
 
 
-def sphinx_docs_regenerate(docs_path=None, build_locally=0, git_add=True):
-    """This will generate all rst files necessary for sphinx documentation generation.
-    It automatically delete removed and renamed files.
+# def sphinx_docs_regenerate(docs_path=None, build_locally=0, git_add=True):
+#     """This will generate all rst files necessary for sphinx documentation generation.
+#     It automatically delete removed and renamed files.
 
-    Function suppose sphinx build and source in separate folders...
+#     Function suppose sphinx build and source in separate folders...
 
-    Args:
-        docs_path ((str, Path), optional): Where source folder is. Usually infered automatically.
-            Defaults to None.
-        build_locally (bool, optional): If true, build build folder with html files locally.
-            Defaults to 0.
-        git_add (bool, optional): Whether to add generated files to stage. False mostly for
-            testing reasons.
-    Note:
-        Function suppose structure of docs like
+#     Args:
+#         docs_path ((str, Path), optional): Where source folder is. Usually infered automatically.
+#             Defaults to None.
+#         build_locally (bool, optional): If true, build build folder with html files locally.
+#             Defaults to 0.
+#         git_add (bool, optional): Whether to add generated files to stage. False mostly for
+#             testing reasons.
+#     Note:
+#         Function suppose structure of docs like
 
-        -- docs
-        -- -- source
-        -- -- -- conf.py
-        -- -- make.bat
+#         -- docs
+#         -- -- source
+#         -- -- -- conf.py
+#         -- -- make.bat
 
-        If you are issuing error, try set project root path with `set_root`
-    """
+#         If you are issuing error, try set project root path with `set_root`
+#     """
 
-    if not importlib.util.find_spec('sphinx'):
-        raise ImportError("Sphinx library is necessary for docs generation. Install via `pip install sphinx`")
+#     if not importlib.util.find_spec('sphinx'):
+#         raise ImportError("Sphinx library is necessary for docs generation. Install via `pip install sphinx`")
 
-    if not docs_path:
-        docs_path = misc.root_path / 'docs'
+#     if not docs_path:
+#         if misc.root_path:
+#             docs_path = misc.root_path / 'docs'
+#         else:
+#             raise NotADirectoryError(mylogging.return_str("`docs_path` not found. Setup it with parameter `docs_path` or use `misc.set_paths()` function."))
 
-    docs_source_path = misc.root_path / 'docs' / 'source'
+#     if not any([misc.app_path, misc.root_path]):
+#         mylogging.return_str("Paths are not known. First run `misc.set_paths()`.")
 
-    for p in Path(docs_source_path).iterdir():
-        if p.name not in ['conf.py', 'index.rst', '_static', '_templates']:
-            p.unlink()
+#     docs_source_path = docs_path / 'source'
 
-    if build_locally:
-        subprocess.run(['make', 'html'], shell=True, cwd=docs_path, check=True)
+#     for p in Path(docs_source_path).iterdir():
+#         if p.name not in ['conf.py', 'index.rst', '_static', '_templates']:
+#             p.unlink()
 
-    subprocess.run(['sphinx-apidoc', '-f', '-e', '-o', 'source', misc.app_path.as_posix()], shell=True, cwd=docs_path, check=True)
+#     if build_locally:
+#         subprocess.run(['make', 'html'], shell=True, cwd=docs_path, check=True)
 
-    if git_add:
-        subprocess.run(['git', 'add', 'docs'], shell=True, cwd=misc.root_path, check=True)
+#     subprocess.run(['sphinx-apidoc', '-f', '-e', '-o', 'source', misc.app_path.as_posix()], shell=True, cwd=docs_path, check=True)
+
+#     if git_add:
+#         subprocess.run(['git', 'add', 'docs'], shell=True, cwd=misc.root_path, check=True)
 
 
-def generate_readme_from_init(git_add=True):
-    """Because i had very similar things in main __init__.py and in readme. It was to maintain news
-    in code. For better simplicity i prefer write docs once and then generate. One code, two use cases.
+# def generate_readme_from_init(git_add=True):
+#     """Because i had very similar things in main __init__.py and in readme. It was to maintain news
+#     in code. For better simplicity i prefer write docs once and then generate. One code, two use cases.
 
-    Why __init__? - Because in IDE on mouseover developers can see help.
-    Why README.md? - Good for github.com
+#     Why __init__? - Because in IDE on mouseover developers can see help.
+#     Why README.md? - Good for github.com
 
-    If issuing problems, try misc.set_root() to library path.
+#     If issuing problems, try misc.set_root() to library path.
 
-    Args:
-        git_add (bool, optional): Whether to add generated files to stage. False mostly
-            for testing reasons.
-    """
+#     Args:
+#         git_add (bool, optional): Whether to add generated files to stage. False mostly
+#             for testing reasons.
+#     """
 
-    with open(misc.init_path) as fd:
-        file_contents = fd.read()
-    module = ast.parse(file_contents)
-    docstrings = ast.get_docstring(module)
+#     with open(misc.init_path) as fd:
+#         file_contents = fd.read()
+#     module = ast.parse(file_contents)
+#     docstrings = ast.get_docstring(module)
 
-    if docstrings is None:
-        docstrings = ""
+#     if docstrings is None:
+#         docstrings = ""
 
-    with open(misc.root_path / 'README.md', 'w') as file:
-        file.write(docstrings)
+#     with open(misc.root_path / 'README.md', 'w') as file:
+#         file.write(docstrings)
 
-    if git_add:
-        subprocess.run(['git', 'add', 'README.md'], shell=True, cwd=misc.root_path, check=True)
+#     if git_add:
+#         subprocess.run(['git', 'add', 'README.md'], shell=True, cwd=misc.root_path, check=True)

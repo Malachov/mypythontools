@@ -4,8 +4,9 @@ mypythontools
 
 Some tools/functions/snippets used across projects.
 
-Usually used from IDE. Root path is infered and things like docs generation on pre-commit
-hooks, building application with pyinstaller or deploying to Pypi is matter of calling one function.
+Usually used from IDE. Used paths are infered and things like building the
+application with pyinstaller incrementing version, pushing to github or deploying
+to Pypi is matter of calling one function, or clicking one button (e.g. Vs code task).
 
 Many projects - one codebase.
 
