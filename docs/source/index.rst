@@ -1,18 +1,18 @@
 .. automodule:: mypythontools
 
-`build <../latest/mypythontools.build.html>`_
+`build <../mypythontools.build.html>`_
 ---------------------------------------------
 .. automodule:: mypythontools.build
 
-`deploy <../latest/mypythontools.deploy.html>`_
+`deploy <../mypythontools.deploy.html>`_
 -----------------------------------------------
 .. automodule:: mypythontools.deploy
 
-`utils <../latest/mypythontools.utils.html>`_
+`utils <../mypythontools.utils.html>`_
 ---------------------------------------------
 .. automodule:: mypythontools.utils
 
-`pyvueeel <../latest/mypythontools.pyvueeel.html>`_
+`pyvueeel <../mypythontools.pyvueeel.html>`_
 ---------------------------------------------------
 .. automodule:: mypythontools.pyvueeel
 

@@ -1,6 +1,9 @@
 """
 Common functions for Python / Vue / Eel project.
 
+It converts json to correct python format dict or transform data
+into form for vue table or plot.
+
 Run `mypythontools.pyvueeel.help_starter_pack_vue_app()` for tutorial how to create such an app.
 """
 
