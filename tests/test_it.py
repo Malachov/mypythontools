@@ -33,6 +33,7 @@ def test_it():
         (root_path / 'docs' / 'source' / 'modules.rst').unlink()  # missing_ok=True from python 3.8 on...
 
     mypythontools.misc.set_paths()
+    mypythontools.utils.sphinx_docs_regenerate()
     mypythontools.utils.get_version()
 
     # TODO test if correct

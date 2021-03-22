@@ -99,21 +99,25 @@ Examples:
 import subprocess
 import argparse
 from git import Repo
+import importlib
+from pathlib import Path
+
+import mylogging
 
 from . import misc
 from . import deploy as deploy_module
 
 
 def push_pipeline(
-        tests=True, version="increment",
+        tests=True, version="increment", sphinx_docs=True,
         git_params={
             'commit_message': 'New commit',
             'tag': '__version__',
             'tag_mesage': 'New version'
         },
         deploy=False):
-    """Run pipeline for pushing and deploying app. Can run tests, push to github and deploy to pypi.
-    git_params can be configured not only with function params,
+    """Run pipeline for pushing and deploying app. Can run tests, generate rst files for sphinx docs,
+    push to github and deploy to pypi. git_params can be configured not only with function params,
     but also from command line with params and therefore callable from terminal and optimal to run
     from IDE (for example with creating simple VS Code task).
 
@@ -123,6 +127,9 @@ def push_pipeline(
         tests (bool, optional): Whether run pytest tests. Defaults to True.
         version (str, optional): New version. E.g. '1.2.5'. If 'increment', than it's auto incremented.
             If None, then version is not changed. 'Defaults to "increment".
+        sphinx_docs((bool, list)): Whether generate sphinx apidoc and generate rst files for documentation.
+            Some files in docs source can be deleted - check `sphinx_docs` docstrings for details and insert
+            `exclude_paths` list if have some extra files other than ['conf.py', 'index.rst', '_static', '_templates'].
         git_params (dict, optional): Git message, tag and tag mesage. If empty dict - {},
             than files are not git pushed. If tag is '__version__', than is automatically generated
             from __init__ version. E.g from '1.0.2' to 'v1.0.2'.
@@ -139,8 +146,12 @@ def push_pipeline(
     if version:
         set_version(version)
 
-    if git_params:
+    if isinstance(sphinx_docs, list):
+        sphinx_docs_regenerate(exclude_paths=sphinx_docs)
+    elif sphinx_docs:
+        sphinx_docs_regenerate()
 
+    if git_params:
         parser = argparse.ArgumentParser(description='Prediction framework setting via command line parser!')
 
         parser.add_argument("--commit_message", type=str, help="Commit message. Defaults to: 'New commit'")
@@ -264,81 +275,89 @@ def run_tests(test_path=None):
         raise Exception("Pytest failed")
 
 
-# def sphinx_docs_regenerate(docs_path=None, build_locally=0, git_add=True):
-#     """This will generate all rst files necessary for sphinx documentation generation.
-#     It automatically delete removed and renamed files.
+def sphinx_docs_regenerate(docs_path=None, build_locally=0, git_add=True, exclude_paths=[]):
+    """This will generate all rst files necessary for sphinx documentation generation with sphinx-apidoc.
+    It automatically delete removed and renamed files.
 
-#     Function suppose sphinx build and source in separate folders...
+    Note:
+        All the files except ['conf.py', 'index.rst', '_static', '_templates'] will be deleted!!!
+        Because if some files would be deleted or renamed, rst would stay and html was generated.
+        If you have some extra files or folders in docs source - add it to `exclude_paths` list.
 
-#     Args:
-#         docs_path ((str, Path), optional): Where source folder is. Usually infered automatically.
-#             Defaults to None.
-#         build_locally (bool, optional): If true, build build folder with html files locally.
-#             Defaults to 0.
-#         git_add (bool, optional): Whether to add generated files to stage. False mostly for
-#             testing reasons.
-#     Note:
-#         Function suppose structure of docs like
+    Function suppose sphinx build and source in separate folders...
 
-#         -- docs
-#         -- -- source
-#         -- -- -- conf.py
-#         -- -- make.bat
+    Args:
+        docs_path ((str, Path), optional): Where source folder is. Usually infered automatically.
+            Defaults to None.
+        build_locally (bool, optional): If true, build build folder with html files locally.
+            Defaults to 0.
+        git_add (bool, optional): Whether to add generated files to stage. False mostly for
+            testing reasons.
+        exclude_paths ((list)): List of files and folder names that will not be deleted.
+            ['conf.py', 'index.rst', '_static', '_templates'] are excluded by default.
 
-#         If you are issuing error, try set project root path with `set_root`
-#     """
+    Note:
+        Function suppose structure of docs like
 
-#     if not importlib.util.find_spec('sphinx'):
-#         raise ImportError("Sphinx library is necessary for docs generation. Install via `pip install sphinx`")
+        -- docs
+        -- -- source
+        -- -- -- conf.py
+        -- -- make.bat
 
-#     if not docs_path:
-#         if misc.root_path:
-#             docs_path = misc.root_path / 'docs'
-#         else:
-#             raise NotADirectoryError(mylogging.return_str("`docs_path` not found. Setup it with parameter `docs_path` or use `misc.set_paths()` function."))
+        If you are issuing error, try set project root path with `set_root`
+    """
 
-#     if not any([misc.app_path, misc.root_path]):
-#         mylogging.return_str("Paths are not known. First run `misc.set_paths()`.")
+    if not importlib.util.find_spec('sphinx'):
+        raise ImportError("Sphinx library is necessary for docs generation. Install via `pip install sphinx`")
 
-#     docs_source_path = docs_path / 'source'
+    if not docs_path:
+        if misc.root_path:
+            docs_path = misc.root_path / 'docs'
+        else:
+            raise NotADirectoryError(mylogging.return_str("`docs_path` not found. Setup it with parameter `docs_path` or use `misc.set_paths()` function."))
 
-#     for p in Path(docs_source_path).iterdir():
-#         if p.name not in ['conf.py', 'index.rst', '_static', '_templates']:
-#             p.unlink()
+    if not any([misc.app_path, misc.root_path]):
+        mylogging.return_str("Paths are not known. First run `misc.set_paths()`.")
 
-#     if build_locally:
-#         subprocess.run(['make', 'html'], shell=True, cwd=docs_path, check=True)
+    docs_source_path = docs_path / 'source'
 
-#     subprocess.run(['sphinx-apidoc', '-f', '-e', '-o', 'source', misc.app_path.as_posix()], shell=True, cwd=docs_path, check=True)
+    for p in Path(docs_source_path).iterdir():
+        if p.name not in ['conf.py', 'index.rst', '_static', '_templates', *exclude_paths]:
+            p.unlink()
 
-#     if git_add:
-#         subprocess.run(['git', 'add', 'docs'], shell=True, cwd=misc.root_path, check=True)
+    if build_locally:
+        subprocess.run(['make', 'html'], shell=True, cwd=docs_path, check=True)
+
+    subprocess.run(['sphinx-apidoc', '-f', '-e', '-o', 'source', misc.app_path.as_posix()], shell=True, cwd=docs_path, check=True)
+
+    if git_add:
+        subprocess.run(['git', 'add', 'docs'], shell=True, cwd=misc.root_path, check=True)
 
 
-# def generate_readme_from_init(git_add=True):
-#     """Because i had very similar things in main __init__.py and in readme. It was to maintain news
-#     in code. For better simplicity i prefer write docs once and then generate. One code, two use cases.
+def generate_readme_from_init(git_add=True):
+    """Because i had very similar things in main __init__.py and in readme. It was to maintain news
+    in code. For better simplicity i prefer write docs once and then generate. One code, two use cases.
 
-#     Why __init__? - Because in IDE on mouseover developers can see help.
-#     Why README.md? - Good for github.com
+    Why __init__? - Because in IDE on mouseover developers can see help.
+    Why README.md? - Good for github.com
 
-#     If issuing problems, try misc.set_root() to library path.
+    If issuing problems, try misc.set_root() to library path.
 
-#     Args:
-#         git_add (bool, optional): Whether to add generated files to stage. False mostly
-#             for testing reasons.
-#     """
+    Args:
+        git_add (bool, optional): Whether to add generated files to stage. False mostly
+            for testing reasons.
+    """
 
-#     with open(misc.init_path) as fd:
-#         file_contents = fd.read()
-#     module = ast.parse(file_contents)
-#     docstrings = ast.get_docstring(module)
+    with open(misc.init_path) as fd:
+        file_contents = fd.read()
+    module = ast.parse(file_contents)
+    docstrings = ast.get_docstring(module)
 
-#     if docstrings is None:
-#         docstrings = ""
+    if docstrings is None:
+        docstrings = ""
 
-#     with open(misc.root_path / 'README.md', 'w') as file:
-#         file.write(docstrings)
+    with open(misc.root_path / 'README.md', 'w') as file:
+        file.write(docstrings)
 
-#     if git_add:
-#         subprocess.run(['git', 'add', 'README.md'], shell=True, cwd=misc.root_path, check=True)
+    if git_add:
+        subprocess.run(['git', 'add', 'README.md'], shell=True, cwd=misc.root_path, check=True)

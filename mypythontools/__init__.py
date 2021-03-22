@@ -8,8 +8,9 @@ Official documentation - https://mypythontools.readthedocs.io/
 Official repo - https://github.com/Malachov/mypythontools
 
 Usually used from IDE. Used paths are infered and things like building the
-application with pyinstaller incrementing version, pushing to github or deploying
-to Pypi is matter of calling one function, or clicking one button (e.g. Vs code task).
+application with pyinstaller incrementing version, generating rst files for sphinx docs,
+pushing to github or deploying to Pypi is matter of calling one function
+or clicking one button (e.g. Vs code task).
 
 Many projects - one codebase.
 
@@ -25,7 +26,7 @@ from . import deploy
 from . import misc
 from . import pyvueeel
 
-__version__ = "0.0.26"
+__version__ = "0.0.27"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
