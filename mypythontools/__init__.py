@@ -5,6 +5,7 @@ mypythontools
 Some tools/functions/snippets used across projects.
 
 Official documentation - https://mypythontools.readthedocs.io/
+
 Official repo - https://github.com/Malachov/mypythontools
 
 Usually used from IDE. Used paths are infered and things like building the
