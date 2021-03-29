@@ -1,6 +1,7 @@
 [ ] Logo
 [ ] Finish start vue in debug from python
 [ ] Pyvueel help starter on web and remove from code
+[ ] Create GIF of vs code task
 
 ```
     # try:
