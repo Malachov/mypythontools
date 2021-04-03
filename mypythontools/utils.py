@@ -190,7 +190,7 @@ def push_pipeline(
         deploy_module.deploy_to_pypi()
 
 
-def git_push(commit_message, tag, tag_message):
+def git_push(commit_message, tag="__version__", tag_message=None):
     """Stage all changes, commit, add tag and push. If tag = '__version__', than tag
     is infered from __init__.py.
 
@@ -200,10 +200,6 @@ def git_push(commit_message, tag, tag_message):
             from __init__ version. E.g from '1.0.2' to 'v1.0.2'.
         tag_message (str): [description]
     """
-
-    if tag == "__version__":
-        tag = f"v{get_version()}"
-
     subprocess.run(["git", "add", "."], shell=True, check=True, cwd=misc.root_path)
 
     subprocess.run(
@@ -213,7 +209,13 @@ def git_push(commit_message, tag, tag_message):
         cwd=misc.root_path,
     )
 
-    Repo(misc.root_path).create_tag(tag, message=commit_message)
+    if not tag_message:
+        tag_message = "New version"
+
+    if tag == "__version__":
+        tag = f"v{get_version()}"
+
+    Repo(misc.root_path).create_tag(tag, message=tag_message)
 
     subprocess.run(
         ["git", "push", "--follow-tags"], shell=True, check=True, cwd=misc.root_path
