@@ -215,7 +215,9 @@ def git_push(commit_message, tag, tag_message):
 
     Repo(misc.root_path).create_tag(tag, message=commit_message)
 
-    subprocess.run(["git", "push"], shell=True, check=True, cwd=misc.root_path)
+    subprocess.run(
+        ["git", "push", "--follow-tags"], shell=True, check=True, cwd=misc.root_path
+    )
 
 
 def set_version(version="increment"):
