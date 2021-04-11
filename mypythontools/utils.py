@@ -96,10 +96,13 @@ Examples:
 
 import subprocess
 import argparse
-from git import Repo
 import importlib
 from pathlib import Path
 import ast
+
+# Lazy loaded
+# from git import Repo
+
 
 import mylogging
 
@@ -200,6 +203,9 @@ def git_push(commit_message, tag="__version__", tag_message=None):
             from __init__ version. E.g from '1.0.2' to 'v1.0.2'.
         tag_message (str): [description]
     """
+
+    from git import Repo
+
     subprocess.run(["git", "add", "."], shell=True, check=True, cwd=misc.root_path)
 
     subprocess.run(

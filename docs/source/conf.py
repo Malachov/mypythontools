@@ -2,20 +2,22 @@ import sys
 import pathlib
 import datetime
 
+# Suppose separate build and source structure and logo.png in _static folder
+
 # Settings
 project = "mypythontools"
 author = "Daniel Malachov"
 github_user = "Malachov"
+favicon_path = "logo.png"  # Or "img/logo.png"
 
 # End of settings
 ###################
 
 # Folders to sys path to be able to import
 script_dir = pathlib.Path(__file__).resolve()
-root_path = script_dir.parents[2]
 lib_path = script_dir.parents[2] / project
 
-for i in [script_dir, root_path, lib_path]:
+for i in [script_dir, lib_path]:
     if i.as_posix() not in sys.path:
         sys.path.insert(0, i.as_posix())
 
@@ -35,8 +37,9 @@ html_theme_options = {
     "github_user": github_user,
     "github_repo": project,
     "github_banner": True,
-    "logo": "logo.png",
 }
+
+html_favicon = favicon_path
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom

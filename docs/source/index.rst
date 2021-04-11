@@ -1,5 +1,8 @@
 .. automodule:: mypythontools
 
+Submodules
+==========
+
 `build <../mypythontools.build.html>`_
 ---------------------------------------------
 .. automodule:: mypythontools.build
