@@ -20,5 +20,5 @@ Submodules
 .. automodule:: mypythontools.pyvueeel
 
 
-`Index <Index.html>`_
----------------------
+`Index <genindex.html>`_
+-----------------------------------------
