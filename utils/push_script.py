@@ -3,8 +3,10 @@ import inspect
 from pathlib import Path
 import sys
 
-# Find paths and add to sys.path to be able to import local modules
-test_path = Path(os.path.abspath(inspect.getframeinfo(inspect.currentframe()).filename)).parent
+# Find paths and add to sys.path to be able to use local version and not installed mypythontools version
+test_path = Path(
+    os.path.abspath(inspect.getframeinfo(inspect.currentframe()).filename)
+).parent
 root_path = test_path.parent
 
 if root_path not in sys.path:

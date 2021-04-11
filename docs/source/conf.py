@@ -8,7 +8,6 @@ import datetime
 project = "mypythontools"
 author = "Daniel Malachov"
 github_user = "Malachov"
-logo_path = "/_static/logo.png"
 
 # End of settings
 ###################
@@ -38,8 +37,6 @@ html_theme_options = {
     "github_user": github_user,
     "github_repo": project,
     "github_banner": True,
-    "html_favicon": logo_path,
-    "html_logo": logo_path,
 }
 
 
