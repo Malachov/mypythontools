@@ -1,7 +1,4 @@
 """
-mypythontools
-=============
-
 Some tools/functions/snippets used across projects.
 
 Official documentation - https://mypythontools.readthedocs.io/
@@ -33,4 +30,4 @@ __author__ = "Daniel Malachov"
 __license__ = "MIT"
 __email__ = "malachovd@seznam.cz"
 
-__all__ = ['utils', 'build', 'deploy', 'misc', 'pyvueeel']
+__all__ = ["utils", "build", "deploy", "misc", "pyvueeel"]

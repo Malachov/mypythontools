@@ -1,3 +1,7 @@
+*************
+mypythontools
+*************
+
 .. automodule:: mypythontools
 
 Submodules
