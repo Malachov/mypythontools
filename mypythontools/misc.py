@@ -13,8 +13,8 @@ init_path = None
 
 
 def set_paths(set_root_path=None, set_init_path=None):
-    """Root folder is inferred automatically if call is from git_hooks folder or from root (cwd).
-    If more projects opened in IDE, root project path can be configured here.
+    """Parse python project application structure, add paths to sys.path and save to mypythontools config
+    for other functions to use.
 
     Args:
         set_root_path ((str, pathlib.Path)): Path to project root where tests and docs folder are.
@@ -27,14 +27,18 @@ def set_paths(set_root_path=None, set_init_path=None):
     global app_path
 
     root_path = Path(set_root_path) if set_root_path else Path.cwd()
-    init_path = find_path('__init__.py', root_path) if not set_init_path else Path(set_init_path)
+    init_path = (
+        find_path("__init__.py", root_path)
+        if not set_init_path
+        else Path(set_init_path)
+    )
     app_path = init_path.parent
 
     if not root_path.as_posix() in sys.path:
         sys.path.insert(0, root_path.as_posix())
 
 
-def find_path(file, folder=None, exclude=['node_modules', 'build', 'dist'], levels=3):
+def find_path(file, folder=None, exclude=["node_modules", "build", "dist"], levels=3):
     """Look on files in folder (cwd() by default) and find file with it's folder.
 
     Args:
@@ -65,4 +69,4 @@ def find_path(file, folder=None, exclude=['node_modules', 'build', 'dist'], leve
                 return i
 
     # If not returned - not found
-    raise FileNotFoundError(mylogging.return_str(f'File `{file}` not found'))
+    raise FileNotFoundError(mylogging.return_str(f"File `{file}` not found"))
