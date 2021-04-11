@@ -4,8 +4,8 @@
     :target: https://pypi.python.org/pypi/mypythontools/
     :alt: Python versions
 
-.. image:: https://badge.fury.io/py/mypythontools
-    :target: https://badge.fury.io/py/mypythontools.svg
+.. image:: https://badge.fury.io/py/mypythontools.svg
+    :target: https://badge.fury.io/py/mypythontools
     :alt: PyPI version
 
 .. image:: https://img.shields.io/lgtm/grade/python/g/Malachov/mypythontools.svg?logo=lgtm&logoWidth=18
@@ -26,10 +26,6 @@
 
 Some tools/functions/snippets used across projects.
 
-Official documentation - https://mypythontools.readthedocs.io/
-
-Official repo - https://github.com/Malachov/mypythontools
-
 Usually used from IDE. Used paths are infered and things like building the
 application with pyinstaller, incrementing version, generating rst files for sphinx docs,
 pushing to github or deploying to Pypi is matter of calling one function
@@ -42,8 +38,14 @@ on https://github.com/Malachov/my-python-starter
 
 Paths are infered, but if you have atypical structure or have more projects in cwd, use `mypythontools.misc.set_paths()`.
 
+Links
+=====
+
+Official documentation - https://mypythontools.readthedocs.io/
+Official repo - https://github.com/Malachov/mypythontools
+
 Installation
-------------
+============
 
 Python >=3.6 (Python 2 is not supported).
 
