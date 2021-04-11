@@ -3,19 +3,19 @@
 Submodules
 ==========
 
-`build <../mypythontools.build.html>`_
+`build <mypythontools.build.html>`_
 ---------------------------------------------
 .. automodule:: mypythontools.build
 
-`deploy <../mypythontools.deploy.html>`_
+`deploy <mypythontools.deploy.html>`_
 -----------------------------------------------
 .. automodule:: mypythontools.deploy
 
-`utils <../mypythontools.utils.html>`_
+`utils <mypythontools.utils.html>`_
 ---------------------------------------------
 .. automodule:: mypythontools.utils
 
-`pyvueeel <../mypythontools.pyvueeel.html>`_
+`pyvueeel <mypythontools.pyvueeel.html>`_
 ---------------------------------------------------
 .. automodule:: mypythontools.pyvueeel
 
