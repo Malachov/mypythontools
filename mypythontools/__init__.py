@@ -1,4 +1,29 @@
 """
+
+.. image:: https://img.shields.io/pypi/pyversions/mypythontools.svg
+    :target: https://pypi.python.org/pypi/mypythontools/
+    :alt: Python versions
+
+.. image:: https://badge.fury.io/py/mypythontools
+    :target: https://badge.fury.io/py/mypythontools.svg
+    :alt: PyPI version
+
+.. image:: https://img.shields.io/lgtm/grade/python/g/Malachov/mypythontools.svg?logo=lgtm&logoWidth=18
+    :target: https://lgtm.com/projects/g/Malachov/mypythontools/context:python
+    :alt: Language grade: Python
+
+.. image:: https://readthedocs.org/projects/mypythontools/badge/?version=latest
+    :target: https://mypythontools.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
+.. image:: https://img.shields.io/badge/License-MIT-yellow.svg
+    :target: https://opensource.org/licenses/MIT
+    :alt: License: MIT
+
+.. image:: https://codecov.io/gh/Malachov/mypythontools/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/Malachov/mypythontools
+    :alt: Codecov
+
 Some tools/functions/snippets used across projects.
 
 Official documentation - https://mypythontools.readthedocs.io/
@@ -20,7 +45,7 @@ Paths are infered, but if you have atypical structure or have more projects in c
 Installation
 ------------
 
-Python >=3.6. Python 2 is not supported.
+Python >=3.6 (Python 2 is not supported).
 
 Install just with::
 

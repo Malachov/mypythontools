@@ -1,5 +1,7 @@
 # mypythontools
 
+[![Python versions](https://img.shields.io/pypi/pyversions/mypythontools.svg)](https://pypi.python.org/pypi/mypythontools/) [![PyPI version](https://badge.fury.io/py/mypythontools.svg)](https://badge.fury.io/py/mypythontools) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Malachov/mypythontools.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Malachov/mypythontools/context:python) [![Documentation Status](https://readthedocs.org/projects/mypythontools/badge/?version=latest)](https://mypythontools.readthedocs.io/en/latest/?badge=latest) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/Malachov/mypythontools/branch/master/graph/badge.svg)](https://codecov.io/gh/Malachov/mypythontools)
+
 Some tools/functions/snippets used across projects.
 
 Official documentation - [readthedocs](https://mypythontools.readthedocs.io/)
@@ -28,7 +30,7 @@ Check modules help with examples.
 
 ## Installation
 
-Python >=3.6. Python 2 is not supported.
+Python >=3.6 (Python 2 is not supported).
 
 Install just with
 
