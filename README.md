@@ -25,3 +25,13 @@ Modules:
 - utils (various functions callable from one `push_pipeline` function)
 
 Check modules help with examples.
+
+## Installation
+
+Python >=3.6. Python 2 is not supported.
+
+Install just with
+
+```console
+pip install mypythontools
+```

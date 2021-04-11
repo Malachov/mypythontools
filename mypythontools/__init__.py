@@ -16,6 +16,16 @@ If you are not sure whether structure of your app will work with this code, ther
 on https://github.com/Malachov/my-python-starter
 
 Paths are infered, but if you have atypical structure or have more projects in cwd, use `mypythontools.misc.set_paths()`.
+
+Installation
+------------
+
+Python >=3.6. Python 2 is not supported.
+
+Install just with::
+
+    pip install mypythontools
+
 """
 
 from . import utils
