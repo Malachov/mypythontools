@@ -8,7 +8,7 @@ import datetime
 project = "mypythontools"
 author = "Daniel Malachov"
 github_user = "Malachov"
-logo_path = "_static/logo.png"
+logo_path = "/_static/logo.png"
 
 # End of settings
 ###################
