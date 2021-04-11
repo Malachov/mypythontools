@@ -15,9 +15,10 @@ favicon_path = "logo.png"  # Or "img/logo.png"
 
 # Folders to sys path to be able to import
 script_dir = pathlib.Path(__file__).resolve()
-lib_path = script_dir.parents[2] / project
+root_path = script_dir.parents[2]
+lib_path = root_path / project
 
-for i in [script_dir, lib_path]:
+for i in [script_dir, root_path, lib_path]:
     if i.as_posix() not in sys.path:
         sys.path.insert(0, i.as_posix())
 
