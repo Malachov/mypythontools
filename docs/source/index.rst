@@ -7,22 +7,22 @@ mypythontools
 Submodules
 ==========
 
-`build </mypythontools.build.html>`_
+`build </page/mypythontools.build.html>`_
 ------------------------------------
 .. automodule:: mypythontools.build
 
-`deploy </mypythontools.deploy.html>`_
+`deploy </page/mypythontools.deploy.html>`_
 --------------------------------------
 .. automodule:: mypythontools.deploy
 
-`utils </mypythontools.utils.html>`_
+`utils </page/mypythontools.utils.html>`_
 ------------------------------------
 .. automodule:: mypythontools.utils
 
-`pyvueeel </mypythontools.pyvueeel.html>`_
+`pyvueeel </page/mypythontools.pyvueeel.html>`_
 ------------------------------------------
 .. automodule:: mypythontools.pyvueeel
 
 
-`Index </genindex.html>`_
+`Index </page/genindex.html>`_
 -------------------------
