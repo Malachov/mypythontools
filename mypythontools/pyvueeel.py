@@ -75,6 +75,7 @@ def run_gui(
             gui_path = Path(sys._MEIPASS) / "gui"
         else:
             if devel:
+                misc.set_root()
                 gui_path = (
                     misc.find_path(
                         "index.html", exclude=["node_modules", "build"]
@@ -85,6 +86,7 @@ def run_gui(
                 if builded_gui_path:
                     gui_path = Path(builded_gui_path)
                 else:
+                    misc.set_root()
                     gui_path = misc.find_path(
                         "index.html", exclude=["public", "node_modules", "build"]
                     ).parent

@@ -8,7 +8,7 @@
     :target: https://badge.fury.io/py/mypythontools
     :alt: PyPI version
 
-.. image:: https://img.shields.io/lgtm/grade/python/g/Malachov/mypythontools.svg?logo=lgtm&logoWidth=18
+.. image:: https://img.shields.io/lgtm/grade/python/github/Malachov/mypythontools.svg
     :target: https://lgtm.com/projects/g/Malachov/mypythontools/context:python
     :alt: Language grade: Python
 
@@ -61,7 +61,7 @@ from . import deploy
 from . import misc
 from . import pyvueeel
 
-__version__ = "0.0.30"
+__version__ = "0.0.31"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

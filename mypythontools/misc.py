@@ -22,17 +22,29 @@ def set_paths(set_root_path=None, set_init_path=None):
         set_init_path ((str, pathlib.Path)): Path to project `__init__.py`. If None, then first
             found `__init__.py` is used. Defaults to None.
     """
-    global root_path
     global init_path
     global app_path
 
-    root_path = Path(set_root_path) if set_root_path else Path.cwd()
+    set_root(set_root_path=set_root_path)
+
     init_path = (
         find_path("__init__.py", root_path)
         if not set_init_path
         else Path(set_init_path)
     )
     app_path = init_path.parent
+
+
+def set_root(set_root_path=None):
+    """Set project root path and add it to sys.path if it's not already there.
+
+    Args:
+        set_root_path ((str, pathlib.Path)): Path to project root where tests and docs folder are.
+            If None, then cwd (current working directory) is used. Defaults to None.
+    """
+    global root_path
+
+    root_path = Path(set_root_path) if set_root_path else Path.cwd()
 
     if not root_path.as_posix() in sys.path:
         sys.path.insert(0, root_path.as_posix())
