@@ -1,18 +1,28 @@
-.. mdinclude:: ../../README.md
+*************
+mypythontools
+*************
 
-`build <../latest/mypythontools.build.html>`_
---------------------
+.. automodule:: mypythontools
+
+Submodules
+==========
+
+`build </page/mypythontools.build.html>`_
+-----------------------------------------
 .. automodule:: mypythontools.build
 
-`deploy <../latest/mypythontools.deploy.html>`_
---------------------
+`deploy </page/mypythontools.deploy.html>`_
+-------------------------------------------
 .. automodule:: mypythontools.deploy
 
-`githooks <../latest/mypythontools.githooks.html>`_
---------------------
-.. automodule:: mypythontools.githooks
+`utils </page/mypythontools.utils.html>`_
+-----------------------------------------
+.. automodule:: mypythontools.utils
 
-Index
-=====
-* :ref:`genindex`
+`pyvueeel </page/mypythontools.pyvueeel.html>`_
+-----------------------------------------------
+.. automodule:: mypythontools.pyvueeel
 
+
+`Index </page/genindex.html>`_
+==============================

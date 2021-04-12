@@ -6,3 +6,5 @@ wheel
 twine
 EelForkExcludeFiles
 mylogging
+GitPython
+pandas

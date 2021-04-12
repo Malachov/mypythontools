@@ -9,16 +9,13 @@ Note:
     You can run build for example from vs code tasks, create folder utils,
     create build_script.py inside, add
 
-    ```python
-    import mypythontools
+    >>> import mypythontools
 
-    if __name__ == "__main__":
-        mypythontools.build.build_app()  # With all the params you need.
-    ```
+    >>> if __name__ == "__main__":
+    >>>     mypythontools.build.build_app()  # With all the params you need.
 
-    Then just add this task to global tasks.json
+    Then just add this task to global tasks.json::
 
-    ```json
         {
             "label": "Build app",
             "type": "shell",
@@ -28,7 +25,6 @@ Note:
                 "panel": "new"
             }
         },
-    ```
 """
 
 import subprocess

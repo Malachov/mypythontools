@@ -1,30 +1,33 @@
 """
 Common functions for Python / Vue / Eel project.
 
-Run `mypythontools.pyvueel.help_starter_pack_vue_app()` for tutorial how to create such an app.
+It converts json to correct python format dict or transform data
+into form for vue table or plot.
+
+Run `mypythontools.pyvueeel.help_starter_pack_vue_app()` for tutorial how to create such an app.
 """
 
 import os
 import sys
 from pathlib import Path
 import warnings
-import pandas as pd
 import numpy as np
 
 import mylogging
 
 from . import misc
 
-with warnings.catch_warnings():
-    warnings.filterwarnings('ignore', module='eel', category=ResourceWarning)
-
-    import EelForkExcludeFiles as eel
+# Lazy load
+# import pandas as pd
+# import EelForkExcludeFiles as eel
 
 
 expose_error_callback = None
 
 
-def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, builded_gui_path=None):
+def run_gui(
+    devel=None, is_multiprocessing=False, log_file_path=None, builded_gui_path=None
+):
     """Function that init and run `eel` project.
     It will autosetup chrome mode (if installed chrome or chromium, open separate window with
     no url bar, no bookmarks etc...) if chrome is not installed, it open microsoft Edge (by default
@@ -41,43 +44,64 @@ def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, builded_gu
         builded_gui_path ((str, Path, None)), optional): Where the web asset is. Only if debug is 0 but not run with pyinstaller. If None, it's automatically find (but is slower then). Defaults to None.
     """
 
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", module="EelForkExcludeFiles", category=ResourceWarning
+        )
+
+        import EelForkExcludeFiles as eel
+
     try:
         if devel is None:
             # env var MY_PYTHON_VUE_ENVIRONMENT is configured and added with pyinstaller automatically in build module
-            devel = False if os.environ.get('MY_PYTHON_VUE_ENVIRONMENT') == 'production' else True
+            devel = (
+                False
+                if os.environ.get("MY_PYTHON_VUE_ENVIRONMENT") == "production"
+                else True
+            )
 
         # Whether run is from .exe or from python
-        is_builded = True if getattr(sys, 'frozen', False) else False
+        is_builded = True if getattr(sys, "frozen", False) else False
 
         if log_file_path:
             log_file = log_file_path
         else:
-            log_file = 'log.log' if is_builded else None
+            log_file = "log.log" if is_builded else None
 
         mylogging.config.TO_FILE = log_file
 
         if is_builded:
             # gui folder is created with pyinstaller in build
-            gui_path = Path(sys._MEIPASS) / 'gui'
+            gui_path = Path(sys._MEIPASS) / "gui"
         else:
             if devel:
-                gui_path = misc.find_path('index.html', exclude=['node_modules', 'build']).parents[1] / 'src'
+                misc.set_root()
+                gui_path = (
+                    misc.find_path(
+                        "index.html", exclude=["node_modules", "build"]
+                    ).parents[1]
+                    / "src"
+                )
             else:
                 if builded_gui_path:
                     gui_path = Path(builded_gui_path)
                 else:
-                    gui_path = misc.find_path('index.html', exclude=['public', 'node_modules', 'build']).parent
-
+                    misc.set_root()
+                    gui_path = misc.find_path(
+                        "index.html", exclude=["public", "node_modules", "build"]
+                    ).parent
 
         if not gui_path.exists():
-            raise FileNotFoundError('Web files not found, setup gui_path (where builded index.html is).')
+            raise FileNotFoundError(
+                "Web files not found, setup gui_path (where builded index.html is)."
+            )
 
         if devel:
             directory = gui_path
             app = None
-            page = {'port': 8080}
+            page = {"port": 8080}
             port = 8686
-            init_files = ['.vue', '.js', '.html']
+            init_files = [".vue", ".js", ".html"]
 
             def close_callback(page, sockets):
                 pass
@@ -85,23 +109,39 @@ def run_gui(devel=None, is_multiprocessing=False, log_file_path=None, builded_gu
         else:
             directory = gui_path
             close_callback = None
-            app = 'chrome'
-            page = 'index.html'
+            app = "chrome"
+            page = "index.html"
             port = 0
-            init_files = ['.js', '.html']
+            init_files = [".js", ".html"]
 
-        eel.init(directory.as_posix(), init_files, exlcude_patterns=['chunk-vendors'])
+        eel.init(directory.as_posix(), init_files, exlcude_patterns=["chunk-vendors"])
 
         if is_multiprocessing:
             from multiprocessing import freeze_support
+
             freeze_support()
 
         mylogging.info("Py side started")
 
-        eel.start(page, mode=app, cmdline_args=['--disable-features=TranslateUI'], close_callback=close_callback, host='localhost', port=port, disable_cache=True),
+        eel.start(
+            page,
+            mode=app,
+            cmdline_args=["--disable-features=TranslateUI"],
+            close_callback=close_callback,
+            host="localhost",
+            port=port,
+            disable_cache=True,
+        ),
 
     except OSError:
-        eel.start(page, mode='edge', host='localhost', close_callback=close_callback, port=port, disable_cache=True),
+        eel.start(
+            page,
+            mode="edge",
+            host="localhost",
+            close_callback=close_callback,
+            port=port,
+            disable_cache=True,
+        ),
 
     except Exception:
         mylogging.traceback("Py side terminated...")
@@ -124,7 +164,7 @@ def help_starter_pack_vue_app():
     ### app.py
     ###########
 
-    from mypythontools import pyvueel
+    from mypythontools import pyvueeel
     from mypythontools.pyvueeel import expose
 
     # Expose python functions to Js with decorator
@@ -136,11 +176,11 @@ def help_starter_pack_vue_app():
             return {'Hello': 1}
 
     # Call function from JS
-    pyvueel.eel.myfunction()
+    pyvueeel.eel.myfunction()
 
     # End of file
     if __name__ == '__main__':
-        pyvueel.run_gui()
+        pyvueeel.run_gui()
 
     #########
     ### gui
@@ -244,22 +284,32 @@ def help_starter_pack_vue_app():
 
 
 def expose(callback_function):
-    """Wrap eel expose with try catch block and adding exception callback function 
+    """Wrap eel expose with try catch block and adding exception callback function
     (for printing error to frontend usually).
 
     Args:
         callback_function (function): Function that will be called if exposed function fails on some error.
     """
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", module="EelForkExcludeFiles", category=ResourceWarning
+        )
+
+        import EelForkExcludeFiles as eel
+
     def inner(*args, **kargs):
         try:
             return callback_function(*args, **kargs)
 
         except Exception:
-            mylogging.traceback(f"Unexpected error in function `{f.__name__}`")
+            mylogging.traceback(
+                f"Unexpected error in function `{callback_function.__name__}`"
+            )
             if expose_error_callback:
                 expose_error_callback()
 
-    eel._expose(f.__name__, inner)
+    eel._expose(callback_function.__name__, inner)
 
 
 def json_to_py(json):
@@ -278,9 +328,9 @@ def json_to_py(json):
     evaluated = {}
     for i, j in json.items():
 
-        if j == 'true':
+        if j == "true":
             j = True
-        if j == 'false':
+        if j == "false":
             j = False
 
         try:
@@ -301,16 +351,23 @@ def to_vue_plotly(data, names=None):
     Returns:
         dict: Data in form for plotting in frontend.
     """
+
+    import pandas as pd
+
     if isinstance(data, (np.ndarray, np.generic)):
         data = pd.DataFrame(data, columns=names)
 
     data = pd.DataFrame(data)
 
-    numeric_data = data.select_dtypes(include='number').round(decimals=3)
+    numeric_data = data.select_dtypes(include="number").round(decimals=3)
     numeric_data = numeric_data.where(np.isfinite(numeric_data), None)
     # numeric_data = add_none_to_gaps(numeric_data)
 
-    return {'x_axis': numeric_data.index.to_list(), 'y_axis': numeric_data.values.T.tolist(), 'names': numeric_data.columns.values.tolist()}
+    return {
+        "x_axis": numeric_data.index.to_list(),
+        "y_axis": numeric_data.values.T.tolist(),
+        "names": numeric_data.columns.values.tolist(),
+    }
 
 
 def to_table(df):
@@ -328,6 +385,6 @@ def to_table(df):
     # Numpy nan cannot be send to json - replace with None
     data = data.where(~data.isin([np.nan, np.inf, -np.inf]), None)
 
-    headers = [{'text': i, 'value': i, 'sortable': True} for i in data.columns]
+    headers = [{"text": i, "value": i, "sortable": True} for i in data.columns]
 
-    return {'table': data.to_dict('records'), 'headers': headers}
+    return {"table": data.to_dict("records"), "headers": headers}
