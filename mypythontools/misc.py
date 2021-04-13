@@ -50,7 +50,7 @@ def set_root(set_root_path=None):
         sys.path.insert(0, root_path.as_posix())
 
 
-def find_path(file, folder=None, exclude=["node_modules", "build", "dist"], levels=3):
+def find_path(file, folder=None, exclude=["node_modules", "build", "dist"], levels=5):
     """Look on files in folder (cwd() by default) and find file with it's folder.
 
     Args:
