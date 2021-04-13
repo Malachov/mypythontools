@@ -312,9 +312,19 @@ def run_tests(test_path=None, test_coverage=True):
     if not test_coverage:
         pytest_args = ["-x", test_path.as_posix()]
     else:
-        pytest_args = ["-x", "--cov", "./", test_path.as_posix()]
+        pytest_args = [
+            "-x",
+            "--cov",
+            misc.app_path.as_posix(),
+            "--cov-report",
+            "xml:.coverage.xml",
+            test_path.as_posix(),
+        ]
 
     pytested = pytest.main(pytest_args)
+
+    if test_coverage:
+        Path(".coverage").unlink()
 
     if pytested == 1:
         raise Exception("Pytest failed")

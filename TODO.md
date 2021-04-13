@@ -2,6 +2,7 @@
 [ ] Finish start vue in debug from python
 [ ] Pyvueel help starter on web and remove from code
 [ ] Create GIF of vs code task
+[ ] Maybe save paths as strings - for not calling as_posix()
 
 ```
     # try:
