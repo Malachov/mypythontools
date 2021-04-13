@@ -61,10 +61,10 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Unit test / coverage reports
+# .coverage
 htmlcov/
 .tox/
 .nox/
-.coverage
 .coverage.*
 .cache
 nosetests.xml

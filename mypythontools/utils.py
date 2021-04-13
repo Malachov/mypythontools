@@ -292,7 +292,7 @@ def get_version():
             )
 
 
-def run_tests(test_path=None, test_coverage=False):
+def run_tests(test_path=None, test_coverage=True):
     import pytest
 
     """Run tests. If any test fails, raise an error.

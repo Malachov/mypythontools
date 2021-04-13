@@ -27,6 +27,9 @@ if root_path not in sys.path:
 
 import mypythontools
 
+mypythontools.misc.set_paths()
+mypythontools.utils.run_tests(test_coverage=True)
+
 
 def test_it():
 

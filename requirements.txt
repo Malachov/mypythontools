@@ -8,3 +8,5 @@ EelForkExcludeFiles
 mylogging
 GitPython
 pandas
+pytest
+pytest-cov
