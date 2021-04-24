@@ -1,10 +1,14 @@
 """
 Common functions for Python / Vue / Eel project.
 
-It converts json to correct python format dict or transform data
-into form for vue table or plot.
+It contains functions for running eel, overriding eel.expose decorator, converting json to correct python format or transform data
+into form for vue tables and plots.
 
-Run `mypythontools.pyvueeel.help_starter_pack_vue_app()` for tutorial how to create such an app.
+Go on
+
+https://mypythontools.readthedocs.io/#project-starter
+
+for tutorial how to build such an app.
 """
 
 import os
@@ -17,48 +21,60 @@ import mylogging
 
 from . import misc
 
-# Lazy load
+# Lazy imports
+# import inspect
+
 # import pandas as pd
 # import EelForkExcludeFiles as eel
 
 
+eel = None
+
 expose_error_callback = None
 
 
-def run_gui(
-    devel=None, is_multiprocessing=False, log_file_path=None, builded_gui_path=None
-):
+def run_gui(devel=None, log_file_path=None, is_multiprocessing=False, builded_gui_path="default"):
     """Function that init and run `eel` project.
+
     It will autosetup chrome mode (if installed chrome or chromium, open separate window with
     no url bar, no bookmarks etc...) if chrome is not installed, it open microsoft Edge (by default
     on windows).
 
-    In devel mode, app is connected on live vue server. Serve your web application and debug python file
-    caling this function. Debugger should correctly stop at breakpoints.
+    In devel mode, app is connected on live vue server. Serve your web application with node, debug python app file
+    that calls this function (do not run, just debug - server could stay running after close and occupy used port). Open browser on 8080.
+
+    Debugger should correctly stop at breakpoints if frontend run some python function.
+
+    Note:
+        Check project-starter on github for working examples.
+
+        https://mypythontools.readthedocs.io/#project-starter
 
     Args:
-        devel((bool, None), optional): If None, detected. Can be overwritten. Devel 0 run static assets, 1 run Vue server on localhost. Defaults to None.
-        is_multiprocessing (bool, optional): If using multiprocessing in some library, set up to True. Defaults to False.
+        devel((bool, None), optional): If None, detected. Can be overwritten. Devel 0 run static assets, 1 run Vue server on localhost.
+            Defaults to None.
         log_file_path ((str, Path, None)), optional): If not exist, it will create, if exist, it will append,
-            if None, log to relative log.log and only if in production mode.
-        builded_gui_path ((str, Path, None)), optional): Where the web asset is. Only if debug is 0 but not run with pyinstaller. If None, it's automatically find (but is slower then). Defaults to None.
+            if None, log to relative log.log and only if in production mode. Defaults to None.
+        is_multiprocessing (bool, optional): If using multiprocessing in some library, set up to True. Defaults to False.
+        builded_gui_path ((str, Path, None)), optional): Where the web asset is. Only if debug is 0 but not run with pyinstaller.
+            If None, it's automatically find (but is slower then). If 'default', path from project-starter is used - 'gui/web_builded'
+            is used. Defaults to 'default'.
     """
 
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore", module="EelForkExcludeFiles", category=ResourceWarning
-        )
+    # Just for lazy load of eel for users that will not use this module
+    global eel
 
-        import EelForkExcludeFiles as eel
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", module="EelForkExcludeFiles", category=ResourceWarning)
+
+        import EelForkExcludeFiles as eel_library
+
+    eel = eel_library
 
     try:
         if devel is None:
             # env var MY_PYTHON_VUE_ENVIRONMENT is configured and added with pyinstaller automatically in build module
-            devel = (
-                False
-                if os.environ.get("MY_PYTHON_VUE_ENVIRONMENT") == "production"
-                else True
-            )
+            devel = False if os.environ.get("MY_PYTHON_VUE_ENVIRONMENT") == "production" else True
 
         # Whether run is from .exe or from python
         is_builded = True if getattr(sys, "frozen", False) else False
@@ -77,14 +93,12 @@ def run_gui(
             if devel:
                 misc.set_root()
                 gui_path = (
-                    misc.find_path(
-                        "index.html", exclude=["node_modules", "build"]
-                    ).parents[1]
-                    / "src"
+                    misc.find_path("index.html", exclude=["node_modules", "build", "dist"]).parents[1] / "src"
                 )
             else:
                 if builded_gui_path:
                     gui_path = Path(builded_gui_path)
+
                 else:
                     misc.set_root()
                     gui_path = misc.find_path(
@@ -92,9 +106,7 @@ def run_gui(
                     ).parent
 
         if not gui_path.exists():
-            raise FileNotFoundError(
-                "Web files not found, setup gui_path (where builded index.html is)."
-            )
+            raise FileNotFoundError("Web files not found, setup gui_path (where builded index.html is).")
 
         if devel:
             directory = gui_path
@@ -147,142 +159,6 @@ def run_gui(
         mylogging.traceback("Py side terminated...")
 
 
-def help_starter_pack_vue_app():
-    """
-    Tutorial how to build app with python, Vue and eel.
-    Print help on build Vue part with CLI (many options, rather not copying files from other project).
-    Then will help with basic structre of components, then show copypasters to other places.
-
-    Structure
-
-    - myproject
-        - gui
-            - generated with Vue CLI
-        - app.py
-
-    ############
-    ### app.py
-    ###########
-
-    from mypythontools import pyvueeel
-    from mypythontools.pyvueeel import expose
-
-    # Expose python functions to Js with decorator
-    @expose
-        def load_data(settings):
-            # You can return dict - will be object in js
-            # You can return list - will be an array in js
-
-            return {'Hello': 1}
-
-    # Call function from JS
-    pyvueeel.eel.myfunction()
-
-    # End of file
-    if __name__ == '__main__':
-        pyvueeel.run_gui()
-
-    #########
-    ### gui
-    ########
-
-    Generate gui folder with Vue CLI
-
-    ```console
-    npm install -g @vue/cli
-    vue create gui
-    ```
-
-    Goto folder and optionally
-
-    ```console
-    vue add vuex
-    vue add vuetify
-    vue add router
-    ```
-
-    #############
-    ### main.js
-    ############
-
-    ```js
-    if (process.env.NODE_ENV == 'development') {
-
-    try {
-        window.eel.set_host("ws://localhost:8686");
-
-    } catch (error) {
-        document.getElementById('app').innerHTML = 'Py side is not running. Start app.py with debugger.'
-        console.error(error);
-    }
-
-    Vue.config.productionTip = true
-    Vue.config.devtools = true
-    } else {
-    Vue.config.productionTip = false
-    Vue.config.devtools = false
-    }
-
-    // You can expose function to be callable from python. Import and then
-    // window.eel.expose(function_name, 'function_name')
-
-    ##########
-    ### .env
-    #########
-
-    create empty files .env.development and add `VUE_APP_EEL=http://localhost:8686/eel.js`
-
-    create empty .env.production and add `VUE_APP_EEL=eel.js`
-
-    #################
-    ### index.html
-    ###############
-
-    In public folder
-
-    ```html
-    <script type="text/javascript" src="<%= VUE_APP_EEL %>"></script>
-    ```
-
-    ###################
-    ### vue.config.js
-    #################
-
-    ```js
-    let devtool_mode
-    if (process.env.NODE_ENV === 'development') {
-    devtool_mode = 'source-map';
-    } else {
-    devtool_mode = false;
-    }
-
-    module.exports = {
-    outputDir: "web_builded",
-    transpileDependencies: [
-        "vuetify"
-    ],
-    productionSourceMap: process.env.NODE_ENV != 'production',
-
-    configureWebpack: {
-        devtool: devtool_mode,
-    }
-    }
-    ```
-
-    #################
-    ### Tips, trips
-    ################
-
-    # VS Code plugins for developing
-    - npm
-    - vetur
-    - Vue VSCode Snippets
-    - vuetify-vscode
-    """
-
-    print(help_starter_pack_vue_app.__doc__)
-
-
 def expose(callback_function):
     """Wrap eel expose with try catch block and adding exception callback function
     (for printing error to frontend usually).
@@ -292,9 +168,7 @@ def expose(callback_function):
     """
 
     with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore", module="EelForkExcludeFiles", category=ResourceWarning
-        )
+        warnings.filterwarnings("ignore", module="EelForkExcludeFiles", category=ResourceWarning)
 
         import EelForkExcludeFiles as eel
 
@@ -303,9 +177,7 @@ def expose(callback_function):
             return callback_function(*args, **kargs)
 
         except Exception:
-            mylogging.traceback(
-                f"Unexpected error in function `{callback_function.__name__}`"
-            )
+            mylogging.traceback(f"Unexpected error in function `{callback_function.__name__}`")
             if expose_error_callback:
                 expose_error_callback()
 
@@ -343,6 +215,15 @@ def json_to_py(json):
 
 def to_vue_plotly(data, names=None):
     """Takes data (dataframe or numpy array) and transforms it to form, that vue-plotly understand.
+
+    Links to vue-plotly:
+
+    https://www.npmjs.com/package/vue-plotly
+    https://www.npmjs.com/package/@rleys/vue-plotly  - fork for vue 3 version
+
+    Note:
+        In js, you still need to edit the function, it's because no need to have all x axis for every column.
+        Download the js function from project-starter and check for example.
 
     Args:
         data ((np.array, pd.DataFrame)): Plotted data.
@@ -388,3 +269,137 @@ def to_table(df):
     headers = [{"text": i, "value": i, "sortable": True} for i in data.columns]
 
     return {"table": data.to_dict("records"), "headers": headers}
+
+
+def help_starter_pack_vue_app():
+    """
+    Py, Vue and eel
+    ===============
+
+    How to develop application with these tools and how to use mypythontools functions in such an app.
+
+    It's recomended way to download ``project-starter`` where all the files for gui are already edited and ready to use.
+    There are also working examples of calling from python to js and vice versa as well as example of alerting or plotting.
+
+    https://github.com/Malachov/mypythontools/tree/master/content
+
+    If you want to build just what is necassaty from scratch, you can use this tutorial.
+    Go in web documentation on readthedocs if reading from IDE
+
+
+    Structure::
+    -----------
+
+        - myproject
+            - gui
+                - generated with Vue CLI
+            - app.py
+
+    app.py
+    ------
+
+    >>> from mypythontools import pyvueeel
+    >>> from mypythontools.pyvueeel import expose
+    ...
+    >>> # Expose python functions to Js with decorator
+    >>> @expose
+    >>>     def load_data(settings):
+    >>>         return {'Hello': 1}
+    >>> if __name__ == '__main__':
+    >>>     pyvueeel.run_gui()
+
+    You can return dict - will be object in js
+    You can return list - will be an array in js
+
+    **Call js function from Py**
+
+    >>> pyvueeel.eel.myfunction()
+
+
+    gui
+    ---
+
+    Generate gui folder with Vue CLI::
+
+
+        npm install -g @vue/cli
+        vue create gui
+
+    Goto folder and optionally:
+
+        vue add vuex
+        vue add vuetify
+        vue add router
+
+    main.js::
+    ---------
+
+        if (process.env.NODE_ENV == 'development') {
+
+        try {
+            window.eel.set_host("ws://localhost:8686");
+
+        } catch (error) {
+            document.getElementById('app').innerHTML = 'Py side is not running. Start app.py with debugger.'
+            console.error(error);
+        }
+
+        Vue.config.productionTip = true
+        Vue.config.devtools = true
+        } else {
+        Vue.config.productionTip = false
+        Vue.config.devtools = false
+        }
+
+    You can expose function to be callable from python. Import and then
+    window.eel.expose(function_name, 'function_name')
+
+    .env
+    ----
+
+    Create empty files .env.development and add `VUE_APP_EEL=http://localhost:8686/eel.js`
+
+    Create empty .env.production and add `VUE_APP_EEL=eel.js`
+
+
+    index.html
+    ----------
+
+    In public folder add to index.html::
+
+        <script type="text/javascript" src="<%= VUE_APP_EEL %>"></script>
+
+    vue.config.js::
+    ---------------
+
+        let devtool_mode
+
+        if (process.env.NODE_ENV === "development") {
+          devtool_mode = "source-map";
+        } else {
+          devtool_mode = false;
+        }
+
+        module.exports = {
+          outputDir: "web_builded",
+          transpileDependencies: ["vuetify"],
+          productionSourceMap: process.env.NODE_ENV != "production",
+
+          configureWebpack: {
+            devtool: devtool_mode,
+          },
+        };
+
+
+    Tips, trics
+    -----------
+
+    **VS Code plugins for developing**
+
+    - npm
+    - vetur
+    - Vue VSCode Snippets
+    - vuetify-vscode
+    """
+
+    print(help_starter_pack_vue_app.__doc__)

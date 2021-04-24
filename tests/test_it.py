@@ -17,9 +17,7 @@ import mylogging
 mylogging.config.COLOR = 0
 
 # Find paths and add to sys.path to be able to import local modules
-test_path = Path(
-    os.path.abspath(inspect.getframeinfo(inspect.currentframe()).filename)
-).parent
+test_path = Path(os.path.abspath(inspect.getframeinfo(inspect.currentframe()).filename)).parent
 root_path = test_path.parent
 
 if root_path not in sys.path:
@@ -44,9 +42,7 @@ def test_it():
 
     # Build app with pyinstaller example
     mypythontools.misc.set_paths(set_root_path=test_path)
-    mypythontools.build.build_app(
-        main_file="app.py", console=True, debug=True, cleanit=False
-    )
+    mypythontools.build.build_app(main_file="app.py", console=True, debug=True, cleanit=False)
     mypythontools.misc.set_paths()
 
     passed = (test_path / "dist").exists()

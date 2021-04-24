@@ -5,6 +5,8 @@ predictit/test_data/*.json
 
 scratch_notepad.py
 
+!content\project-starter\.vscode
+
 # IDE
 .vscode/
 .idea
