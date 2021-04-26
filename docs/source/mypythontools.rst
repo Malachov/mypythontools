@@ -10,6 +10,7 @@ Submodules
    mypythontools.build
    mypythontools.deploy
    mypythontools.misc
+   mypythontools.plots
    mypythontools.pyvueeel
    mypythontools.utils
 

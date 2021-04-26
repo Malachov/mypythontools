@@ -17,9 +17,9 @@ def set_paths(set_root_path=None, set_init_path=None):
     for other functions to use.
 
     Args:
-        set_root_path ((str, pathlib.Path)): Path to project root where tests and docs folder are.
+        set_root_path ((str, pathlib.Path), optional): Path to project root where tests and docs folder are.
             If None, then cwd (current working directory) is used. Defaults to None.
-        set_init_path ((str, pathlib.Path)): Path to project `__init__.py`. If None, then first
+        set_init_path ((str, pathlib.Path), optional): Path to project `__init__.py`. If None, then first
             found `__init__.py` is used. Defaults to None.
     """
     global init_path
@@ -27,11 +27,7 @@ def set_paths(set_root_path=None, set_init_path=None):
 
     set_root(set_root_path=set_root_path)
 
-    init_path = (
-        find_path("__init__.py", root_path)
-        if not set_init_path
-        else Path(set_init_path)
-    )
+    init_path = find_path("__init__.py", root_path) if not set_init_path else Path(set_init_path)
     app_path = init_path.parent
 
 
@@ -39,7 +35,7 @@ def set_root(set_root_path=None):
     """Set project root path and add it to sys.path if it's not already there.
 
     Args:
-        set_root_path ((str, pathlib.Path)): Path to project root where tests and docs folder are.
+        set_root_path ((str, pathlib.Path), optional): Path to project root where tests and docs folder are.
             If None, then cwd (current working directory) is used. Defaults to None.
     """
     global root_path
@@ -55,9 +51,9 @@ def find_path(file, folder=None, exclude=["node_modules", "build", "dist"], leve
 
     Args:
         file (str): Name with extension e.g. "app.py".
-        folder (str): Where to search. If None, then root_path is used (cwd by default). Defaults to None.
-        exclude (str): List of folder names (anywhere in path) that will be ignored. Defaults to ['node_modules', 'build', 'dist'].
-        levels (str): Recursive number of analyzed folders. Defaults to 3.
+        folder (str, optional): Where to search. If None, then root_path is used (cwd by default). Defaults to None.
+        exclude (str, optional): List of folder names (anywhere in path) that will be ignored. Defaults to ['node_modules', 'build', 'dist'].
+        levels (str, optional): Recursive number of analyzed folders. Defaults to 5.
 
     Returns:
         Path: Path of file.
@@ -82,3 +78,12 @@ def find_path(file, folder=None, exclude=["node_modules", "build", "dist"], leve
 
     # If not returned - not found
     raise FileNotFoundError(mylogging.return_str(f"File `{file}` not found"))
+
+
+def get_desktop_path():
+    """Get desktop path.
+
+    Returns:
+        Path: Return pathlib Path object. If you want string, use `.as_posix()`
+    """
+    return Path.home() / "Desktop"

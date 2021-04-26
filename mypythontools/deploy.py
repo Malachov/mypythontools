@@ -15,35 +15,56 @@ def deploy_to_pypi(setup_path=None):
     with env vars `TWINE_USERNAME` and `TWINE_PASSWORD`.
 
     Args:
-        setup_path((str, pathlib.Path)): Function suppose, that there is a setup.py in cwd. If not, pass path to setup.py.
+        setup_path((str, pathlib.Path), optional): Function suppose, that there is a setup.py somewhere in cwd.
+            If not, pass path to setup.py. Defaults to None.
     """
-    try:
-        os.environ['TWINE_USERNAME']
-        os.environ['TWINE_PASSWORD']
-    except KeyError:
-        raise KeyError(mylogging.return_str('Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.'))
+
+    usr = os.environ.get("TWINE_USERNAME")
+    pas = os.environ.get("TWINE_PASSWORD")
+
+    if not usr or not pas:
+        raise KeyError(
+            mylogging.return_str("Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.")
+        )
 
     setup_path = misc.root_path if not setup_path else setup_path
 
-    setup_py_path = setup_path / 'setup.py'
+    setup_py_path = setup_path / "setup.py"
 
     if not setup_py_path.exists():
-        setup_py_path = misc.find_path('setup.py', exclude=['node_modules'])
+        setup_py_path = misc.find_path("setup.py", exclude=["node_modules"])
         setup_path = setup_py_path.parent
 
-        if not (setup_path / 'setup.py').exists():
-            raise FileNotFoundError(mylogging.return_str("Setup.py file not found. Setup `setup_path` param."))
+        if not (setup_path / "setup.py").exists():
+            raise FileNotFoundError(
+                mylogging.return_str("Setup.py file not found. Setup `setup_path` param.")
+            )
 
     try:
-        shutil.rmtree(setup_path / 'dist')
-        shutil.rmtree(setup_path / 'build')
+        shutil.rmtree(setup_path / "dist")
+        shutil.rmtree(setup_path / "build")
 
     except Exception:
         pass
 
-    subprocess.run(['python', 'setup.py', 'sdist', 'bdist_wheel'], cwd=setup_path, shell=True, check=True)
+    build_command = "python setup.py sdist bdist_wheel"
 
-    subprocess.run(['twine', 'upload', '-u', os.environ['TWINE_USERNAME'], '-p', os.environ['TWINE_PASSWORD'], 'dist/*'], cwd=setup_path, shell=True, check=True)
+    subprocess.run(build_command.split(), cwd=setup_path, shell=True, check=True)
 
-    shutil.rmtree(setup_path / 'dist')
-    shutil.rmtree(setup_path / 'build')
+    subprocess.run(
+        [
+            "twine",
+            "upload",
+            "-u",
+            os.environ["TWINE_USERNAME"],
+            "-p",
+            os.environ["TWINE_PASSWORD"],
+            "dist/*",
+        ],
+        cwd=setup_path,
+        shell=True,
+        check=True,
+    )
+
+    shutil.rmtree(setup_path / "dist")
+    shutil.rmtree(setup_path / "build")

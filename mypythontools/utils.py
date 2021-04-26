@@ -132,9 +132,10 @@ def push_pipeline(
         tests (bool, optional): Whether run pytest tests. Defaults to True.
         version (str, optional): New version. E.g. '1.2.5'. If 'increment', than it's auto incremented.
             If None, then version is not changed. 'Defaults to "increment".
-        sphinx_docs((bool, list)): Whether generate sphinx apidoc and generate rst files for documentation.
+        sphinx_docs((bool, list), optional): Whether generate sphinx apidoc and generate rst files for documentation.
             Some files in docs source can be deleted - check `sphinx_docs` docstrings for details and insert
             `exclude_paths` list if have some extra files other than ['conf.py', 'index.rst', '_static', '_templates'].
+            Defaults to True.
         git_params (dict, optional): Git message, tag and tag mesage. If empty dict - {},
             than files are not git pushed. If tag is '__version__', than is automatically generated
             from __init__ version. E.g from '1.0.2' to 'v1.0.2'.
@@ -157,9 +158,7 @@ def push_pipeline(
         sphinx_docs_regenerate()
 
     if git_params:
-        parser = argparse.ArgumentParser(
-            description="Prediction framework setting via command line parser!"
-        )
+        parser = argparse.ArgumentParser(description="Prediction framework setting via command line parser!")
 
         parser.add_argument(
             "--commit_message",
@@ -171,15 +170,9 @@ def push_pipeline(
             type=str,
             help="Tag. E.g 'v1.1.2'. If '__version__', get the version. Defaults to: '__version__'",
         ),
-        parser.add_argument(
-            "--tag_mesage", type=str, help="Tag message. Defaults to: 'New version'"
-        ),
+        parser.add_argument("--tag_mesage", type=str, help="Tag message. Defaults to: 'New version'"),
 
-        parser_args_dict = {
-            k: v
-            for k, v in parser.parse_known_args()[0].__dict__.items()
-            if v is not None
-        }
+        parser_args_dict = {k: v for k, v in parser.parse_known_args()[0].__dict__.items() if v is not None}
 
         git_params.update(parser_args_dict)
 
@@ -193,20 +186,22 @@ def push_pipeline(
         deploy_module.deploy_to_pypi()
 
 
-def git_push(commit_message, tag="__version__", tag_message=None):
+def git_push(commit_message, tag="__version__", tag_message="New version"):
     """Stage all changes, commit, add tag and push. If tag = '__version__', than tag
     is infered from __init__.py.
 
     Args:
         commit_message (str): Commit message.
-        tag (str): If tag is '__version__', than is automatically generated
-            from __init__ version. E.g from '1.0.2' to 'v1.0.2'.
-        tag_message (str): [description]
+        tag (str, optional): Define tag used in push. If tag is '__version__', than is automatically generated
+            from __init__ version. E.g from '1.0.2' to 'v1.0.2'.  Defaults to '__version__'.
+        tag_message (str, optional): Message in anotated tag. Defaults to 'New version'.
     """
 
     from git import Repo
 
-    subprocess.run(["git", "add", "."], shell=True, check=True, cwd=misc.root_path)
+    git_add_command = "git add . "
+
+    subprocess.run(git_add_command.split(), shell=True, check=True, cwd=misc.root_path)
 
     subprocess.run(
         ["git", "commit", "-m", commit_message],
@@ -223,18 +218,21 @@ def git_push(commit_message, tag="__version__", tag_message=None):
 
     Repo(misc.root_path).create_tag(tag, message=tag_message)
 
-    subprocess.run(
-        ["git", "push", "--follow-tags"], shell=True, check=True, cwd=misc.root_path
-    )
+    git_push_command = "git push --follow-tags"
+
+    subprocess.run(git_push_command, shell=True, check=True, cwd=misc.root_path)
 
 
 def set_version(version="increment"):
     """Change your version in your __init__.py file.
-    If version is 'increment', it will increment your __version__
-    in you __init__.py by one.
+
+
+    Args:
+        version (str, optional): If version is 'increment', it will increment your __version__
+            in you __init__.py by 0.0.1. Defaults to "increment".
 
     Raises:
-        ValueError: If no __version__ is find. Try set init_path...
+        ValueError: If no __version__ is find. Try set init_path via misc.set_paths...
     """
 
     with open(misc.init_path, "r") as init_file:
@@ -259,17 +257,19 @@ def set_version(version="increment"):
                 break
 
         else:
-            raise ValueError(
-                "__version__ variable not found in __init__.py. Try set init_path."
-            )
+            raise ValueError("__version__ variable not found in __init__.py. Try set init_path.")
 
     with open(misc.init_path, "w") as init_file:
 
         init_file.writelines(list_of_lines)
 
 
-def get_version():
+def get_version(init_path=None):
     """Get version info from __init__.py file.
+
+    Args:
+        init_path ((str, Path), optional): Path to __init__.py file. If None, it's taken from misc module
+            if used misc.set_paths() before. Defaults to None.
 
     Returns:
         str: String of version from __init__.py.
@@ -278,7 +278,10 @@ def get_version():
         ValueError: If no __version__ is find. Try set init_path...
     """
 
-    with open(misc.init_path, "r") as init_file:
+    if not init_path:
+        init_path = misc.init_path
+
+    with open(init_path, "r") as init_file:
 
         for line in init_file:
 
@@ -287,9 +290,7 @@ def get_version():
                 return line.split(delim)[1]
 
         else:
-            raise ValueError(
-                "__version__ variable not found in __init__.py. Try set init_path."
-            )
+            raise ValueError("__version__ variable not found in __init__.py. Try set init_path.")
 
 
 def run_tests(test_path=None, test_coverage=True):
@@ -312,17 +313,25 @@ def run_tests(test_path=None, test_coverage=True):
     if not test_coverage:
         pytest_args = ["-x", test_path.as_posix()]
     else:
-        pytest_args = ["-x", "--cov", "./", test_path.as_posix()]
+        pytest_args = [
+            "-x",
+            "--cov",
+            misc.app_path.as_posix(),
+            "--cov-report",
+            "xml:.coverage.xml",
+            test_path.as_posix(),
+        ]
 
     pytested = pytest.main(pytest_args)
+
+    if test_coverage:
+        Path(".coverage").unlink()
 
     if pytested == 1:
         raise Exception("Pytest failed")
 
 
-def sphinx_docs_regenerate(
-    docs_path=None, build_locally=0, git_add=True, exclude_paths=[]
-):
+def sphinx_docs_regenerate(docs_path=None, build_locally=False, git_add=True, exclude_paths=[]):
     """This will generate all rst files necessary for sphinx documentation generation with sphinx-apidoc.
     It automatically delete removed and renamed files.
 
@@ -337,11 +346,11 @@ def sphinx_docs_regenerate(
         docs_path ((str, Path), optional): Where source folder is. Usually infered automatically.
             Defaults to None.
         build_locally (bool, optional): If true, build build folder with html files locally.
-            Defaults to 0.
+            Defaults to False.
         git_add (bool, optional): Whether to add generated files to stage. False mostly for
-            testing reasons.
-        exclude_paths ((list)): List of files and folder names that will not be deleted.
-            ['conf.py', 'index.rst', '_static', '_templates'] are excluded by default.
+            testing reasons. Defaults to True.
+        exclude_paths (list, optional): List of files and folder names that will not be deleted.
+            ['conf.py', 'index.rst', '_static', '_templates'] are excluded by default. Defaults to [].
 
     Note:
         Function suppose structure of docs like::
@@ -355,9 +364,7 @@ def sphinx_docs_regenerate(
     """
 
     if not importlib.util.find_spec("sphinx"):
-        raise ImportError(
-            "Sphinx library is necessary for docs generation. Install via `pip install sphinx`"
-        )
+        raise ImportError("Sphinx library is necessary for docs generation. Install via `pip install sphinx`")
 
     if not docs_path:
         if misc.root_path:
@@ -387,17 +394,16 @@ def sphinx_docs_regenerate(
     if build_locally:
         subprocess.run(["make", "html"], shell=True, cwd=docs_path, check=True)
 
+    apidoc_command = f"sphinx-apidoc -f -e -o source {misc.app_path.as_posix()}"
     subprocess.run(
-        ["sphinx-apidoc", "-f", "-e", "-o", "source", misc.app_path.as_posix()],
+        apidoc_command,
         shell=True,
         cwd=docs_path,
         check=True,
     )
 
     if git_add:
-        subprocess.run(
-            ["git", "add", "docs"], shell=True, cwd=misc.root_path, check=True
-        )
+        subprocess.run(["git", "add", "docs"], shell=True, cwd=misc.root_path, check=True)
 
 
 def generate_readme_from_init(git_add=True):
@@ -411,7 +417,7 @@ def generate_readme_from_init(git_add=True):
 
     Args:
         git_add (bool, optional): Whether to add generated files to stage. False mostly
-            for testing reasons.
+            for testing reasons. Defaults to True.
     """
 
     with open(misc.init_path) as fd:
@@ -426,6 +432,4 @@ def generate_readme_from_init(git_add=True):
         file.write(docstrings)
 
     if git_add:
-        subprocess.run(
-            ["git", "add", "README.md"], shell=True, cwd=misc.root_path, check=True
-        )
+        subprocess.run(["git", "add", "README.md"], shell=True, cwd=misc.root_path, check=True)

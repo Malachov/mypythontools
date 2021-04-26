@@ -2,8 +2,12 @@
 [ ] Finish start vue in debug from python
 [ ] Pyvueel help starter on web and remove from code
 [ ] Create GIF of vs code task
+[ ] Maybe save paths as strings - for not calling as_posix()
+[ ] Better test coverage
 
 ```
+    # Try to run npm run serve from app.py if not running
+
     # try:
     # if devel:
 
