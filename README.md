@@ -60,16 +60,20 @@ This starter is for vue-eel applications (desktop as well as web) but also for p
 
 If it's python library, delete `gui` folder.
 
-If it's app with gui, delete `setup.py` and remove **Installation** and **Modules** from README. Also from
+If it's app with gui, delete `setup.py`, `__init__.py` and remove **Installation** and **Modules** from README. Also from
 assets delete `mdi.css` if not using icons and `formulate.css` if not using **vue formulate**. In
 `package.json` uncomment library you will be using.
 
 Install used python libraries via `pip install -r requirements.txt` and install JS libraries as well with
 `npm install` in folder where package.json is.
 
-To run an app in develop mode, you have to run both frontent as well as python. Run frontent with debugging app.py (do not run, just debug). Then run frontend with `npm run serve` in gui folder.
+To run an app in develop mode, you have to run both frontent as well as python. Run frontent with debugging app.py (do not run, just debug). Then run frontend with `npm run serve` in gui folder (or use Task explorer if using VS Code). Open your favourite browser and open [http://localhost:8080](http://localhost:8080).
 
-Delete is faster than write, so there is many examples like for example plot, various formating, settings panel, function call from both sides or automatic alerting from python.
+It's recommended to use Vue.js devtools extension where you can see what component is on cursor, edit props values or see list of all used mutations.
+
+In opened app, there is a little help button where there is simple overview about how to develop with these tools.
+
+Delete is faster than write, so there is many working examples like for example plot, various formating (flex row, flex column), settings panel, function call from python to js and vice versa or automatic alerting from python. If you want to see how some example is working, just use **ctrl + F** in IDE or check components for it's props.
 
 This is how the example looks like
 

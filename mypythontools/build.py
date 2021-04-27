@@ -161,11 +161,6 @@ def build_app(
         except Exception:
             pass
 
-    # Build JS to static asset
-    if build_web:
-        gui_path = misc.find_path("package.json").parent
-        subprocess.run(["npm", "run", "build"], shell=True, check=True, cwd=gui_path)
-
     if preset == "eel":
 
         import EelForkExcludeFiles
@@ -191,6 +186,11 @@ def build_app(
             ]
         )
         env_vars = {**env_vars, "MY_PYTHON_VUE_ENVIRONMENT": "production"}
+
+    # Build JS to static asset
+    if build_web:
+        gui_path = misc.find_path("package.json").parent
+        subprocess.run(["npm", "run", "build"], shell=True, check=True, cwd=gui_path)
 
     if env_vars:
         env_vars_template = f"""

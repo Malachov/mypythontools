@@ -1,3 +1,13 @@
+a {
+  color: #247ba0;
+  border-bottom: none !important;
+}
+
+cite {
+  background-color: #eeeeee;
+  padding: 2px 7px 2px 7px;
+}
+
 div.body {
   width: 100%;
   box-sizing: border-box;
@@ -26,9 +36,8 @@ div.body ul {
   margin-top: 10px !important;
 }
 
-a {
-  color: #247ba0;
-  border-bottom: none !important;
+div.footer {
+  margin-top: 30px;
 }
 
 .function > dt:first-of-type {
@@ -46,16 +55,12 @@ a {
   visibility: hidden !important;
 }
 
-#logo {
-  margin-bottom: 10px;
-}
-
-div.footer {
-  margin-top: 30px;
-}
-
 .highlight pre span.gp {
   user-select: none;
+}
+
+#logo {
+  margin-bottom: 10px;
 }
 
 /*

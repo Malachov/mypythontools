@@ -51,8 +51,8 @@ __author__ = "Daniel Malachov"  # Change it to your values
 __email__ = "malachovd@seznam.cz"  # Change it to your values
 __license__ = "MIT"
 
-__all__ = ["subpackage", "subpackage2"]
+__all__ = []  # ["subpackage"]
 
 
-from . import subpackage1
-from . import subpackage2
+# Replace this with your imports and do not forget to add it to __all__
+# from . import subpackage1

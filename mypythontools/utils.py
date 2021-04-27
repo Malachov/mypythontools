@@ -5,7 +5,7 @@ edit library version, generate rst files for docs, push to git or deploy app to 
 
 All of that can be done with one function call - with `push_pipeline` function that
 run other functions, or you can use functions separately. If you are using other
-function then `push_pipeline`, you need to call `mypythontools.misc.set_paths()` first.
+function than `push_pipeline`, you need to call `mypythontools.misc.set_paths()` first.
 
 
 Examples:
@@ -174,7 +174,8 @@ def push_pipeline(
 
         parser_args_dict = {k: v for k, v in parser.parse_known_args()[0].__dict__.items() if v is not None}
 
-        git_params.update(parser_args_dict)
+        if parser_args_dict:
+            git_params.update(parser_args_dict)
 
         git_push(
             commit_message=git_params["commit_message"],
@@ -257,7 +258,9 @@ def set_version(version="increment"):
                 break
 
         else:
-            raise ValueError("__version__ variable not found in __init__.py. Try set init_path.")
+            raise ValueError(
+                mylogging.return_str("__version__ variable not found in __init__.py. Try set init_path.")
+            )
 
     with open(misc.init_path, "w") as init_file:
 
@@ -290,7 +293,9 @@ def get_version(init_path=None):
                 return line.split(delim)[1]
 
         else:
-            raise ValueError("__version__ variable not found in __init__.py. Try set init_path.")
+            raise ValueError(
+                mylogging.return_str("__version__ variable not found in __init__.py. Try set init_path.")
+            )
 
 
 def run_tests(test_path=None, test_coverage=True):
@@ -328,7 +333,7 @@ def run_tests(test_path=None, test_coverage=True):
         Path(".coverage").unlink()
 
     if pytested == 1:
-        raise Exception("Pytest failed")
+        raise RuntimeError(mylogging.return_str("Pytest failed"))
 
 
 def sphinx_docs_regenerate(docs_path=None, build_locally=False, git_add=True, exclude_paths=[]):
@@ -364,7 +369,11 @@ def sphinx_docs_regenerate(docs_path=None, build_locally=False, git_add=True, ex
     """
 
     if not importlib.util.find_spec("sphinx"):
-        raise ImportError("Sphinx library is necessary for docs generation. Install via `pip install sphinx`")
+        raise ImportError(
+            mylogging.return_str(
+                "Sphinx library is necessary for docs generation. Install via `pip install sphinx`"
+            )
+        )
 
     if not docs_path:
         if misc.root_path:

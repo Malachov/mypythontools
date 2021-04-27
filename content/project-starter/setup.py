@@ -42,7 +42,7 @@ setup(
     description="Some tools/functions/snippets used across projects.ions.",
     long_description_content_type="text/markdown",
     long_description=readme,
-    packages=find_packages(),
+    packages=find_packages(exclude=("tests",)),
     include_package_data=True,
     platforms="any",
     classifiers=[

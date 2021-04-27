@@ -325,14 +325,14 @@ def help_starter_pack_vue_app():
         npm install -g @vue/cli
         vue create gui
 
-    Goto folder and optionally:
+    Goto folder and optionally::
 
         vue add vuex
         vue add vuetify
         vue add router
 
-    main.js::
-    ---------
+    main.js
+    -------::
 
         if (process.env.NODE_ENV == 'development') {
 
@@ -369,8 +369,8 @@ def help_starter_pack_vue_app():
 
         <script type="text/javascript" src="<%= VUE_APP_EEL %>"></script>
 
-    vue.config.js::
-    ---------------
+    vue.config.js
+    -------------::
 
         let devtool_mode
 

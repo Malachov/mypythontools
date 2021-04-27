@@ -1,8 +1,7 @@
 """
 
 .. image:: https://img.shields.io/pypi/pyversions/mypythontools.svg
-    :target:
-    https://pypi.python.org/pypi/mypythontools/
+    :target: https://pypi.python.org/pypi/mypythontools/
     :alt: Python versions
 
 .. image:: https://badge.fury.io/py/mypythontools.svg
@@ -81,8 +80,11 @@ project-starter
 
 Project scaffolding fast and easy.
 
-Download project-starter from https://github.com/Malachov/mypythontools/tree/master/content/project-starter (You
-may need to download all mypythontools repository in zip)
+Download project-starter from 
+
+https://github.com/Malachov/mypythontools/tree/master/content/project-starter
+
+(You may need to download all mypythontools repository in zip)
 
 And start developing.
 
@@ -93,18 +95,29 @@ stored on Pypi.
 
 If it's python library, delete `gui` folder.
 
-If it's app with gui, delete `setup.py` and remove **Installation** and **Modules** from README. Also from
-assets delete `mdi.css` if not using icons and `formulate.css` if not using **vue formulate**. In
-`package.json` uncomment library you will be using.
+If it's app with gui, delete `setup.py`, `__init__.py` and remove **Installation** and **Modules** from
+README. Also from assets delete `mdi.css` if not using icons and `formulate.css` if not using **vue
+formulate**. In `package.json` uncomment library you will be using.
 
 Install used python libraries via `pip install -r requirements.txt` and install JS libraries as well with
 `npm install` in folder where package.json is.
 
-To run an app in develop mode, you have to run both frontent as well as python. Run frontent with debugging app.py
-(do not run, just debug). Then run frontend with `npm run serve` in gui folder.
+To run an app in develop mode, you have to run both frontent as well as python. Run frontent with debugging
+app.py (do not run, just debug). Then run frontend with `npm run serve` in gui folder (or use Task explorer if
+using VS Code). Open your favourite browser and open
 
-Delete is faster than write, so there is many examples like for example plot, various formating, settings
-panel, function call from both sides or automatic alerting from python.
+http://localhost:8080
+
+It's recommended to use Vue.js devtools extension where you can see what component is on cursor, edit props
+values or see list of all used mutations.
+
+In opened app, there is a little help button where there is simple overview about how to develop with these
+tools.
+
+Delete is faster than write, so there is many working examples like for example plot, various formating (flex
+row, flex column), settings panel, function call from python to js and vice versa or automatic alerting from
+python. If you want to see how some example is working, just use **ctrl + F** in IDE or check components for
+it's props.
 
 This is how the example looks like
 
@@ -115,7 +128,7 @@ This is how the example looks like
 **Docs**
 
 It includes docs structure for sphinx docs generations from docstrings. Edit first few lines in conf.py,
-index.rst, navi.html and if you want, add static files like logo to `\_static`.
+index.rst, navi.html and if you want, add static files like logo to `\\_static`.
 
 Usually used with https://readthedocs.org/ free hosting that trigger deploy automatically after pushing to
 master. Because of correct relative redirecting in index.rst and navi.html use for readthedocs /path/ before
@@ -141,8 +154,9 @@ Check utils module for more informations.
 
 It also include some default project specific settings for VS Code. You can also delete it.
 
-If developing py - vue - eel app this is the recommended way, but if you want to build just what is necassaty
+If developing py - vue - eel app this is the recommended way, but if you want to build just what is necessary
 from scratch, you can use this tutorial
+
 https://mypythontools.readthedocs.io/mypythontools.pyvueeel.html#mypythontools.pyvueeel.help_starter_pack_vue_app
 
 requirements
@@ -208,7 +222,7 @@ from . import deploy
 from . import misc
 from . import pyvueeel
 
-__version__ = "0.0.35"
+__version__ = "0.0.36"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

@@ -11,11 +11,11 @@ Vue.use(Vuex);
 // If it's not the first time you are using it, you can bulk edit comment help to have clean code                                      // **DELETELINE
 // For example in vs code, select some **DELETELINE, than hold ctrl + D after every is selected,                                       // **DELETELINE
 // use ctrl + L to select all lines and use delete                                                                                     // **DELETELINE
-
+//                                                                                                                                     // **DELETELINE
 // These are globel variables and methods that you can access (and also edit) from any component                                       // **DELETELINE
-
+//                                                                                                                                     // **DELETELINE
 // How to use from components                                                                                                          // **DELETELINE
-
+//                                                                                                                                     // **DELETELINE
 // Import with map or call global                                                                                                      // **DELETELINE
 // this.$store.dispatch("action", { param: false });                                                                                   // **DELETELINE
 // Check Develop.vue for examples                                                                                                      // **DELETELINE
@@ -32,7 +32,7 @@ export default new Vuex.Store({
       error: "",
       type: "",
     },
-    test1: 5415, // **DELETELINE
+    test1: 5415,                                                                                                                        // **DELETELINE
     plot_data: [],
     show_data_loaded_plot: false,
     plot_layout: {
@@ -54,7 +54,7 @@ export default new Vuex.Store({
     getField,
   },
 
-  // These are synchronous methods if editing state variables (nice in vue.js dev tools where all variables in each state are svaed)
+  // These are synchronous methods if editing state variables (nice in vue.js dev tools where all variables in each state are saved)
   mutations: {
     // You can edit state var just with asigning if using in component - Check TestFunctions ho to implement                         // **DELETELINE
     updateField,
@@ -79,10 +79,11 @@ export default new Vuex.Store({
       state.test1 = "";
     },
 
-    test_mutation(state) {
-      // **DELETELINE
-      state.test1 = 666; // **DELETELINE
-    }, // **DELETELINE
+    test_mutation(state) {                                                                                                          // **DELETELINE
+                                                                                                                                    // **DELETELINE
+                                                                                                                                    // **DELETELINE
+      state.test1 = 666;                                                                                                            // **DELETELINE
+    },                                                                                                                              // **DELETELINE
 
     plot_data(state, plot_data) {
       state.plot_data = return_plot(plot_data);
@@ -102,21 +103,20 @@ export default new Vuex.Store({
   actions: {
     // Check how to call the function in Plot.vue                                                                                   // **DELETELINE
     test_action({ state, commit }, payload) {
-      // **DELETELINE
       // Supposed payload structure and default args                                                                                // **DELETELINE
-      var payload_default = { arg1: true, arg2: true, arg3: [123, "123"] }; // **DELETELINE
-      payload = { ...payload_default, ...payload }; // **DELETELINE
+      var payload_default = { arg1: true, arg2: true, arg3: [123, "123"] };                                                         // **DELETELINE
+      payload = { ...payload_default, ...payload };                                                                                 // **DELETELINE
       //                                                                                                                            // **DELETELINE
       // Call python functions that return values with callback with such a syntax                                                  // **DELETELINE
       // You can pass positional arguments or kwargs or pack all settings into one object                                           // **DELETELINE
       window.eel.test_function(payload, { arg2: payload.arg2 })((result) => {
-        // **DELETELINE
+        //                                                                                                                          // **DELETELINE
         // Simple small changes you can do directly with                                                                            // **DELETELINE
-        state.test1 = 777; // **DELETELINE
+        state.test1 = 777;                                                                                                          // **DELETELINE
         // If editting more values at once, or using some frequent change, use some mutation                                        // **DELETELINE
-        commit("plot_data", result); // **DELETELINE
-      }); // **DELETELINE
-    }, // **DELETELINE
+        commit("plot_data", result);
+      });
+    },
   },
 
   modules: {
