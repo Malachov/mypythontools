@@ -124,6 +124,7 @@ This is how the example looks like
 .. image:: /_static/project-starter-gui.png
     :width: 620
     :alt: project-starter-gui
+    :align: center
 
 **Docs**
 
@@ -194,6 +195,7 @@ Result should look like this
 .. image:: /_static/sphinx-alabaster-css.png
     :width: 620
     :alt: sphinx-alabaster-css
+    :align: center
 
 Tasks
 -----
@@ -211,6 +213,7 @@ You are ready to go. You should see something like this
 .. image:: /_static/tasks.png
     :width: 620
     :alt: sphinx-alabaster-css
+    :align: center
 
 You can do CI / CD pipeline or Build app with one click now.
 
