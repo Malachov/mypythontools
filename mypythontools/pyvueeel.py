@@ -272,11 +272,11 @@ def to_table(df, index=False):
     data = df.copy()
     data = data.round(decimals=3)
 
-    # Numpy nan cannot be send to json - replace with None
-    data = data.where(~data.isin([np.nan, np.inf, -np.inf]), None)
-
     if index:
         data.reset_index(inplace=True)
+
+    # Numpy nan cannot be send to json - replace with None
+    data = data.where(~data.isin([np.nan, np.inf, -np.inf]), None)
 
     headers = [{"text": i, "value": i, "sortable": True} for i in data.columns]
 
