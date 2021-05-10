@@ -251,20 +251,24 @@ def to_vue_plotly(data, names=None):
     }
 
 
-def to_table(df):
+def to_table(df, index=False):
     """Takes data (dataframe or numpy array) and transforms it to form, that vue-plotly library understands.
 
     Args:
-        df (pd.DataFrame): Data in table form
+        df (pd.DataFrame): Data.
+        index (bool): Whether use index as first column (or not at all).
 
     Returns:
-        dict: Data in form for create table.
+        dict: DatPa in form for creating table in Vuetify v-data-table.
     """
     data = df.copy()
     data = data.round(decimals=3)
 
     # Numpy nan cannot be send to json - replace with None
     data = data.where(~data.isin([np.nan, np.inf, -np.inf]), None)
+
+    if index:
+        data.reset_index(inplace=True)
 
     headers = [{"text": i, "value": i, "sortable": True} for i in data.columns]
 
