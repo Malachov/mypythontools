@@ -30,9 +30,7 @@ def test_it():
 
     shutil.rmtree(root_path / "build", ignore_errors=True)
     if (root_path / "docs" / "source" / "modules.rst").exists():
-        (
-            root_path / "docs" / "source" / "modules.rst"
-        ).unlink()  # missing_ok=True from python 3.8 on...
+        (root_path / "docs" / "source" / "modules.rst").unlink()  # missing_ok=True from python 3.8 on...
 
     mypythontools.misc.set_paths()
     mypythontools.utils.sphinx_docs_regenerate()
@@ -51,3 +49,7 @@ def test_it():
     shutil.rmtree(root_path / "tests" / "dist")
 
     assert passed
+
+
+mypythontools.misc.set_paths()
+mypythontools.utils.sphinx_docs_regenerate()
