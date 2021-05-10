@@ -8,7 +8,15 @@ Go on
 
 https://mypythontools.readthedocs.io/#project-starter
 
-for tutorial how to build such an app.
+for example with working examples.
+
+Image of such an app
+
+.. image:: /_static/project-starter-gui.png
+    :width: 620
+    :alt: project-starter-gui
+    :align: center
+
 """
 
 import os

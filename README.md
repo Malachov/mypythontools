@@ -58,7 +58,12 @@ In your IDE do bulk renaming across files and replace `SET_YOUR_APP_NAME` with n
 
 This starter is for vue-eel applications (desktop as well as web) but also for python libraries that will be stored on Pypi.
 
+**Used as a python library**
+
 If it's python library, delete `gui` folder.
+
+**Used as an application**
+It can be opened as web page from explorer, or it can be opened as standalone desktop application (looks similar to electron and require chrome or chromium on the background).
 
 If it's app with gui, delete `setup.py`, `__init__.py` and remove **Installation** and **Modules** from README. Also from
 assets delete `mdi.css` if not using icons and `formulate.css` if not using **vue formulate**. In
@@ -79,6 +84,8 @@ This is how the example looks like
 
 <div align="center"><img src="docs/source/_static/project-starter-gui.png" width="620" alt="project-starter-gui"/></div>
 
+For a desktop version where user does not have python installed, you have to build it first. Use mypython _build_ module (trigger with tasks button).
+
 **Docs**
 It includes docs structure for sphinx docs generations from docstrings. Edit first few lines in conf.py, index.rst, navi.html and if you want, add static files like logo to \_static.
 
@@ -89,16 +96,16 @@ It's also necassary to generate other modules rst files for other pages but it's
 It's recommended to use with `sphinx-alabaster-css` (see below).
 
 **CI/CD**
-It also include github actions yml file for pushing codecov coverage file (without token) and .travis.yml for Travis CI. You don't need those files and can you can delete it.
+Project include `.travis.yml` for Travis CI, but it's not recommended to use it. There is file `push_script.py` in folder `utils` which for my use case is better (faster) than travis and can do most of what you want from CI like run pipeline - running tests / generate docs / increment version / push to github / push to pypi.
 
-There is file `push_script.py` in folder `utils` which personally is better (faster) than travis and can do most of what you want from CI like run pipeline - running tests / generate docs / increment version / push to github / push to pypi.
+You can delete `.travis.yml`. If you want to generate test coverage badge (usually from travis), you can use github actions yml file for pushing codecov coverage file (without token).
 
 Check utils module for more informations.
 
 **IDE files**
 It also include some default project specific settings for VS Code. You can also delete it.
 
-If developing py - vue - eel app this is the recommended way, but if you want to build just what is necassaty from scratch, you can use this tutorial [readthedocs](https://mypythontools.readthedocs.io/mypythontools.pyvueeel.html#mypythontools.pyvueeel.help_starter_pack_vue_app).
+If developing py - vue - eel app this is the recommended way, but if you want to build just what is necassary from scratch, you can use this tutorial [readthedocs](https://mypythontools.readthedocs.io/mypythontools.pyvueeel.html#mypythontools.pyvueeel.help_starter_pack_vue_app).
 
 ### requirements
 

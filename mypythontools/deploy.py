@@ -1,6 +1,13 @@
 """
 Allow to deploy project.
 Possible destinations: PYPI.
+
+Check `deploy_to_pypi` function docs for how to use it.
+
+Usually this function is not called manually, but it's a part of `push_pipeline` from utils.
+
+Check utils docs where is described, how to use VS Code Task to be able to optionally test, push and deploy
+with tasks (one button click).
 """
 import subprocess
 import os
@@ -13,6 +20,11 @@ from . import misc
 def deploy_to_pypi(setup_path=None):
     """Publish python library to Pypi. Username and password are set
     with env vars `TWINE_USERNAME` and `TWINE_PASSWORD`.
+
+    Note:
+        You need working `setup.py` file. If you want to see example, try the one from project-statrer on
+
+        https://github.com/Malachov/mypythontools/blob/master/content/project-starter/setup.py
 
     Args:
         setup_path((str, pathlib.Path), optional): Function suppose, that there is a setup.py somewhere in cwd.

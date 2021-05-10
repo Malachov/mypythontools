@@ -47,7 +47,7 @@ def set_root(set_root_path=None):
 
 
 def find_path(file, folder=None, exclude=["node_modules", "build", "dist"], levels=5):
-    """Look on files in folder (cwd() by default) and find file with it's folder.
+    """Search for file in defined folder (cwd() by default) and return it's path.
 
     Args:
         file (str): Name with extension e.g. "app.py".

@@ -85,11 +85,9 @@ def build_app(
         Build pyinstaller bootloader on your pc, otherwise antivirus can check the
         file for a while on first run and even alert false positive.
 
-        Download from github, cd to bootloader and
+        Download from github, cd to bootloader and::
 
-        ```
-        python ./waf all
-        ```
+            python ./waf all
 
         Back to pyinstaller folder and python `setup.py`
     """

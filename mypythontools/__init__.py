@@ -212,7 +212,7 @@ You are ready to go. You should see something like this
 
 .. image:: /_static/tasks.png
     :width: 620
-    :alt: sphinx-alabaster-css
+    :alt: tasks
     :align: center
 
 You can do CI / CD pipeline or Build app with one click now.
