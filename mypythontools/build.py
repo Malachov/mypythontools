@@ -159,10 +159,12 @@ def build_app(
         except Exception:
             pass
 
-    if preset == "eel":
+    # Build JS to static asset
+    if build_web:
+        gui_path = misc.find_path("package.json").parent
+        subprocess.run(["npm", "run", "build"], shell=True, check=True, cwd=gui_path)
 
-        import EelForkExcludeFiles
-
+    if build_web or preset == "eel":
         if not web_path:
             web_path = misc.find_path("index.html", exclude=["public", "node_modules", "build"]).parent
 
@@ -172,23 +174,24 @@ def build_app(
         if not web_path.exists():
             raise KeyError("Build web assets not found, not infered and must be configured in params...")
 
+        datas = (
+            *datas,
+            (web_path.as_posix(), "gui"),
+        )
+
+    if preset == "eel":
+
+        import EelForkExcludeFiles
+
         if build_web is None:
             build_web = True
 
         hidden_imports = [*hidden_imports, "EelForkExcludeFiles", "bottle_websocket"]
-        datas = tuple(
-            [
-                *datas,
-                (web_path.as_posix(), "gui"),
-                (EelForkExcludeFiles._eel_js_file, "EelForkExcludeFiles"),
-            ]
+        datas = (
+            *datas,
+            (EelForkExcludeFiles._eel_js_file, "EelForkExcludeFiles"),
         )
         env_vars = {**env_vars, "MY_PYTHON_VUE_ENVIRONMENT": "production"}
-
-    # Build JS to static asset
-    if build_web:
-        gui_path = misc.find_path("package.json").parent
-        subprocess.run(["npm", "run", "build"], shell=True, check=True, cwd=gui_path)
 
     if env_vars:
         env_vars_template = f"""
