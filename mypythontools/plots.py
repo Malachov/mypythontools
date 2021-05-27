@@ -110,8 +110,8 @@ def plot(
         if surrounded_column:
 
             if surrounded_column in complete_dataframe.columns:
-                best_prediction = pl.graph_objs.Scatter(
-                    name="surrounded_column",
+                surrounded = pl.graph_objs.Scatter(
+                    name=surrounded_column,
                     x=complete_dataframe.index,
                     y=complete_dataframe[surrounded_column],
                     line={"color": "rgb(51, 19, 10)", "width": 5},
@@ -120,7 +120,7 @@ def plot(
                 )
 
                 complete_dataframe.drop(surrounded_column, axis=1, inplace=True)
-                graph_data.append(best_prediction)
+                graph_data.append(surrounded)
 
             else:
                 raise KeyError(
