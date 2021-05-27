@@ -94,17 +94,19 @@ def plot(
         complete_dataframe = complete_dataframe.copy()
         graph_data = []
 
-        grey_area = 1 if "Upper bound" in complete_dataframe and "Lower bound" in complete_dataframe else 0
+        if grey_area:
+            lower_bound_column = grey_area[0]
+            upper_bound_column = grey_area[1]
 
         if grey_area:
             upper_bound = pl.graph_objs.Scatter(
                 name="Upper bound",
                 x=complete_dataframe.index,
-                y=complete_dataframe[grey_area[0]],
+                y=complete_dataframe[upper_bound_column],
                 line={"width": 0},
             )
 
-            complete_dataframe.drop(grey_area[0], axis=1, inplace=True)
+            complete_dataframe.drop(upper_bound_column, axis=1, inplace=True)
             graph_data.append(upper_bound)
 
         if surrounded_column:
@@ -133,13 +135,13 @@ def plot(
             lower_bound = pl.graph_objs.Scatter(
                 name="Lower bound",
                 x=complete_dataframe.index,
-                y=complete_dataframe[grey_area[1]],
+                y=complete_dataframe[lower_bound_column],
                 line={"width": 0},
                 fillcolor="rgba(68, 68, 68, 0.3)",
                 fill="tonexty",
             )
 
-            complete_dataframe.drop(grey_area[1], axis=1, inplace=True)
+            complete_dataframe.drop(lower_bound_column, axis=1, inplace=True)
             graph_data.append(lower_bound)
 
         if highlighted_column:
