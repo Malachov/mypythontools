@@ -17,11 +17,38 @@ def get_desktop_path():
     return Path.home() / "Desktop"
 
 
-def infer_type(s):
+def infer_type(string_var):
+    import ast
+
+    evaluated = string_var
     try:
-        s = float(s)
-        if s // 1 == s:
-            return int(s)
-        return s
-    except ValueError:
-        return s
+        evaluated = ast.literal_eval(evaluated)
+    except Exception:
+        pass
+    return evaluated
+
+
+def json_to_py(json):
+    """Take json and eval it from strings.
+    If string to string, if float to float, if object then to dict.
+
+    When to use? - If sending object as parameter in function.
+
+    Args:
+        json (dict): JSON with various formats as string.
+
+    Returns:
+        dict: Python dictionary with correct types.
+    """
+
+    import ast
+
+    evaluated = json.copy()
+
+    for i, j in json.items():
+        try:
+            evaluated[i] = ast.literal_eval(j)
+        except Exception:
+            pass
+
+    return evaluated

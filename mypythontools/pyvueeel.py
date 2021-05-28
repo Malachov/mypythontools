@@ -1,8 +1,8 @@
 """
 Common functions for Python / Vue / Eel project.
 
-It contains functions for running eel, overriding eel.expose decorator, converting json to correct python format or transform data
-into form for vue tables and plots.
+It contains functions for running eel, overriding eel.expose decorator, converting json to correct python
+format or transform data into form for vue tables and plots.
 
 Go on
 
@@ -29,9 +29,11 @@ import numpy as np
 import mylogging
 
 from . import paths
+from . import misc
 
 # Lazy imports
 # import inspect
+# import ast
 
 # import pandas as pd
 # import EelForkExcludeFiles as eel
@@ -40,6 +42,7 @@ from . import paths
 eel = None
 
 expose_error_callback = None
+json_to_py = misc.json_to_py
 
 
 def run_gui(devel=None, log_file_path=None, is_multiprocessing=False, builded_gui_path="default"):
@@ -192,35 +195,6 @@ def expose(callback_function):
                 expose_error_callback()
 
     eel._expose(callback_function.__name__, inner)
-
-
-def json_to_py(json):
-    """Take json / json from JS side and eval it from strings.
-    If string to string, if float to float, if object then to dict.
-
-    When to use? - If sending object as parameter in function.
-
-    Args:
-        json (dict): Object from JS.
-
-    Returns:
-        dict: Python dictionary with correct types.
-    """
-
-    evaluated = {}
-    for i, j in json.items():
-
-        if j == "true":
-            j = True
-        if j == "false":
-            j = False
-
-        try:
-            evaluated[i] = eval(j)
-        except Exception:
-            evaluated[i] = j
-
-    return evaluated
 
 
 def to_vue_plotly(data, names=None):
