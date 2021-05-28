@@ -32,16 +32,16 @@ def test_it():
     if (root_path / "docs" / "source" / "modules.rst").exists():
         (root_path / "docs" / "source" / "modules.rst").unlink()  # missing_ok=True from python 3.8 on...
 
-    mypythontools.misc.set_paths()
+    mypythontools.paths.set_paths()
     mypythontools.utils.sphinx_docs_regenerate()
     mypythontools.utils.get_version()
 
     # TODO test if correct
 
     # Build app with pyinstaller example
-    mypythontools.misc.set_paths(set_root_path=test_path)
+    mypythontools.paths.set_paths(set_root_path=test_path)
     mypythontools.build.build_app(main_file="app.py", console=True, debug=True, cleanit=False)
-    mypythontools.misc.set_paths()
+    mypythontools.paths.set_paths()
 
     passed = (test_path / "dist").exists()
 
@@ -51,5 +51,5 @@ def test_it():
     assert passed
 
 
-mypythontools.misc.set_paths()
+mypythontools.paths.set_paths()
 mypythontools.utils.sphinx_docs_regenerate()

@@ -11,10 +11,11 @@ with tasks (one button click).
 """
 import subprocess
 import os
-import mylogging
 import shutil
 
-from . import misc
+import mylogging
+
+from . import paths
 
 
 def deploy_to_pypi(setup_path=None):
@@ -39,12 +40,12 @@ def deploy_to_pypi(setup_path=None):
             mylogging.return_str("Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.")
         )
 
-    setup_path = misc.root_path if not setup_path else setup_path
+    setup_path = paths.root_path if not setup_path else setup_path
 
     setup_py_path = setup_path / "setup.py"
 
     if not setup_py_path.exists():
-        setup_py_path = misc.find_path("setup.py", exclude=["node_modules"])
+        setup_py_path = paths.find_path("setup.py", exclude=["node_modules"])
         setup_path = setup_py_path.parent
 
         if not (setup_path / "setup.py").exists():

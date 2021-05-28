@@ -20,13 +20,14 @@ Many projects - one codebase.
 
 If you are not sure whether structure of your app will work with this code, check `project-starter` on github in content folder.
 
-Paths are infered, but if you have atypical structure or have more projects in cwd, use `mypythontools.misc.set_paths()`.
+Paths are infered, but if you have atypical structure or have more projects in cwd, use `mypythontools.paths.set_paths()`.
 
 ## Modules
 
 - build
 - deploy
 - misc
+- paths
 - pyvueeel (for applications build with eel and vue)
 - utils (various functions callable from one `push_pipeline` function)
 

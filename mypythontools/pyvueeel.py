@@ -23,11 +23,12 @@ import os
 import sys
 from pathlib import Path
 import warnings
+
 import numpy as np
 
 import mylogging
 
-from . import misc
+from . import paths
 
 # Lazy imports
 # import inspect
@@ -99,17 +100,18 @@ def run_gui(devel=None, log_file_path=None, is_multiprocessing=False, builded_gu
             gui_path = Path(sys._MEIPASS) / "gui"
         else:
             if devel:
-                misc.set_root()
+                paths.set_root()
                 gui_path = (
-                    misc.find_path("index.html", exclude=["node_modules", "build", "dist"]).parents[1] / "src"
+                    paths.find_path("index.html", exclude=["node_modules", "build", "dist"]).parents[1]
+                    / "src"
                 )
             else:
                 if builded_gui_path:
                     gui_path = Path(builded_gui_path)
 
                 else:
-                    misc.set_root()
-                    gui_path = misc.find_path(
+                    paths.set_root()
+                    gui_path = paths.find_path(
                         "index.html", exclude=["public", "node_modules", "build"]
                     ).parent
 

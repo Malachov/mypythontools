@@ -2,8 +2,8 @@
 """
 
 import mylogging
-from predictit import misc
-from predictit.configuration import Config
+
+from . import misc
 
 # Lazy imports
 # from pathlib import Path
@@ -16,6 +16,7 @@ from predictit.configuration import Config
 def plot(
     complete_dataframe,
     plot_type="plotly",
+    plot_name="Plot",
     legend=True,
     highlighted_column="",
     surrounded_column="",
@@ -173,7 +174,7 @@ def plot(
         fig.layout.update(
             yaxis=dict(title="Values"),
             title={
-                "text": Config.plot_name,
+                "text": plot_name,
                 "x": 0.5,
                 "xanchor": "center",
                 "yanchor": "top",

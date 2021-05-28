@@ -47,7 +47,7 @@ If you are not sure whether structure of your app will work with this code, chec
 in content folder.
 
 Paths are infered, but if you have atypical structure or have more projects in cwd, use
-`mypythontools.misc.set_paths()` with path arguments.
+`mypythontools.paths.set_paths()` with path arguments.
 
 
 Installation
@@ -222,13 +222,14 @@ You can do CI / CD pipeline or Build app with one click now.
 from . import utils
 from . import build
 from . import deploy
+from . import paths
 from . import misc
 from . import pyvueeel
 
-__version__ = "0.0.41"
+__version__ = "0.0.42"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
 __email__ = "malachovd@seznam.cz"
 
-__all__ = ["utils", "build", "deploy", "misc", "pyvueeel"]
+__all__ = ["utils", "build", "deploy", "paths", "misc", "pyvueeel"]

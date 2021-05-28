@@ -31,7 +31,7 @@ Note:
 import subprocess
 import shutil
 from pathlib import Path
-from mypythontools import misc
+from . import paths
 import mylogging
 
 # Lazy imports
@@ -92,17 +92,17 @@ def build_app(
         Back to pyinstaller folder and python `setup.py`
     """
 
-    if not misc.root_path:
-        misc.set_root()
+    if not paths.root_path:
+        paths.set_root()
 
     # Try to recognize the structure of app
-    build_path = misc.root_path / "build"
+    build_path = paths.root_path / "build"
 
     if not build_path.exists():
         build_path.mkdir(parents=True, exist_ok=True)
 
     # Remove last dist manually to avoid permission error if opened in some application
-    dist_path = misc.root_path / "dist"
+    dist_path = paths.root_path / "dist"
 
     if dist_path.exists():
         try:
@@ -120,7 +120,7 @@ def build_app(
     if not main_file_path.exists():
 
         # Iter paths and find the one
-        main_file_path = misc.find_path(main_file_path, exclude=["node_modules", "build"])
+        main_file_path = paths.find_path(main_file_path, exclude=["node_modules", "build"])
 
         if not main_file_path.exists():
             raise KeyError("Main file not found, not infered and must be configured in params...")
@@ -138,7 +138,7 @@ def build_app(
         if not icon_path.exists():
 
             # Iter paths and find the one
-            icon_path = misc.find_path(icon_path, exclude=["node_modules", "build"])
+            icon_path = paths.find_path(icon_path, exclude=["node_modules", "build"])
 
             if not icon_path.exists():
                 raise KeyError("Icon not found, not infered check path or name...")
@@ -161,12 +161,12 @@ def build_app(
 
     # Build JS to static asset
     if build_web:
-        gui_path = misc.find_path("package.json").parent
+        gui_path = paths.find_path("package.json").parent
         subprocess.run(["npm", "run", "build"], shell=True, check=True, cwd=gui_path)
 
     if build_web or preset == "eel":
         if not web_path:
-            web_path = misc.find_path("index.html", exclude=["public", "node_modules", "build"]).parent
+            web_path = paths.find_path("index.html", exclude=["public", "node_modules", "build"]).parent
 
         else:
             web_path = Path(web_path)
@@ -265,7 +265,7 @@ coll = COLLECT(exe,
         ["pyinstaller", "-y", spec_path.as_posix()],
         shell=True,
         check=True,
-        cwd=misc.root_path,
+        cwd=paths.root_path,
     )
 
     if cleanit:
