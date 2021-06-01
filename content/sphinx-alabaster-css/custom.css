@@ -8,6 +8,10 @@ cite {
   padding: 2px 7px 2px 7px;
 }
 
+#table-of-contents h1 {
+    margin-left: -25px;
+}
+
 div.body {
   width: 100%;
   box-sizing: border-box;
