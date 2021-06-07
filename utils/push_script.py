@@ -13,4 +13,4 @@ if root_path not in sys.path:
 import mypythontools
 
 if __name__ == "__main__":
-    mypythontools.utils.push_pipeline(deploy=True)
+    mypythontools.utils.push_pipeline(tests=False, sphinx_docs=False, deploy=True)
