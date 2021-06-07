@@ -245,6 +245,17 @@ def to_table(df, index=False):
     Returns:
         dict: DatPa in form for creating table in Vuetify v-data-table.
     """
+    import pandas as pd
+
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError(
+            mylogging.return_str(
+                "Only dataframe is allowed in to_table function. If you have Series, "
+                "convert it to dataframe. You can use shape (1, x) for one row or use "
+                "df.T and shape (x, 1) for one column."
+            )
+        )
+
     data = df.copy()
     data = data.round(decimals=3)
 
