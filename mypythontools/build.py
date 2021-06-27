@@ -12,7 +12,7 @@ Note:
     >>> import mypythontools
     ...
     >>> if __name__ == "__main__":
-    >>>     mypythontools.build.build_app()  # With all the params you need.
+    ...     mypythontools.build.build_app()  # With all the params you need.
 
     Then just add this task to global tasks.json::
 
@@ -92,17 +92,17 @@ def build_app(
         Back to pyinstaller folder and python `setup.py`
     """
 
-    if not paths.root_path:
+    if not paths.ROOT_PATH:
         paths.set_root()
 
     # Try to recognize the structure of app
-    build_path = paths.root_path / "build"
+    build_path = paths.ROOT_PATH / "build"
 
     if not build_path.exists():
         build_path.mkdir(parents=True, exist_ok=True)
 
     # Remove last dist manually to avoid permission error if opened in some application
-    dist_path = paths.root_path / "dist"
+    dist_path = paths.ROOT_PATH / "dist"
 
     if dist_path.exists():
         try:
@@ -265,7 +265,7 @@ coll = COLLECT(exe,
         ["pyinstaller", "-y", spec_path.as_posix()],
         shell=True,
         check=True,
-        cwd=paths.root_path,
+        cwd=paths.ROOT_PATH,
     )
 
     if cleanit:

@@ -190,9 +190,10 @@ def expose(callback_function):
             return callback_function(*args, **kargs)
 
         except Exception:
-            mylogging.traceback(f"Unexpected error in function `{callback_function.__name__}`")
             if expose_error_callback:
                 expose_error_callback()
+            else:
+                mylogging.traceback(f"Unexpected error in function `{callback_function.__name__}`")
 
     eel._expose(callback_function.__name__, inner)
 
@@ -302,24 +303,22 @@ def help_starter_pack_vue_app():
     ...
     >>> # Expose python functions to Js with decorator
     >>> @expose
-    >>>     def load_data(settings):
-    >>>         return {'Hello': 1}
+    ... def load_data(settings):
+    ...     return {'Hello': 1}
     >>> if __name__ == '__main__':
-    >>>     pyvueeel.run_gui()
+    ...     pyvueeel.run_gui()
 
     You can return dict - will be object in js
     You can return list - will be an array in js
 
-    **Call js function from Py**
+    **Call js function from Py**::
 
-    >>> pyvueeel.eel.myfunction()
-
+        pyvueeel.eel.load_data()
 
     gui
     ---
 
     Generate gui folder with Vue CLI::
-
 
         npm install -g @vue/cli
         vue create gui

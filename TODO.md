@@ -1,8 +1,9 @@
-[ ] Transform starter to cookiecutter
-[ ] Finish start vue in debug from python
-[ ] Create GIF of vs code task
-[ ] Maybe save paths as strings - for not calling as_posix()
-[ ] Better test coverage
+- [ ] Transform starter to cookiecutter
+- [ ] Add tests to plot from predictit
+- [ ] Finish start vue in debug from python
+- [ ] Create GIF of vs code task
+- [ ] Maybe save paths as strings - for not calling as_posix()
+- [ ] Better test coverage
 
 ```
     # Try to run npm run serve from app.py if not running

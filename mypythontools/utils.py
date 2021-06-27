@@ -23,7 +23,7 @@ Examples:
     >>> import mypythontools
     ...
     >>> if __name__ == "__main__":
-    >>>     mypythontools.utils.push_pipeline(deploy=True)  # With all the params you need.
+    ...     mypythontools.utils.push_pipeline(deploy=True)  # With all the params you need.
 
     Then just add this task to global tasks.json::
 
@@ -81,17 +81,19 @@ Examples:
 
         $ git config core.hooksPath git_hooks
 
-    In created folder on first two lines copy this
+    In created folder on first two lines copy this::
 
-    >>> #!/usr/bin/env python
-    >>> # -*- coding: UTF-8 -*-
+        #!/usr/bin/env python
+        # -*- coding: UTF-8 -*-
 
     Then just import any function from here and call with desired params. E.g.
 
+    >>> import mypythontools
     >>> mypythontools.paths.set_paths()
     >>> mypythontools.utils.run_tests()
-    >>> mypythontools.set_version('increment')
-
+    ============================= test session starts =============================
+    ...
+    >>> mypythontools.utils.set_version('increment')
 """
 
 import argparse
@@ -140,9 +142,19 @@ def push_pipeline(
             from __init__ version. E.g from '1.0.2' to 'v1.0.2'.
             Defaults to { 'commit_message': 'New commit', 'tag': '__version__', 'tag_mesage': 'New version' }.
         deploy (bool, optional): Whether deploy to PYPI. Defaults to False.
+
+    Example:
+        Recommended use is from IDE (for example with Tasks in VS Code). Check utils docs for how to use it.
+        You can also use it from python...
+
+        >>> import mypythontools
+        ...
+        >>> if __name__ == "__main__":
+        ...     mypythontools.utils.push_pipeline(deploy=True)  # With all the params you need.
+
     """
 
-    if not all([paths.root_path, paths.app_path, paths.init_path]):
+    if not all([paths.ROOT_PATH, paths.APP_PATH, paths.INIT_PATH]):
         paths.set_paths()
 
     if tests:
@@ -201,13 +213,13 @@ def git_push(commit_message, tag="__version__", tag_message="New version"):
 
     git_add_command = "git add . "
 
-    subprocess.run(git_add_command.split(), shell=True, check=True, cwd=paths.root_path)
+    subprocess.run(git_add_command.split(), shell=True, check=True, cwd=paths.ROOT_PATH)
 
     subprocess.run(
         ["git", "commit", "-m", commit_message],
         shell=True,
         check=True,
-        cwd=paths.root_path,
+        cwd=paths.ROOT_PATH,
     )
 
     if not tag_message:
@@ -216,11 +228,11 @@ def git_push(commit_message, tag="__version__", tag_message="New version"):
     if tag == "__version__":
         tag = f"v{get_version()}"
 
-    Repo(paths.root_path).create_tag(tag, message=tag_message)
+    Repo(paths.ROOT_PATH).create_tag(tag, message=tag_message)
 
     git_push_command = "git push --follow-tags"
 
-    subprocess.run(git_push_command, shell=True, check=True, cwd=paths.root_path)
+    subprocess.run(git_push_command, shell=True, check=True, cwd=paths.ROOT_PATH)
 
 
 def set_version(version="increment"):
@@ -232,10 +244,10 @@ def set_version(version="increment"):
             in you __init__.py by 0.0.1. Defaults to "increment".
 
     Raises:
-        ValueError: If no __version__ is find. Try set init_path via paths.set_paths...
+        ValueError: If no __version__ is find. Try set INIT_PATH via paths.set_paths...
     """
 
-    with open(paths.init_path, "r") as init_file:
+    with open(paths.INIT_PATH, "r") as init_file:
 
         list_of_lines = init_file.readlines()
 
@@ -258,32 +270,32 @@ def set_version(version="increment"):
 
         else:
             raise ValueError(
-                mylogging.return_str("__version__ variable not found in __init__.py. Try set init_path.")
+                mylogging.return_str("__version__ variable not found in __init__.py. Try set INIT_PATH.")
             )
 
-    with open(paths.init_path, "w") as init_file:
+    with open(paths.INIT_PATH, "w") as init_file:
 
         init_file.writelines(list_of_lines)
 
 
-def get_version(init_path=None):
+def get_version(INIT_PATH=None):
     """Get version info from __init__.py file.
 
     Args:
-        init_path ((str, Path), optional): Path to __init__.py file. If None, it's taken from paths module
+        INIT_PATH ((str, Path), optional): Path to __init__.py file. If None, it's taken from paths module
             if used paths.set_paths() before. Defaults to None.
 
     Returns:
         str: String of version from __init__.py.
 
     Raises:
-        ValueError: If no __version__ is find. Try set init_path...
+        ValueError: If no __version__ is find. Try set INIT_PATH...
     """
 
-    if not init_path:
-        init_path = paths.init_path
+    if not INIT_PATH:
+        INIT_PATH = paths.INIT_PATH
 
-    with open(init_path, "r") as init_file:
+    with open(INIT_PATH, "r") as init_file:
 
         for line in init_file:
 
@@ -293,7 +305,7 @@ def get_version(init_path=None):
 
         else:
             raise ValueError(
-                mylogging.return_str("__version__ variable not found in __init__.py. Try set init_path.")
+                mylogging.return_str("__version__ variable not found in __init__.py. Try set INIT_PATH.")
             )
 
 
@@ -303,7 +315,7 @@ def run_tests(test_path=None, test_coverage=True):
     """Run tests. If any test fails, raise an error.
 
     Args:
-        test_path ((str, pathlib.Path), optional): Usually autodetected (if root_path / tests).
+        test_path ((str, pathlib.Path), optional): Usually autodetected (if ROOT_PATH / tests).
             Defaults to None.
         test_coverage(bool, optional): Whether run test coverage plugin. If True, pytest-cov must be installed. Defaults to True
 
@@ -312,7 +324,7 @@ def run_tests(test_path=None, test_coverage=True):
     """
 
     if not test_path:
-        test_path = paths.root_path / "tests"
+        test_path = paths.ROOT_PATH / "tests"
 
     if not test_coverage:
         pytest_args = ["-x", test_path.as_posix()]
@@ -320,7 +332,7 @@ def run_tests(test_path=None, test_coverage=True):
         pytest_args = [
             "-x",
             "--cov",
-            paths.app_path.as_posix(),
+            paths.APP_PATH.as_posix(),
             "--cov-report",
             "xml:.coverage.xml",
             test_path.as_posix(),
@@ -375,8 +387,8 @@ def sphinx_docs_regenerate(docs_path=None, build_locally=False, git_add=True, ex
         )
 
     if not docs_path:
-        if paths.root_path:
-            docs_path = paths.root_path / "docs"
+        if paths.ROOT_PATH:
+            docs_path = paths.ROOT_PATH / "docs"
         else:
             raise NotADirectoryError(
                 mylogging.return_str(
@@ -384,7 +396,7 @@ def sphinx_docs_regenerate(docs_path=None, build_locally=False, git_add=True, ex
                 )
             )
 
-    if not all([paths.app_path, paths.root_path]):
+    if not all([paths.APP_PATH, paths.ROOT_PATH]):
         mylogging.return_str("Paths are not known. First run `paths.set_paths()`.")
 
     docs_source_path = docs_path / "source"
@@ -397,12 +409,15 @@ def sphinx_docs_regenerate(docs_path=None, build_locally=False, git_add=True, ex
             "_templates",
             *exclude_paths,
         ]:
-            p.unlink()
+            try:
+                p.unlink()
+            except Exception:
+                pass
 
     if build_locally:
         subprocess.run(["make", "html"], shell=True, cwd=docs_path, check=True)
 
-    apidoc_command = f"sphinx-apidoc -f -e -o source {paths.app_path.as_posix()}"
+    apidoc_command = f"sphinx-apidoc -f -e -o source {paths.APP_PATH.as_posix()}"
     subprocess.run(
         apidoc_command,
         shell=True,
@@ -411,7 +426,7 @@ def sphinx_docs_regenerate(docs_path=None, build_locally=False, git_add=True, ex
     )
 
     if git_add:
-        subprocess.run(["git", "add", "docs"], shell=True, cwd=paths.root_path, check=True)
+        subprocess.run(["git", "add", "docs"], shell=True, cwd=paths.ROOT_PATH, check=True)
 
 
 def generate_readme_from_init(git_add=True):
@@ -428,7 +443,7 @@ def generate_readme_from_init(git_add=True):
             for testing reasons. Defaults to True.
     """
 
-    with open(paths.init_path) as fd:
+    with open(paths.INIT_PATH) as fd:
         file_contents = fd.read()
     module = ast.parse(file_contents)
     docstrings = ast.get_docstring(module)
@@ -436,8 +451,8 @@ def generate_readme_from_init(git_add=True):
     if docstrings is None:
         docstrings = ""
 
-    with open(paths.root_path / "README.md", "w") as file:
+    with open(paths.ROOT_PATH / "README.md", "w") as file:
         file.write(docstrings)
 
     if git_add:
-        subprocess.run(["git", "add", "README.md"], shell=True, cwd=paths.root_path, check=True)
+        subprocess.run(["git", "add", "README.md"], shell=True, cwd=paths.ROOT_PATH, check=True)

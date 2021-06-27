@@ -225,11 +225,12 @@ from . import deploy
 from . import paths
 from . import misc
 from . import pyvueeel
+from . import plots
 
-__version__ = "0.0.48"
+__version__ = "0.0.54"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
 __email__ = "malachovd@seznam.cz"
 
-__all__ = ["utils", "build", "deploy", "paths", "misc", "pyvueeel"]
+__all__ = ["utils", "build", "deploy", "paths", "misc", "pyvueeel", "plots"]

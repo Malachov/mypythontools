@@ -4,6 +4,7 @@
 import mylogging
 
 from . import misc
+from . import paths
 
 # Lazy imports
 # from pathlib import Path
@@ -28,14 +29,6 @@ def plot(
     """Plots the data. Plotly or matplotlib can be used. It is possible to highlite two columns with different formating.
     It is usually used for time series visualization, but it can be used for different use case of course.
 
-    Examples:
-
-        Just plot dataframe as is
-
-        >>> import predictit
-        ...
-        >>> predictit.plots.plot(pd.DataFrame([[None, None, 1], [None, None, 2], [3, 3, 6], [3, 2.5, 4]]))
-
     Args:
         complete_dataframe (pd.DataFrame): Data to be plotted.
         plot_type (str, optional): 'plotly' or 'matplotlib'. Defaults to "plotly".
@@ -53,13 +46,17 @@ def plot(
 
     Returns:
         str: Only if plot_return == 'div
+
+    Examples:
+        Plot dataframe with
+
+        >>> import pandas as pd
+        >>> plot(pd.DataFrame([[None, None, 1], [None, None, 2], [3, 3, 6], [3, 2.5, 4]]), show=False)  # Show False just for testing reasons
+
     """
 
     if save == "DESKTOP":
-
-        from pathlib import Path
-
-        save = Path.home() / "Desktop" / "plot.html"
+        save = paths.get_desktop_path() / "plot.html"
 
     if plot_type == "matplotlib":
         if misc._JUPYTER:
@@ -92,7 +89,9 @@ def plot(
         import plotly as pl
 
         pl.io.renderers.default = "notebook_connected" if misc._JUPYTER else "browser"
-        complete_dataframe = complete_dataframe.copy()
+
+        used_columns = list(complete_dataframe.columns)
+
         graph_data = []
 
         if grey_area:
@@ -107,7 +106,7 @@ def plot(
                 line={"width": 0},
             )
 
-            complete_dataframe.drop(upper_bound_column, axis=1, inplace=True)
+            used_columns.remove(upper_bound_column)
             graph_data.append(upper_bound)
 
         if surrounded_column:
@@ -122,7 +121,7 @@ def plot(
                     fill="tonexty" if grey_area else None,
                 )
 
-                complete_dataframe.drop(surrounded_column, axis=1, inplace=True)
+                used_columns.remove(surrounded_column)
                 graph_data.append(surrounded)
 
             else:
@@ -142,7 +141,7 @@ def plot(
                 fill="tonexty",
             )
 
-            complete_dataframe.drop(lower_bound_column, axis=1, inplace=True)
+            used_columns.remove(lower_bound_column)
             graph_data.append(lower_bound)
 
         if highlighted_column:
@@ -156,7 +155,7 @@ def plot(
                     line={"color": "rgb(31, 119, 180)", "width": 2},
                 )
 
-                complete_dataframe.drop(highlighted_column, axis=1, inplace=True)
+                used_columns.remove(highlighted_column)
                 graph_data.append(highlighted_column_ax)
 
             else:
@@ -169,7 +168,10 @@ def plot(
         fig = pl.graph_objs.Figure(data=graph_data)
 
         for i in complete_dataframe.columns:
-            fig.add_trace(pl.graph_objs.Scatter(x=complete_dataframe.index, y=complete_dataframe[i], name=i))
+            if i in used_columns:
+                fig.add_trace(
+                    pl.graph_objs.Scatter(x=complete_dataframe.index, y=complete_dataframe[i], name=i)
+                )
 
         fig.layout.update(
             yaxis=dict(title="Values"),

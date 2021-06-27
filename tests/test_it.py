@@ -1,6 +1,6 @@
-""" Test module. Auto pytest that can be started in IDE or with
+""" Test module. Auto pytest that can be started in IDE or with::
 
-    >>> python -m pytest
+    python -m pytest
 
 in terminal in tests folder.
 """
@@ -18,19 +18,19 @@ mylogging.config.COLOR = 0
 
 # Find paths and add to sys.path to be able to import local modules
 test_path = Path(os.path.abspath(inspect.getframeinfo(inspect.currentframe()).filename)).parent
-root_path = test_path.parent
+ROOT_PATH = test_path.parent
 
-if root_path not in sys.path:
-    sys.path.insert(0, root_path.as_posix())
+if ROOT_PATH not in sys.path:
+    sys.path.insert(0, ROOT_PATH.as_posix())
 
 import mypythontools
 
 
 def test_it():
 
-    shutil.rmtree(root_path / "build", ignore_errors=True)
-    if (root_path / "docs" / "source" / "modules.rst").exists():
-        (root_path / "docs" / "source" / "modules.rst").unlink()  # missing_ok=True from python 3.8 on...
+    shutil.rmtree(ROOT_PATH / "build", ignore_errors=True)
+    if (ROOT_PATH / "docs" / "source" / "modules.rst").exists():
+        (ROOT_PATH / "docs" / "source" / "modules.rst").unlink()  # missing_ok=True from python 3.8 on...
 
     mypythontools.paths.set_paths()
     mypythontools.utils.sphinx_docs_regenerate()
@@ -39,17 +39,18 @@ def test_it():
     # TODO test if correct
 
     # Build app with pyinstaller example
-    mypythontools.paths.set_paths(set_root_path=test_path)
+    mypythontools.paths.set_paths(set_ROOT_PATH=test_path)
     mypythontools.build.build_app(main_file="app.py", console=True, debug=True, cleanit=False)
     mypythontools.paths.set_paths()
 
     passed = (test_path / "dist").exists()
 
-    shutil.rmtree(root_path / "tests" / "build")
-    shutil.rmtree(root_path / "tests" / "dist")
+    shutil.rmtree(ROOT_PATH / "tests" / "build")
+    shutil.rmtree(ROOT_PATH / "tests" / "dist")
 
     assert passed
 
 
-mypythontools.paths.set_paths()
-mypythontools.utils.sphinx_docs_regenerate()
+if __name__ == "__main__":
+    # test_it()
+    pass

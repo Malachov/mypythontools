@@ -40,7 +40,7 @@ def deploy_to_pypi(setup_path=None):
             mylogging.return_str("Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.")
         )
 
-    setup_path = paths.root_path if not setup_path else setup_path
+    setup_path = paths.ROOT_PATH if not setup_path else setup_path
 
     setup_py_path = setup_path / "setup.py"
 
