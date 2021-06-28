@@ -5,6 +5,8 @@ predictit/test_data/*.json
 
 scratch_notepad.py
 
+package-lock.json
+
 web_builded/
 
 !content\project-starter\.vscode
