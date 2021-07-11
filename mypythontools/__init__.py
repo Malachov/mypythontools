@@ -29,7 +29,6 @@ Some tools/functions/snippets/files used across projects.
 
 It's called mypythontools, but it's also made for you...
 
-
 Links
 =====
 
@@ -49,6 +48,8 @@ in content folder.
 Paths are infered, but if you have atypical structure or have more projects in cwd, use
 `mypythontools.paths.set_paths()` with path arguments.
 
+There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.), 
+such a content is in folder Content.
 
 Installation
 ============
@@ -221,16 +222,17 @@ You can do CI / CD pipeline or Build app with one click now.
 
 from . import utils
 from . import build
+from . import config
 from . import deploy
 from . import paths
 from . import misc
 from . import pyvueeel
 from . import plots
 
-__version__ = "0.0.54"
+__version__ = "0.0.55"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
 __email__ = "malachovd@seznam.cz"
 
-__all__ = ["utils", "build", "deploy", "paths", "misc", "pyvueeel", "plots"]
+__all__ = ["utils", "build", "config", "deploy", "paths", "misc", "pyvueeel", "plots"]

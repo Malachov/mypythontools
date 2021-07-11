@@ -8,6 +8,7 @@ Submodules
    :maxdepth: 4
 
    mypythontools.build
+   mypythontools.config
    mypythontools.deploy
    mypythontools.misc
    mypythontools.paths
