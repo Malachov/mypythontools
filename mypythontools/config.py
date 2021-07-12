@@ -121,6 +121,7 @@ This is how help looks like in VS Code
 from typing import Any
 import mylogging
 import types as types_lib
+import inspect
 
 from .misc import validate
 
@@ -240,10 +241,6 @@ class ConfigBase:
         else:
             self.frozen = frozen
 
-    def update(self, dict):
-        for i, j in dict.items():
-            setattr(self, i, j)
-
     def __setattr__(self, name: str, value: Any) -> None:
         if (
             not self.frozen
@@ -258,6 +255,25 @@ class ConfigBase:
                     "If you really need to change the value, set attribute frozen to false."
                 )
             )
+
+    def update(self, dict):
+        for i, j in dict.items():
+            setattr(self, i, j)
+
+    def get_dict(self):
+        return {
+            # Values from object and from class
+            **{
+                key: value
+                for key, value in self.__dict__.items()
+                if not key.startswith("__")
+                and not callable(value)
+                and not hasattr(value, "myproperties_list")
+                and key not in ["myproperties_list", "frozen", "_base_config_map"]
+            },
+            # Values from myproperties
+            **{key: getattr(self, key) for key in self.myproperties_list},
+        }
 
 
 class ConfigStructuredMeta(type):
@@ -308,3 +324,13 @@ class ConfigStructured(ConfigBase, metaclass=ConfigStructuredMeta):
             raise KeyError(mylogging.return_str(f"Variable {name} not found in config."))
 
         return getattr(self._base_config_map[name], name)
+
+    def get_dict(self):
+        # From main class
+        dict_of_values = super().get_dict()
+        # From sub configs
+        for i in vars(self).values():
+            if hasattr(i, "myproperties_list"):
+                dict_of_values.update(i.get_dict())
+
+        return dict_of_values

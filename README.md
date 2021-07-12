@@ -4,6 +4,8 @@
 
 Some tools/functions/snippets used across projects.
 
+It's called mypythontools, but it's also made for you...
+
 ## Links
 
 Official documentation - [readthedocs](https://mypythontools.readthedocs.io/)
@@ -22,14 +24,19 @@ If you are not sure whether structure of your app will work with this code, chec
 
 Paths are infered, but if you have atypical structure or have more projects in cwd, use `mypythontools.paths.set_paths()`.
 
+There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.), 
+such a content is in folder Content.
+
+
 ## Modules
 
+- config
+- pyvueeel (for applications build with eel and vue)
+- utils (various functions callable from one `push_pipeline` function)
 - build
 - deploy
 - misc
 - paths
-- pyvueeel (for applications build with eel and vue)
-- utils (various functions callable from one `push_pipeline` function)
 
 Check modules help with examples.
 

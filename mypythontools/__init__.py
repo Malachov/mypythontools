@@ -229,7 +229,7 @@ from . import misc
 from . import pyvueeel
 from . import plots
 
-__version__ = "0.0.55"
+__version__ = "0.0.56"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
