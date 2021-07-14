@@ -224,7 +224,7 @@ class ConfigBase:
     You can find working examples in module docstrings."""
 
     frozen = False
-    _base_config_map = {}
+    _base_config_map = {}  # This is used only if used as structured config
 
     def __init__(self, frozen=None) -> None:
 
@@ -242,12 +242,11 @@ class ConfigBase:
             self.frozen = frozen
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if (
-            not self.frozen
-            or name == "frozen"
-            or name in [*self.myproperties_list, *vars(self), *self._base_config_map.keys()]
-        ):
+        if not self.frozen or name == "frozen" or name in [*self.myproperties_list, *vars(self)]:
             object.__setattr__(self, name, value)
+        elif name in self._base_config_map.keys():
+            setattr(self._base_config_map[name], name, value)
+
         else:
             raise AttributeError(
                 mylogging.return_str(
@@ -259,6 +258,11 @@ class ConfigBase:
     def update(self, dict):
         for i, j in dict.items():
             setattr(self, i, j)
+
+    def copy(self):
+        copy = type(self)()
+        copy.update(self.get_dict())
+        return copy
 
     def get_dict(self):
         return {
@@ -320,10 +324,14 @@ class ConfigStructured(ConfigBase, metaclass=ConfigStructuredMeta):
     """Class for creating config. Read why and how in config module docstrings."""
 
     def __getattr__(self, name: str):
-        if name not in self._base_config_map:
-            raise KeyError(mylogging.return_str(f"Variable {name} not found in config."))
+        try:
+            if name not in self._base_config_map:
+                raise KeyError(mylogging.return_str(f"Variable {name} not found in config."))
 
-        return getattr(self._base_config_map[name], name)
+            return getattr(self._base_config_map[name], name)
+
+        except Exception:
+            raise AttributeError
 
     def get_dict(self):
         # From main class
@@ -331,6 +339,7 @@ class ConfigStructured(ConfigBase, metaclass=ConfigStructuredMeta):
         # From sub configs
         for i in vars(self).values():
             if hasattr(i, "myproperties_list"):
-                dict_of_values.update(i.get_dict())
+                subconfig_dict = i.get_dict()
+                dict_of_values.update(subconfig_dict)
 
         return dict_of_values
