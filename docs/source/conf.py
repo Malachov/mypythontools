@@ -48,9 +48,10 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx.ext.githubpages",
-    "sphinx.ext.imgmath",
-    "sphinx.ext.autosectionlabel",
-    "m2r2",
+    # "sphinx.ext.intersphinx",
+    # "sphinx.ext.imgmath",
+    # "sphinx.ext.autosectionlabel",
+    # "m2r2",
 ]
 
 # 'about.html',

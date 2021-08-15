@@ -221,12 +221,12 @@ You can do CI / CD pipeline or Build app with one click now.
 
 """
 
-from . import utils, build, config, deploy, paths, misc, pyvueeel, plots
+from . import build, config, deploy, misc, paths, plots, property, pyvueeel, tests, utils
 
-__version__ = "0.0.59"
+__version__ = "0.0.60"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
 __email__ = "malachovd@seznam.cz"
 
-__all__ = ["utils", "build", "config", "deploy", "paths", "misc", "pyvueeel", "plots"]
+__all__ = ["build", "config", "deploy", "misc", "paths", "plots", "property", "pyvueeel", "tests", "utils"]
