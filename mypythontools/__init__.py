@@ -29,16 +29,9 @@ Some tools/functions/snippets/files used across projects.
 
 It's called mypythontools, but it's also made for you...
 
-Links
-=====
-
-Official documentation - https://mypythontools.readthedocs.io/
-
-Official repo - https://github.com/Malachov/mypythontools
-
-Usually used from IDE. Used paths are infered and things like building the application with pyinstaller,
-incrementing version, generating rst files for sphinx docs, pushing to github or deploying to Pypi is matter
-of calling one function or clicking one button (e.g. Vs code task).
+Can be used as python library. Things like building the application with pyinstaller, incrementing version,
+generating rst files for sphinx docs, pushing to github or deploying to Pypi or other CI/CD functionality,
+creating config module or plot data is matter of calling one function or clicking one button (e.g. Vs code task).
 
 Many projects - one codebase.
 
@@ -49,7 +42,14 @@ Paths are infered, but if you have atypical structure or have more projects in c
 `mypythontools.paths.set_paths()` with path arguments.
 
 There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.), 
-such a content is in folder Content.
+such a content is under the Content topic.
+
+Links
+=====
+
+Official documentation - https://mypythontools.readthedocs.io/
+
+Official repo - https://github.com/Malachov/mypythontools
 
 Installation
 ============
@@ -64,7 +64,7 @@ Install just with::
 Content
 =======
 
-There is many things that is useless to have here in python library.
+There are a lot of stuff that's not in python library (installable via pip), but still on github repository.
 
 Link where you can find find that content:
 
@@ -77,7 +77,7 @@ https://mypythontools.readthedocs.io/#content
 Some examples of what you can find only on github
 
 project-starter
---------------
+---------------
 
 Project scaffolding fast and easy.
 
@@ -154,7 +154,8 @@ Check utils module for more informations.
 
 **IDE files**
 
-It also include some default project specific settings for VS Code. You can also delete it.
+It also include some default project specific
+ settings for VS Code. You can also delete it.
 
 If developing py - vue - eel app this is the recommended way, but if you want to build just what is necessary
 from scratch, you can use this tutorial
@@ -185,7 +186,7 @@ Tested on readthedocs hosting (recommended).
 CSS are served from github and it's possible to change on one place and edit how all projects docs look like
 at once.
 
-Just add this to sphinx conf.py
+Just add this to sphinx conf.py::
 
     >>> html_css_files = ["https://malachov.github.io/readthedocs-sphinx-alabaster-css/custom.css"]
 
@@ -220,16 +221,9 @@ You can do CI / CD pipeline or Build app with one click now.
 
 """
 
-from . import utils
-from . import build
-from . import config
-from . import deploy
-from . import paths
-from . import misc
-from . import pyvueeel
-from . import plots
+from . import utils, build, config, deploy, paths, misc, pyvueeel, plots
 
-__version__ = "0.0.57"
+__version__ = "0.0.59"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

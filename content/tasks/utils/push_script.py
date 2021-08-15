@@ -1,8 +1,9 @@
-import SET_YOUR_NAME
+import mypythontools
+
 
 if __name__ == "__main__":
 
-    SET_YOUR_NAME.utils.push_pipeline(
+    mypythontools.utils.push_pipeline(
         tests=True,
         version="increment",  # increment by 0.0.1
         sphinx_docs=True,

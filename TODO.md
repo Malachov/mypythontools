@@ -3,7 +3,7 @@
 - [ ] Finish start vue in debug from python
 - [ ] Create GIF of vs code task
 - [ ] Maybe save paths as strings - for not calling as_posix()
-- [ ] Better test coverage
+- [ ] Better test coverage (doctest in functions + check if in coverage)
 
 ```
     # Try to run npm run serve from app.py if not running

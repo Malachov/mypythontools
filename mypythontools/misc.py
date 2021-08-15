@@ -25,23 +25,29 @@ def validate(value, types, options, name=None):
         KeyError: Value not in defined options.
     """
     if types:
+
+        # To be able to use None in types instead of type(None)
+        if isinstance(types, (list, tuple)) and None in types:
+            types = list(types)
+
+            for i, j in enumerate(types):
+                if j is None:
+                    types[i] = type(None)
+
         if isinstance(types, list):
             types = tuple(types)
-
-        if isinstance(types, tuple) and None in types:
-            raise TypeError(mylogging.return_str("None in type checking. None is a value, use type(None)."))
 
         if not isinstance(value, types):
             raise TypeError(
                 mylogging.return_str(
-                    f"Allowed types for variable {name} are {types}, but you try to set an {type(value)}"
+                    f"Allowed types for variable < {name} > are {types}, but you try to set an {type(value)}"
                 )
             )
 
     if options and value not in options:
         raise KeyError(
             mylogging.return_str(
-                f"New value {value} for variable {name} is not in allowed options {options}."
+                f"New value < {value} > for variable < {name} > is not in allowed options {options}."
             )
         )
 

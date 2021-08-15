@@ -18,57 +18,77 @@ Examples:
     be configured on the beginning and therefore you don't need to wait for test finish.
     Default values can be also used, so in small starting projects, push is actually very fast.
 
-    Create folder utils, create push_script.py inside, add
+    Create folder utils, create `push_script.py` inside, add
 
     >>> import mypythontools
     ...
     >>> if __name__ == "__main__":
-    ...     mypythontools.utils.push_pipeline(deploy=True)  # With all the params you need.
+    ...     # Params that are always the same define here. Params that are changing define in IDE when run action.
+    ...     # For example in tasks (command line arguments and argparse will be used).
+    ...     mypythontools.utils.push_pipeline(deploy=True)
 
     Then just add this task to global tasks.json::
 
         {
-            "version": "2.0.0",
-            "tasks": [
-                {
-                    "label": "Hooks & push & deploy",
-                    "type": "shell",
-                    "command": "python",
-                    "args": [
-                        "${workspaceFolder}/utils/push_script.py",
-                        "--commit_message",
-                        "${input:git-message}",
-                        "--tag",
-                        "${input:git-tag}",
-                        "--tag_mesage",
-                        "${input:git-tag-message}"
-                    ],
-                    "presentation": {
-                        "reveal": "always",
-                        "panel": "new"
-                    }
-                }
+        "version": "2.0.0",
+        "tasks": [
+            {
+            "label": "Build app",
+            "type": "shell",
+            "command": "python",
+            "args": ["${workspaceFolder}/utils/build_script.py"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+            },
+            {
+            "label": "Hooks & push & deploy",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/utils/push_script.py",
+                "--version",
+                "${input:version}",
+                "--commit_message",
+                "${input:commit_message}",
+                "--tag",
+                "${input:tag}",
+                "--tag_mesage",
+                "${input:tag-message}"
             ],
-            "inputs": [
-                {
-                    "type": "promptString",
-                    "id": "git-message",
-                    "description": "Git message for commit.",
-                    "default": "New commit"
-                },
-                {
-                    "type": "promptString",
-                    "id": "git-tag",
-                    "description": "Git tag.",
-                    "default": "__version__"
-                },
-                {
-                    "type": "promptString",
-                    "id": "git-tag-message",
-                    "description": "Git tag message.",
-                    "default": "New version"
-                }
-            ]
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+            }
+        ],
+        "inputs": [
+            {
+            "type": "promptString",
+            "id": "version",
+            "description": "Version in __init__.py will be overwiten. Version has to be in format like '1.0.3' three digits and two dots. If None, nothing will happen. If 'increment', than it will be updated by 0.0.1.",
+            "default": "increment"
+            },
+            {
+            "type": "promptString",
+            "id": "commit_message",
+            "description": "Git message for commit.",
+            "default": "New commit"
+            },
+            {
+            "type": "promptString",
+            "id": "tag",
+            "description": "Git tag. If '__version__' is used, then tag from version in __init.py will be derived. E.g. 'v1.0.1' from '1.0.1'",
+            "default": "__version__"
+            },
+            {
+            "type": "promptString",
+            "id": "tag-message",
+            "description": "Git tag message.",
+            "default": "New version"
+            }
+        ]
         }
 
     **Git hooks example**
@@ -90,10 +110,9 @@ Examples:
 
     >>> import mypythontools
     >>> mypythontools.paths.set_paths()
-    >>> mypythontools.utils.run_tests()
-    ============================= test session starts =============================
-    ...
-    >>> mypythontools.utils.set_version('increment')
+    >>> version = mypythontools.utils.get_version()  # For example 1.0.2
+    >>> print(version[0].isdigit() == version[2].isdigit() == version[5].isdigit() == (version[1] == '.' == version[3]))
+    True
 """
 
 import argparse
@@ -101,10 +120,12 @@ import ast
 import importlib
 from pathlib import Path
 import subprocess
+import sys
 
 import mylogging
 
 from . import paths
+from . import tests
 from . import deploy as deploy_module
 
 # Lazy loaded
@@ -112,35 +133,35 @@ from . import deploy as deploy_module
 
 
 def push_pipeline(
-    tests=True,
+    test=True,
     version="increment",
     sphinx_docs=True,
-    git_params={
-        "commit_message": "New commit",
-        "tag": "__version__",
-        "tag_mesage": "New version",
-    },
+    push_git=True,
+    commit_message="New commit",
+    tag="__version__",
+    tag_mesage="New version",
     deploy=False,
 ):
     """Run pipeline for pushing and deploying app. Can run tests, generate rst files for sphinx docs,
-    push to github and deploy to pypi. git_params can be configured not only with function params,
+    push to github and deploy to pypi. All params can be configured not only with function params,
     but also from command line with params and therefore callable from terminal and optimal to run
     from IDE (for example with creating simple VS Code task).
 
     Check utils module docs for implementation example.
 
     Args:
-        tests (bool, optional): Whether run pytest tests. Defaults to True.
-        version (str, optional): New version. E.g. '1.2.5'. If 'increment', than it's auto incremented.
+        test (bool, optional): Whether run pytest tests. Defaults to True.
+        version (str, optional): New version. E.g. '1.2.5'. If 'increment', than it's auto incremented. E.g from '1.0.2' to 'v1.0.3'.
             If None, then version is not changed. 'Defaults to "increment".
         sphinx_docs((bool, list), optional): Whether generate sphinx apidoc and generate rst files for documentation.
             Some files in docs source can be deleted - check `sphinx_docs` docstrings for details and insert
             `exclude_paths` list if have some extra files other than ['conf.py', 'index.rst', '_static', '_templates'].
             Defaults to True.
-        git_params (dict, optional): Git message, tag and tag mesage. If empty dict - {},
-            than files are not git pushed. If tag is '__version__', than is automatically generated
-            from __init__ version. E.g from '1.0.2' to 'v1.0.2'.
-            Defaults to { 'commit_message': 'New commit', 'tag': '__version__', 'tag_mesage': 'New version' }.
+        push_git (bool, optional): Whether push repository on git with git_message, tag and tag message. Defaults to True.
+        git_message (str, optional): Git message. Defaults to 'New commit'.
+        tag (str, optional): Used tag. If None, not tag will be pushed. If tag is '__version__', than updated version from __init__ is used.
+            Defaults to __version__.
+        tag_mesage (str, optional): Tag message. Defaults to New version.
         deploy (bool, optional): Whether deploy to PYPI. Defaults to False.
 
     Example:
@@ -150,27 +171,34 @@ def push_pipeline(
         >>> import mypythontools
         ...
         >>> if __name__ == "__main__":
-        ...     mypythontools.utils.push_pipeline(deploy=True)  # With all the params you need.
+        ...     mypythontools.utils.push_pipeline(deploy=True)  # All the params that change everytime configure for example in VS Code tasks.
 
     """
+    config = {
+        "test": test,
+        "version": version,
+        "sphinx_docs": sphinx_docs,
+        "push_git": push_git,
+        "commit_message": commit_message,
+        "tag": tag,
+        "tag_mesage": tag_mesage,
+        "deploy": deploy,
+    }
 
     if not all([paths.ROOT_PATH, paths.APP_PATH, paths.INIT_PATH]):
         paths.set_paths()
 
-    if tests:
-        run_tests()
-
-    if version:
-        set_version(version)
-
-    if isinstance(sphinx_docs, list):
-        sphinx_docs_regenerate(exclude_paths=sphinx_docs)
-    elif sphinx_docs:
-        sphinx_docs_regenerate()
-
-    if git_params:
+    if len(sys.argv) > 1:
         parser = argparse.ArgumentParser(description="Prediction framework setting via command line parser!")
 
+        parser.add_argument(
+            "--version",
+            type=str,
+            help=(
+                "Version in __init__.py will be overwiten. Version has to be in format like '1.0.3' three digits"
+                "and two dots. If None, nothing will happen. If 'increment', than it will be updated by 0.0.1."
+            ),
+        )
         parser.add_argument(
             "--commit_message",
             type=str,
@@ -180,21 +208,33 @@ def push_pipeline(
             "--tag",
             type=str,
             help="Tag. E.g 'v1.1.2'. If '__version__', get the version. Defaults to: '__version__'",
-        ),
-        parser.add_argument("--tag_mesage", type=str, help="Tag message. Defaults to: 'New version'"),
+        )
+        parser.add_argument("--tag_mesage", type=str, help="Tag message. Defaults to: 'New version'")
 
         parser_args_dict = {k: v for k, v in parser.parse_known_args()[0].__dict__.items() if v is not None}
 
         if parser_args_dict:
-            git_params.update(parser_args_dict)
+            config.update(parser_args_dict)
 
+    if config["test"]:
+        tests.run_tests()
+
+    if config["version"]:
+        set_version(version)
+
+    if isinstance(config["sphinx_docs"], list):
+        sphinx_docs_regenerate(exclude_paths=sphinx_docs)
+    elif config["sphinx_docs"]:
+        sphinx_docs_regenerate()
+
+    if push_git:
         git_push(
-            commit_message=git_params["commit_message"],
-            tag=git_params["tag"],
-            tag_message=git_params["tag_mesage"],
+            commit_message=config["commit_message"],
+            tag=config["tag"],
+            tag_message=config["tag_mesage"],
         )
 
-    if deploy:
+    if config["deploy"]:
         deploy_module.deploy_to_pypi()
 
 
@@ -228,9 +268,11 @@ def git_push(commit_message, tag="__version__", tag_message="New version"):
     if tag == "__version__":
         tag = f"v{get_version()}"
 
-    Repo(paths.ROOT_PATH).create_tag(tag, message=tag_message)
+    git_push_command = "git push"
 
-    git_push_command = "git push --follow-tags"
+    if tag:
+        Repo(paths.ROOT_PATH).create_tag(tag, message=tag_message)
+        git_push_command += " --follow-tags"
 
     subprocess.run(git_push_command, shell=True, check=True, cwd=paths.ROOT_PATH)
 
@@ -247,12 +289,27 @@ def set_version(version="increment"):
         ValueError: If no __version__ is find. Try set INIT_PATH via paths.set_paths...
     """
 
+    if version == "increment" or (
+        len(version) == 5
+        and version[1] == version[3] == "."
+        and (version[0].isdigit() and version[2].isdigit() and version[4].isdigit())
+    ):
+        pass
+    else:
+        raise ValueError(
+            mylogging.return_str(
+                f"Version not validated. Version has to be of form '1.2.3'. Three digits and two dots. You used {version}"
+            )
+        )
+
     with open(paths.INIT_PATH, "r") as init_file:
 
         list_of_lines = init_file.readlines()
 
         for i, j in enumerate(list_of_lines):
             if j.startswith("__version__"):
+
+                found = True
 
                 delimiter = '"' if '"' in j else "'"
                 delimited = j.split(delimiter)
@@ -268,7 +325,7 @@ def set_version(version="increment"):
                 list_of_lines[i] = delimiter.join(delimited)
                 break
 
-        else:
+        if not found:
             raise ValueError(
                 mylogging.return_str("__version__ variable not found in __init__.py. Try set INIT_PATH.")
             )
@@ -309,45 +366,9 @@ def get_version(INIT_PATH=None):
             )
 
 
-def run_tests(test_path=None, test_coverage=True):
-    import pytest
-
-    """Run tests. If any test fails, raise an error.
-
-    Args:
-        test_path ((str, pathlib.Path), optional): Usually autodetected (if ROOT_PATH / tests).
-            Defaults to None.
-        test_coverage(bool, optional): Whether run test coverage plugin. If True, pytest-cov must be installed. Defaults to True
-
-    Raises:
-        Exception: If any test fail, it will raise exception (git hook do not continue...).
-    """
-
-    if not test_path:
-        test_path = paths.ROOT_PATH / "tests"
-
-    if not test_coverage:
-        pytest_args = ["-x", test_path.as_posix()]
-    else:
-        pytest_args = [
-            "-x",
-            "--cov",
-            paths.APP_PATH.as_posix(),
-            "--cov-report",
-            "xml:.coverage.xml",
-            test_path.as_posix(),
-        ]
-
-    pytested = pytest.main(pytest_args)
-
-    if test_coverage:
-        Path(".coverage").unlink()
-
-    if pytested == 1:
-        raise RuntimeError(mylogging.return_str("Pytest failed"))
-
-
-def sphinx_docs_regenerate(docs_path=None, build_locally=False, git_add=True, exclude_paths=[]):
+def sphinx_docs_regenerate(
+    docs_path=None, build_locally=False, git_add=True, exclude_paths=[], delete=["modules.rst"]
+):
     """This will generate all rst files necessary for sphinx documentation generation with sphinx-apidoc.
     It automatically delete removed and renamed files.
 
@@ -361,12 +382,13 @@ def sphinx_docs_regenerate(docs_path=None, build_locally=False, git_add=True, ex
     Args:
         docs_path ((str, Path), optional): Where source folder is. Usually infered automatically.
             Defaults to None.
-        build_locally (bool, optional): If true, build build folder with html files locally.
+        build_locally (bool, optional): If true, build folder with html files locally.
             Defaults to False.
         git_add (bool, optional): Whether to add generated files to stage. False mostly for
             testing reasons. Defaults to True.
         exclude_paths (list, optional): List of files and folder names that will not be deleted.
             ['conf.py', 'index.rst', '_static', '_templates'] are excluded by default. Defaults to [].
+        delete (list, optional): If delete some files (for example to have no errors in sphinx build for unused modules)
 
     Note:
         Function suppose structure of docs like::
@@ -399,9 +421,9 @@ def sphinx_docs_regenerate(docs_path=None, build_locally=False, git_add=True, ex
     if not all([paths.APP_PATH, paths.ROOT_PATH]):
         mylogging.return_str("Paths are not known. First run `paths.set_paths()`.")
 
-    docs_source_path = docs_path / "source"
+    docs_source_path = Path(docs_path).resolve() / "source"
 
-    for p in Path(docs_source_path).iterdir():
+    for p in docs_source_path.iterdir():
         if p.name not in [
             "conf.py",
             "index.rst",
@@ -414,9 +436,6 @@ def sphinx_docs_regenerate(docs_path=None, build_locally=False, git_add=True, ex
             except Exception:
                 pass
 
-    if build_locally:
-        subprocess.run(["make", "html"], shell=True, cwd=docs_path, check=True)
-
     apidoc_command = f"sphinx-apidoc -f -e -o source {paths.APP_PATH.as_posix()}"
     subprocess.run(
         apidoc_command,
@@ -424,6 +443,13 @@ def sphinx_docs_regenerate(docs_path=None, build_locally=False, git_add=True, ex
         cwd=docs_path,
         check=True,
     )
+
+    if delete:
+        for i in delete:
+            (docs_source_path / i).unlink()
+
+    if build_locally:
+        subprocess.run(["make", "html"], shell=True, cwd=docs_path, check=True)
 
     if git_add:
         subprocess.run(["git", "add", "docs"], shell=True, cwd=paths.ROOT_PATH, check=True)

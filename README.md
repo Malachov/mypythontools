@@ -2,9 +2,25 @@
 
 [![Python versions](https://img.shields.io/pypi/pyversions/mypythontools.svg)](https://pypi.python.org/pypi/mypythontools/) [![PyPI version](https://badge.fury.io/py/mypythontools.svg)](https://badge.fury.io/py/mypythontools) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Malachov/mypythontools.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Malachov/mypythontools/context:python) [![Documentation Status](https://readthedocs.org/projects/mypythontools/badge/?version=latest)](https://mypythontools.readthedocs.io/en/latest/?badge=latest) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/Malachov/mypythontools/branch/master/graph/badge.svg)](https://codecov.io/gh/Malachov/mypythontools)
 
-Some tools/functions/snippets used across projects.
+
+Some tools/functions/snippets/files used across projects.
 
 It's called mypythontools, but it's also made for you...
+
+Can be used as python library. Things like building the application with pyinstaller, incrementing version,
+generating rst files for sphinx docs, pushing to github or deploying to Pypi or other CI/CD functionality,
+creating config module or plot data is matter of calling one function or clicking one button (e.g. Vs code task).
+
+Many projects - one codebase.
+
+If you are not sure whether structure of your app will work with this code, check `project-starter` on github
+in content folder.
+
+Paths are infered, but if you have atypical structure or have more projects in cwd, use
+`mypythontools.paths.set_paths()` with path arguments.
+
+There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.), such a
+content is under the Content topic.
 
 ## Links
 
@@ -27,19 +43,6 @@ Paths are infered, but if you have atypical structure or have more projects in c
 There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.), 
 such a content is in folder Content.
 
-
-## Modules
-
-- config
-- pyvueeel (for applications build with eel and vue)
-- utils (various functions callable from one `push_pipeline` function)
-- build
-- deploy
-- misc
-- paths
-
-Check modules help with examples.
-
 ## Installation
 
 Python >=3.6 (Python 2 is not supported).
@@ -49,6 +52,21 @@ Install just with
 ```console
 pip install mypythontools
 ```
+
+## Modules
+
+- build
+- config
+- deploy
+- misc
+- paths
+- plots
+- property
+- pyvueeel (for applications build with eel and vue)
+- tests
+- utils
+
+Check modules help or readme docs with examples.
 
 ## Content
 

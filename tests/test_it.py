@@ -26,7 +26,7 @@ if ROOT_PATH not in sys.path:
 import mypythontools
 
 
-def test_it():
+def test_utils():
 
     shutil.rmtree(ROOT_PATH / "build", ignore_errors=True)
     if (ROOT_PATH / "docs" / "source" / "modules.rst").exists():
@@ -38,17 +38,18 @@ def test_it():
 
     # TODO test if correct
 
+
+def test_build():
+
     # Build app with pyinstaller example
     mypythontools.paths.set_paths(set_ROOT_PATH=test_path)
     mypythontools.build.build_app(main_file="app.py", console=True, debug=True, cleanit=False)
     mypythontools.paths.set_paths()
 
-    passed = (test_path / "dist").exists()
+    assert (test_path / "dist").exists()
 
     shutil.rmtree(ROOT_PATH / "tests" / "build")
     shutil.rmtree(ROOT_PATH / "tests" / "dist")
-
-    assert passed
 
 
 if __name__ == "__main__":

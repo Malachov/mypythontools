@@ -13,7 +13,9 @@ Submodules
    mypythontools.misc
    mypythontools.paths
    mypythontools.plots
+   mypythontools.property
    mypythontools.pyvueeel
+   mypythontools.tests
    mypythontools.utils
 
 Module contents

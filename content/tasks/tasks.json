@@ -17,12 +17,14 @@
       "command": "python",
       "args": [
         "${workspaceFolder}/utils/push_script.py",
+        "--version",
+        "${input:version}",
         "--commit_message",
-        "${input:git-message}",
+        "${input:commit_message}",
         "--tag",
-        "${input:git-tag}",
+        "${input:tag}",
         "--tag_mesage",
-        "${input:git-tag-message}"
+        "${input:tag-message}"
       ],
       "presentation": {
         "reveal": "always",
@@ -33,19 +35,25 @@
   "inputs": [
     {
       "type": "promptString",
-      "id": "git-message",
+      "id": "version",
+      "description": "Version in __init__.py will be overwiten. Version has to be in format like '1.0.3' three digits and two dots. If None, nothing will happen. If 'increment', than it will be updated by 0.0.1.",
+      "default": "increment"
+    },
+    {
+      "type": "promptString",
+      "id": "commit_message",
       "description": "Git message for commit.",
       "default": "New commit"
     },
     {
       "type": "promptString",
-      "id": "git-tag",
-      "description": "Git tag.",
+      "id": "tag",
+      "description": "Git tag. If '__version__' is used, then tag from version in __init.py will be derived. E.g. 'v1.0.1' from '1.0.1'",
       "default": "__version__"
     },
     {
       "type": "promptString",
-      "id": "git-tag-message",
+      "id": "tag-message",
       "description": "Git tag message.",
       "default": "New version"
     }

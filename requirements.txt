@@ -1,3 +1,4 @@
+mylogging>=3.0.4
 sphinx
 pyinstaller
 pytest
@@ -5,8 +6,8 @@ setuptools
 wheel
 twine
 EelForkExcludeFiles
-mylogging
 GitPython
 pandas
 pytest
 pytest-cov
+phmdoctest
