@@ -22,8 +22,10 @@ def setup_tests(matplotlib_test_backend=False):
     """
     mylogging.config.COLOR = 0
 
+    paths.set_root()
+
     # Find paths and add to sys.path to be able to import local modules
-    test_dir_path = Path(os.path.abspath(inspect.getframeinfo(inspect.currentframe()).filename)).parent
+    test_dir_path = paths.ROOT_PATH
     root_path = test_dir_path.parent
 
     for path in [test_dir_path, root_path]:
