@@ -1,6 +1,5 @@
 import subprocess
 from pathlib import Path
-from pathlib import Path
 import inspect
 import os
 import sys
@@ -12,6 +11,17 @@ from . import paths
 
 
 def setup_tests(matplotlib_test_backend=False):
+    """Add paths to be able to import local version of library as well as other test files.
+
+    Note:
+        Value Mylogging.config.COLOR = 0 changed globally.
+
+    Args:
+        matplotlib_test_backend (bool, optional): If using matlplotlib, it need to be
+            closed to continue tests. Change backend to agg. Defaults to False.
+    """
+    mylogging.config.COLOR = 0
+
     # Find paths and add to sys.path to be able to import local modules
     test_dir_path = Path(os.path.abspath(inspect.getframeinfo(inspect.currentframe()).filename)).parent
     root_path = test_dir_path.parent

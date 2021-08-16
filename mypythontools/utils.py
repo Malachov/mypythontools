@@ -220,10 +220,10 @@ def push_pipeline(
         tests.run_tests()
 
     if config["version"]:
-        set_version(version)
+        set_version(config["version"])
 
     if isinstance(config["sphinx_docs"], list):
-        sphinx_docs_regenerate(exclude_paths=sphinx_docs)
+        sphinx_docs_regenerate(exclude_paths=config["sphinx_docs"])
     elif config["sphinx_docs"]:
         sphinx_docs_regenerate()
 

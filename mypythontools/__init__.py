@@ -223,7 +223,7 @@ You can do CI / CD pipeline or Build app with one click now.
 
 from . import build, config, deploy, misc, paths, plots, property, pyvueeel, tests, utils
 
-__version__ = "0.0.60"
+__version__ = "0.0.61"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

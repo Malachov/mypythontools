@@ -1,27 +1,5 @@
-""" Test module. Auto pytest that can be started in IDE or with::
-
-    python -m pytest
-
-in terminal in tests folder.
-"""
-#%%
-
-from pathlib import Path
-import os
-import inspect
+from conftest import ROOT_PATH, TEST_PATH
 import shutil
-import sys
-
-import mylogging
-
-mylogging.config.COLOR = 0
-
-# Find paths and add to sys.path to be able to import local modules
-test_path = Path(os.path.abspath(inspect.getframeinfo(inspect.currentframe()).filename)).parent
-ROOT_PATH = test_path.parent
-
-if ROOT_PATH not in sys.path:
-    sys.path.insert(0, ROOT_PATH.as_posix())
 
 import mypythontools
 
@@ -42,11 +20,11 @@ def test_utils():
 def test_build():
 
     # Build app with pyinstaller example
-    mypythontools.paths.set_paths(set_ROOT_PATH=test_path)
+    mypythontools.paths.set_paths(set_ROOT_PATH=TEST_PATH)
     mypythontools.build.build_app(main_file="app.py", console=True, debug=True, cleanit=False)
     mypythontools.paths.set_paths()
 
-    assert (test_path / "dist").exists()
+    assert (TEST_PATH / "dist").exists()
 
     shutil.rmtree(ROOT_PATH / "tests" / "build")
     shutil.rmtree(ROOT_PATH / "tests" / "dist")
