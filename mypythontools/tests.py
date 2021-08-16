@@ -1,7 +1,5 @@
 import subprocess
 from pathlib import Path
-import inspect
-import os
 import sys
 import warnings
 
@@ -135,3 +133,16 @@ def test_readme(readme_path=None, test_folder_path=None):
     finally:
         if test_folder_path.exists():
             test_folder_path.unlink()
+
+
+def deactivate_test_settings():
+    """Sometimes you want to run test just in normal mode (enable plots etc.). Usually at the end of test file in `if __name__ = "__main__":` block."""
+    mylogging.config.COLOR = 1
+
+    if "matplotlib" in sys.modules:
+
+        import matplotlib
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            matplotlib.use("agg")

@@ -1,6 +1,7 @@
 import pytest
 import mypythontools
 
+# Has to be here because of doctest and has to be in tests scripts to be able to import from other folder
 mypythontools.tests.setup_tests()
 
 

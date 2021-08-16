@@ -1,7 +1,11 @@
-from conftest import ROOT_PATH, TEST_PATH
 import shutil
 
 import mypythontools
+
+# Find paths and add to sys.path to be able to import local modules
+mypythontools.tests.setup_tests()
+
+from conftest import ROOT_PATH, TEST_PATH
 
 
 def test_utils():
