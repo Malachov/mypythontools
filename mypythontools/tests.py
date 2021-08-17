@@ -142,7 +142,6 @@ def deactivate_test_settings():
     if "matplotlib" in sys.modules:
 
         import matplotlib
+        import importlib
 
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            matplotlib.use("agg")
+        importlib.reload(matplotlib)

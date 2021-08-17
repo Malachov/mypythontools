@@ -1,3 +1,7 @@
+#examples .section blockquote {
+  margin-left: 0;
+}
+
 .sig {
   font-size: 145%;
 }
