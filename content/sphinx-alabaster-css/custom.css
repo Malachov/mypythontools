@@ -18,6 +18,12 @@
   font-size: 125%;
 }
 
+.function > dt:first-of-type {
+  padding-top: 40px !important;
+  padding-bottom: 15px !important;
+  font-size: 120%;
+}
+
 p.rubric::after {
   content: ":";
 }
