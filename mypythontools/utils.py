@@ -79,7 +79,7 @@ Examples:
             {
             "type": "promptString",
             "id": "tag",
-            "description": "Git tag. If '__version__' is used, then tag from version in __init.py will be derived. E.g. 'v1.0.1' from '1.0.1'",
+            "description": "Git tag. If '__version__' is used, then tag from version in __init__.py will be derived. E.g. 'v1.0.1' from '1.0.1'",
             "default": "__version__"
             },
             {

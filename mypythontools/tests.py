@@ -11,8 +11,11 @@ from . import paths
 def setup_tests(matplotlib_test_backend=False):
     """Add paths to be able to import local version of library as well as other test files.
 
+    Value Mylogging.config.COLOR = 0 changed globally.
+
     Note:
-        Value Mylogging.config.COLOR = 0 changed globally.
+        Function expect `tests` folder on root. If not, test folder will not be added to sys path and
+        imports from tests will not work.
 
     Args:
         matplotlib_test_backend (bool, optional): If using matlplotlib, it need to be
@@ -23,12 +26,10 @@ def setup_tests(matplotlib_test_backend=False):
     paths.set_root()
 
     # Find paths and add to sys.path to be able to import local modules
-    test_dir_path = paths.ROOT_PATH
-    root_path = test_dir_path.parent
+    test_dir_path = paths.ROOT_PATH / "tests"
 
-    for path in [test_dir_path, root_path]:
-        if path.as_posix() not in sys.path:
-            sys.path.insert(0, path.as_posix())
+    if test_dir_path not in sys.path:
+        sys.path.insert(0, test_dir_path.as_posix())
 
     if matplotlib_test_backend:
         import matplotlib
