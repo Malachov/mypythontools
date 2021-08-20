@@ -40,14 +40,6 @@ Examples:
     >>> myobject.var = 124
     >>> myobject.var
     124
-
-This is how it look in VS Code intellisense
-
-.. image:: /_static/intellisense.png
-    :width: 620
-    :alt: tasks
-    :align: center
- 
 """
 
 import types as types_lib
