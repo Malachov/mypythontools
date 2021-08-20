@@ -14,7 +14,6 @@ Submodules
 `build </page/mypythontools.build.html>`_
 -----------------------------------------
 .. automodule:: mypythontools.build
-    :name: build
     :noindex:
 
 
