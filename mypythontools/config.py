@@ -170,6 +170,36 @@ There is a function that will export all the values to the flat dictionary (no d
 
 >>> config.get_dict()
 {'value3': 2, 'value1': 0, 'value2': 1, 'other_val': 2}
+
+Reset
+-----
+You can reset to default values
+
+>>> config.value1 = 1
+>>> config.reset()
+>>> config.value1
+3
+
+Sphinx docs
+===========
+
+If you want to have documentation via sphinx, you can add this to conf.py::
+
+    napoleon_custom_sections = [
+        ("Types", "returns_style"),
+        ("Type", "returns_style"),
+        ("Options", "returns_style"),
+        ("Default", "returns_style"),
+        ("Example", "returns_style"),
+        ("Examples", "returns_style"),
+    ]
+
+Here is example
+
+.. image:: /_static/config_on_sphinx.png
+    :width: 620
+    :alt: tasks
+    :align: center
 """
 
 from typing import Any
@@ -297,7 +327,16 @@ class ConfigBase(metaclass=ConfigMeta):
             setattr(self, i, j)
 
     def reset(self):
-        self = type(self)()
+        copy = type(self)()
+
+        for i in vars(copy).keys():
+            setattr(self, i, copy[i])
+
+        for i in copy.myproperties_list:
+            setattr(self, i, copy[i])
+
+        for i in copy.properties_list:
+            setattr(self, i, copy[i])
 
     def get_dict(self):
         normal_vars = {
