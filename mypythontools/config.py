@@ -296,6 +296,9 @@ class ConfigBase(metaclass=ConfigMeta):
         for i, j in dict.items():
             setattr(self, i, j)
 
+    def reset(self):
+        self = type(self)()
+
     def get_dict(self):
         normal_vars = {
             key: value

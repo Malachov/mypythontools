@@ -97,6 +97,10 @@ def test_readme(readme_path=None, test_folder_path=None):
             import numpy
             ```
 
+        First generate test file manually and control if test file generated as supposed with::
+
+            phmdoctest path_to_readme/README.md --outfile path_to_project/tests/test_readme_generated.py
+
         If you want to import modules and use some global variables, add `<!--phmdoctest-setup-->` this directive above
         block with setup code.
         If you want to skip some test, add `<!--phmdoctest-mark.skip-->`
