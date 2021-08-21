@@ -1,3 +1,4 @@
+#%%
 import shutil
 from pathlib import Path
 import sys
@@ -41,3 +42,6 @@ def test_build():
 if __name__ == "__main__":
     # test_it()
     pass
+
+
+mypythontools.paths.set_root()

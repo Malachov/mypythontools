@@ -3,6 +3,7 @@ Module where you can configure and process paths.
 """
 from pathlib import Path
 import sys
+import builtins
 
 import mylogging
 
@@ -54,10 +55,16 @@ def set_root(set_ROOT_PATH=None):
     Args:
         set_ROOT_PATH ((str, pathlib.Path), optional): Path to project root where tests and docs folder are.
             If None, then cwd (current working directory) is used. Defaults to None.
+
+    Note:
+        If working from jupyter notebook, works only if in directory `tests`.
     """
     global ROOT_PATH
 
     ROOT_PATH = Path(set_ROOT_PATH) if set_ROOT_PATH else Path.cwd()
+
+    if ROOT_PATH.name == "tests" and hasattr(builtins, "__IPYTHON__"):
+        ROOT_PATH = ROOT_PATH.parent
 
     if not ROOT_PATH.as_posix() in sys.path:
         sys.path.insert(0, ROOT_PATH.as_posix())
