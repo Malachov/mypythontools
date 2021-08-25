@@ -134,6 +134,7 @@ from . import deploy as deploy_module
 
 def push_pipeline(
     test=True,
+    test_options={},
     version="increment",
     sphinx_docs=True,
     push_git=True,
@@ -151,6 +152,8 @@ def push_pipeline(
 
     Args:
         test (bool, optional): Whether run pytest tests. Defaults to True.
+        test_options (dict, optional): Parameters of tests function e.g. `{"test_coverage": True, "verbose": False, "use_virutalenv":True}`.
+            Defaults to {}.
         version (str, optional): New version. E.g. '1.2.5'. If 'increment', than it's auto incremented. E.g from '1.0.2' to 'v1.0.3'.
             If None, then version is not changed. 'Defaults to "increment".
         sphinx_docs((bool, list), optional): Whether generate sphinx apidoc and generate rst files for documentation.
@@ -176,6 +179,7 @@ def push_pipeline(
     """
     config = {
         "test": test,
+        "test_options": test_options,
         "version": version,
         "sphinx_docs": sphinx_docs,
         "push_git": push_git,
@@ -217,7 +221,7 @@ def push_pipeline(
             config.update(parser_args_dict)
 
     if config["test"]:
-        tests.run_tests()
+        tests.run_tests(**test_options)
 
     if config["version"]:
         set_version(config["version"])

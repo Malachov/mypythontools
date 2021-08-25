@@ -62,7 +62,9 @@ def set_root(set_ROOT_PATH=None):
     global ROOT_PATH
 
     ROOT_PATH = Path(set_ROOT_PATH) if set_ROOT_PATH else Path.cwd()
+    ROOT_PATH = ROOT_PATH.resolve()
 
+    # If using jupyter notebook from tests - very specific use case
     if ROOT_PATH.name == "tests" and hasattr(builtins, "__IPYTHON__"):
         ROOT_PATH = ROOT_PATH.parent
 

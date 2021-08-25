@@ -2,6 +2,8 @@ import subprocess
 from pathlib import Path
 import sys
 import warnings
+import platform
+import shutil
 
 import mylogging
 
@@ -39,24 +41,41 @@ def setup_tests(matplotlib_test_backend=False):
             matplotlib.use("agg")
 
 
-def run_tests(test_path=None, test_coverage=True, stop_on_first_error=True, extra_args=["-q", "--tb=no"]):
+def run_tests(
+    test_path=None,
+    test_coverage=True,
+    stop_on_first_error=True,
+    use_virutalenv=True,
+    requirements=None,
+    verbose=False,
+    extra_args=[],
+):
     """Run tests. If any test fails, raise an error.
 
     Args:
-        test_path ((str, pathlib.Path), optional): If None, autodetected (if ROOT_PATH / tests). Defaults to None.
+        test_path ((str, pathlib.Path), optional): If None, ROOT_PATH is used. ROOT_PATH is necessary if using doctests
+            'Tests' folder not works for doctests in modules. Defaults to None.
         test_coverage (bool, optional): Whether run test coverage plugin. If True, pytest-cov must be installed. Defaults to True
-        extra_args (list, optional): List of args passed to pytest. Defaults to ["-q", "--tb=no"]
+        stop_on_first_error (bool, optional): Whether stop on first error. Defaults to True
+        use_virutalenv (bool, optional): Whether run new virtualenv and install all libraries from requirements.txt. Defaults to True
+        requirements ((str, pathlib.Path, list), optional): If using `use_virutalenv` define what libraries will be installed.
+            If None, autodetected. Can also be a list of more files e.g `["requirements.txt", "requirements_dev.txt"]`. Defaults to None.
+        verbose (bool, optional): Whether print detailes on errors or keep silent. If False, parameters `-q and `--tb=no` are added.
+            Defaults to False.
+        extra_args (list, optional): List of args passed to pytest. Defaults to []
 
     Raises:
         Exception: If any test fail, it will raise exception (git hook do not continue...).
 
     Note:
+        If not using with utils.push_pipeline, paths.set_paths().
+
         By default args to quiet mode and no traceback are passed. Usually this just runs automatic tests. If some of them fail,
         it's further analyzed in some other tool in IDE.
     """
 
     if not test_path:
-        test_path = paths.ROOT_PATH  # / "tests"
+        test_path = paths.ROOT_PATH  # Because of doctest, root used, not tests folder
 
     if not test_coverage:
         pytest_args = [test_path.as_posix()]
@@ -68,12 +87,52 @@ def run_tests(test_path=None, test_coverage=True, stop_on_first_error=True, extr
             "--cov-report",
             "xml:.coverage.xml",
         ]
+
     if stop_on_first_error:
         extra_args.append("-x")
-    pytested = subprocess.run(["pytest", *pytest_args, *extra_args])
+
+    if not verbose:
+        extra_args.append("-q")
+        extra_args.append("--tb=no")
+
+    complete_args = ["pytest", *pytest_args, *extra_args]
+
+    test_command = " ".join(complete_args)
+
+    if use_virutalenv:
+        if not requirements:
+            default_requirements_path = paths.ROOT_PATH / "requirements.txt"
+            requirements = [
+                default_requirements_path
+                if default_requirements_path.exists()
+                else paths.paths.find_path("requirements.txt")
+            ]
+
+        requirements = [requirements] if not isinstance(requirements, list) else requirements
+
+        requirements_command = " && ".join(
+            [f"pip install --upgrade -r {Path(req).as_posix()}" for req in requirements]
+        )
+
+        if platform.system() == "Windows":
+            subprocess.run("virtualenv venv_test")
+            activate_command = r"venv_test\Scripts\activate.bat"
+        else:
+            subprocess.run("python3 -m virtualenv venv_test")
+            activate_command = "source venv_test/bin/activate"
+
+        command_venv_prefix = f"{activate_command} && {requirements_command} && pip install pytest &&"
+
+        test_command = command_venv_prefix + test_command
+
+    pytested = subprocess.run(test_command, shell=True)
 
     if test_coverage and Path(".coverage").exists():
         Path(".coverage").unlink()
+
+    if use_virutalenv:
+        virtualenv_path = paths.ROOT_PATH / "venv_test"
+        shutil.rmtree(virtualenv_path.as_posix())
 
     if pytested.returncode == 1:
         raise RuntimeError(mylogging.return_str("Pytest failed"))
