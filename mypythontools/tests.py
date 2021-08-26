@@ -121,11 +121,11 @@ def run_tests(
             subprocess.run("python3 -m virtualenv venv_test")
             activate_command = "source venv_test/bin/activate"
 
-        command_venv_prefix = f"{activate_command} && {requirements_command} && pip install pytest &&"
+        command_venv_prefix = f"{activate_command} && {requirements_command} && pip install pytest && pip install mypythontools && "
 
         test_command = command_venv_prefix + test_command
 
-    pytested = subprocess.run(test_command, shell=True)
+    pytested = subprocess.run(test_command)
 
     if test_coverage and Path(".coverage").exists():
         Path(".coverage").unlink()
@@ -134,7 +134,7 @@ def run_tests(
         virtualenv_path = paths.ROOT_PATH / "venv_test"
         shutil.rmtree(virtualenv_path.as_posix())
 
-    if pytested.returncode == 1:
+    if pytested.returncode != 0:
         raise RuntimeError(mylogging.return_str("Pytest failed"))
 
 
