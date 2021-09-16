@@ -7,8 +7,8 @@ from typing import Union, List
 import mylogging
 
 from .paths import PROJECT_PATHS, validate_path
-from . import paths
 from . import venvs
+from . import misc
 
 
 def setup_tests(
@@ -85,7 +85,7 @@ def run_tests(
     """
     tested_path = PROJECT_PATHS.ROOT_PATH if tested_path == "infer" else validate_path(tested_path)
     tests_path = PROJECT_PATHS.TEST_PATH if tests_path == "infer" else validate_path(tests_path)
-    tested_path_str = paths.get_console_path_str(tested_path)
+    tested_path_str = misc.get_console_str_with_quotes(tested_path)
 
     if not test_coverage:
         pytest_args = [tested_path_str]
@@ -93,7 +93,7 @@ def run_tests(
         pytest_args = [
             tested_path_str,
             "--cov",
-            paths.get_console_path_str(PROJECT_PATHS.APP_PATH),
+            misc.get_console_str_with_quotes(PROJECT_PATHS.APP_PATH),
             "--cov-report",
             "xml:.coverage.xml",
         ]
@@ -197,9 +197,9 @@ def add_readme_tests(
 
     generate_readme_test_command = [
         "phmdoctest",
-        readme_path.as_posix(),
+        readme_path,
         "--outfile",
-        test_file_path.as_posix(),
+        test_file_path,
     ]
     subprocess.run(generate_readme_test_command)
 

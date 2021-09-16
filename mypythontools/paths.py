@@ -310,18 +310,3 @@ def validate_path(path: Union[str, Path]):
     if not path.exists():
         raise FileNotFoundError(mylogging.return_str(f"File nor folder found on defined path {path}"))
     return path
-
-
-def get_console_path_str(path: Union[str, Path]):
-    """In terminal if paths contain spaces, it's not taken as one param
-    This wraps it to quotes to be able to use paths as needed.
-
-    Args:
-        path (str, Path): Path to be edited.
-
-    Returns:
-        str: Wrapped path that can be used in terminal.
-    """
-    if isinstance(path, (Path)):
-        path = path.as_posix()
-    return f'"{path}"'

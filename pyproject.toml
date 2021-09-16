@@ -1,5 +1,5 @@
 [tool.pytest.ini_options]
-addopts = "--doctest-modules"
+addopts = "--doctest-modules -x"
 usefixtures = "setup_tests"
 norecursedirs = "tested_project content"  # Ignore folders
 

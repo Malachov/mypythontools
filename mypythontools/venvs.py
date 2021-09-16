@@ -7,13 +7,14 @@ from typing import Union, List
 import shutil
 
 from . import paths
+from . import misc
 
 
 class MyVenv:
     def __init__(self, venv_path: Union[Path, str]) -> None:
 
         self.venv_path = Path(venv_path)
-        self.venv_path_console_str = paths.get_console_path_str(self.venv_path)
+        self.venv_path_console_str = misc.get_console_str_with_quotes(self.venv_path)
 
         if not self.venv_path.exists():
             self.venv_path.mkdir(parents=True, exist_ok=True)
@@ -22,12 +23,12 @@ class MyVenv:
             activate_path = self.venv_path / "Scripts" / "activate.bat"
             self.exists = True if activate_path.exists() else False
             self.create_command = f"python -m venv {self.venv_path_console_str}"
-            self.activate_command = paths.get_console_path_str(activate_path)
+            self.activate_command = misc.get_console_str_with_quotes(activate_path)
         else:
             self.exists = True if (self.venv_path / "bin").exists() else False
             self.create_command = f"python3 -m virtualenv {self.venv_path_console_str}"
             self.activate_command = (
-                f"source {paths.get_console_path_str(self._venv_path / 'bin' / 'activate')}"
+                f"source {misc.get_console_str_with_quotes(self._venv_path / 'bin' / 'activate')}"
             )
         # self.deactivate_command = "TODO"
 
@@ -72,8 +73,8 @@ class MyVenv:
         requirements_content = f"{requirements_content}\nmypythontools\npytest"
 
         requirements_all_path = self.venv_path / "requirements_all.in"
-        requirements_all_console_path_str = paths.get_console_path_str(requirements_all_path)
-        freezed_requirements_console_path_str = paths.get_console_path_str(
+        requirements_all_console_path_str = misc.get_console_str_with_quotes(requirements_all_path)
+        freezed_requirements_console_path_str = misc.get_console_str_with_quotes(
             self.venv_path / "requirements.txt"
         )
 

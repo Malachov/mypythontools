@@ -6,7 +6,8 @@ str_to_infer_type that will convert string to correct type.
 import builtins
 import time
 import sys
-from typing import Callable, List, Dict, Any
+from typing import Callable, Union, List, Dict, Any
+from pathlib import Path
 
 import mylogging
 
@@ -196,3 +197,20 @@ def watchdog(timeout: int, function: Callable, *args, **kwargs) -> None:
                 f"Watchdog with function {function.__name__}, args {args} and kwargs {kwargs} failed."
             )
         )
+
+
+def get_console_str_with_quotes(string: Union[str, Path]):
+    """In terminal if value or contain spaces, it's not taken as one param.
+    This wraps it with quotes to be able to use paths and values as needed.
+
+    Args:
+        string (str, Path): String  to be edited.
+
+    Returns:
+        str: Wrapped string that can be used in terminal.
+    """
+    if isinstance(string, (Path)):
+        string = string.as_posix()
+    string = string.strip("'")
+    string = string.strip('"')
+    return f'"{string}"'

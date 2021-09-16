@@ -123,7 +123,7 @@ from typing import Union, Dict, List
 
 import mylogging
 
-from . import paths
+from . import misc
 from . import tests
 from . import deploy as deploy_module
 from .paths import PROJECT_PATHS, validate_path
@@ -337,7 +337,7 @@ def git_push(
 
     from git import Repo
 
-    git_command = f"git add . && git commit -m {commit_message} && git push"
+    git_command = f"git add . && git commit -m {misc.get_console_str_with_quotes(commit_message)} && git push"
 
     if tag == "__version__":
         tag = f"v{get_version()}"
@@ -512,7 +512,9 @@ def sphinx_docs_regenerate(
             except Exception:
                 pass
 
-    apidoc_command = f"sphinx-apidoc -f -e -o source {paths.get_console_path_str(PROJECT_PATHS.APP_PATH)}"
+    apidoc_command = (
+        f"sphinx-apidoc -f -e -o source {misc.get_console_str_with_quotes(PROJECT_PATHS.APP_PATH)}"
+    )
     subprocess.run(
         apidoc_command,
         cwd=docs_path,
@@ -562,7 +564,7 @@ def generate_readme_from_init(git_add: bool = True) -> None:
             [
                 "git",
                 "add",
-                "PROJECT_PATHS.README_PATH",
+                PROJECT_PATHS.README_PATH,
             ],
             cwd=PROJECT_PATHS.ROOT_PATH.as_posix(),
             check=True,
