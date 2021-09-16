@@ -2,15 +2,19 @@ import subprocess
 from pathlib import Path
 import sys
 import warnings
-import platform
-import shutil
+from typing import Union, List
 
 import mylogging
 
+from .paths import PROJECT_PATHS, validate_path
 from . import paths
+from . import venvs
 
 
-def setup_tests(matplotlib_test_backend=False):
+def setup_tests(
+    generate_readme_tests: bool = True,
+    matplotlib_test_backend: bool = False,
+) -> None:
     """Add paths to be able to import local version of library as well as other test files.
 
     Value Mylogging.config.COLOR = 0 changed globally.
@@ -23,14 +27,14 @@ def setup_tests(matplotlib_test_backend=False):
         matplotlib_test_backend (bool, optional): If using matlplotlib, it need to be
             closed to continue tests. Change backend to agg. Defaults to False.
     """
-    mylogging.config.COLOR = 0
+    mylogging.config.COLORIZE = False
 
-    paths.set_root()
+    PROJECT_PATHS.add_ROOT_PATH_to_sys_path()
 
     # Find paths and add to sys.path to be able to import local modules
-    test_dir_path = paths.ROOT_PATH / "tests"
+    test_dir_path = PROJECT_PATHS.TEST_PATH
 
-    if test_dir_path not in sys.path:
+    if test_dir_path.as_posix() not in sys.path:
         sys.path.insert(0, test_dir_path.as_posix())
 
     if matplotlib_test_backend:
@@ -40,50 +44,56 @@ def setup_tests(matplotlib_test_backend=False):
             warnings.simplefilter("ignore")
             matplotlib.use("agg")
 
+    if generate_readme_tests:
+        add_readme_tests()
+
 
 def run_tests(
-    test_path=None,
-    test_coverage=True,
-    stop_on_first_error=True,
-    use_virutalenv=True,
-    requirements=None,
-    verbose=False,
-    extra_args=[],
-):
+    tested_path: Union[str, Path] = "infer",
+    tests_path: Union[str, Path] = "infer",
+    test_coverage: bool = True,
+    stop_on_first_error: bool = True,
+    use_virutalenv: bool = True,
+    remove_venv: bool = False,
+    requirements: Union[List, str, Path] = "infer",
+    verbose: int = 1,
+    extra_args: List = [],
+) -> None:
     """Run tests. If any test fails, raise an error.
 
     Args:
-        test_path ((str, pathlib.Path), optional): If None, ROOT_PATH is used. ROOT_PATH is necessary if using doctests
+        tested_path ((str, pathlib.Path), optional): If "infer", ROOT_PATH is used. ROOT_PATH is necessary if using doctests
             'Tests' folder not works for doctests in modules. Defaults to None.
+        tests_path ((str, pathlib.Path), optional): If "infer", TEST_PATH is used. It means where venv will be stored etc. Defaults to "infer".
         test_coverage (bool, optional): Whether run test coverage plugin. If True, pytest-cov must be installed. Defaults to True
         stop_on_first_error (bool, optional): Whether stop on first error. Defaults to True
         use_virutalenv (bool, optional): Whether run new virtualenv and install all libraries from requirements.txt. Defaults to True
-        requirements ((str, pathlib.Path, list), optional): If using `use_virutalenv` define what libraries will be installed.
-            If None, autodetected. Can also be a list of more files e.g `["requirements.txt", "requirements_dev.txt"]`. Defaults to None.
-        verbose (bool, optional): Whether print detailes on errors or keep silent. If False, parameters `-q and `--tb=no` are added.
-            Defaults to False.
+        remove_venv (bool, optional): Whether remove created venv. It's usually not necessary, because packages not in requirements are updated. Defaults to True
+        requirements ((str, pathlib.Path, list), optional): If using `use_virutalenv` define what libraries will be installed by path to requirements.txt.
+           Can also be a list of more files e.g `["requirements.txt", "requirements_dev.txt"]`. If "infer", autodetected (all requirements). Defaults to "infer".
+        verbose (int, optional): Whether print detailes on errors or keep silent. If 0, no details, parameters `-q and `--tb=no` are added.
+            if 1, some details are added --tb=short. If 2, more details are printed (default --tb=auto)
+            Defaults to 1.
         extra_args (list, optional): List of args passed to pytest. Defaults to []
 
     Raises:
         Exception: If any test fail, it will raise exception (git hook do not continue...).
 
     Note:
-        If not using with utils.push_pipeline, paths.set_paths().
-
         By default args to quiet mode and no traceback are passed. Usually this just runs automatic tests. If some of them fail,
         it's further analyzed in some other tool in IDE.
     """
-
-    if not test_path:
-        test_path = paths.ROOT_PATH  # Because of doctest, root used, not tests folder
+    tested_path = PROJECT_PATHS.ROOT_PATH if tested_path == "infer" else validate_path(tested_path)
+    tests_path = PROJECT_PATHS.TEST_PATH if tests_path == "infer" else validate_path(tests_path)
+    tested_path_str = paths.get_console_path_str(tested_path)
 
     if not test_coverage:
-        pytest_args = [test_path.as_posix()]
+        pytest_args = [tested_path_str]
     else:
         pytest_args = [
-            test_path.as_posix(),
+            tested_path_str,
             "--cov",
-            paths.APP_PATH.as_posix(),
+            paths.get_console_path_str(PROJECT_PATHS.APP_PATH),
             "--cov-report",
             "xml:.coverage.xml",
         ]
@@ -91,63 +101,69 @@ def run_tests(
     if stop_on_first_error:
         extra_args.append("-x")
 
-    if not verbose:
+    if verbose == 0:
         extra_args.append("-q")
         extra_args.append("--tb=no")
+    elif verbose == 1:
+        extra_args.append("--tb=short")
 
-    complete_args = ["pytest", *pytest_args, *extra_args]
+    complete_args = [
+        "pytest",
+        *pytest_args,
+        *extra_args,
+    ]
 
     test_command = " ".join(complete_args)
 
     if use_virutalenv:
-        if not requirements:
-            default_requirements_path = paths.ROOT_PATH / "requirements.txt"
-            requirements = [
-                default_requirements_path
-                if default_requirements_path.exists()
-                else paths.paths.find_path("requirements.txt")
-            ]
+        my_venv = venvs.MyVenv(tests_path / "venv")
+        my_venv.create()
+        my_venv.sync_requirements(requirements)
 
-        requirements = [requirements] if not isinstance(requirements, list) else requirements
+        test_command = f"{my_venv.activate_command} && {test_command}"
 
-        requirements_command = " && ".join(
-            [f"pip install --upgrade -r {Path(req).as_posix()}" for req in requirements]
+    try:
+        pytested = subprocess.run(test_command)  # , shell=True
+    except Exception:
+        raise RuntimeError(
+            mylogging.return_str(
+                f"Tests failed and did not run. Try this command in terminal to know why it failed.\n{test_command}"
+            )
         )
-
-        if platform.system() == "Windows":
-            subprocess.run("virtualenv venv_test")
-            activate_command = r"venv_test\Scripts\activate.bat"
-        else:
-            subprocess.run("python3 -m virtualenv venv_test")
-            activate_command = "source venv_test/bin/activate"
-
-        command_venv_prefix = f"{activate_command} && {requirements_command} && pip install pytest && pip install mypythontools && "
-
-        test_command = command_venv_prefix + test_command
-
-    pytested = subprocess.run(test_command)
 
     if test_coverage and Path(".coverage").exists():
         Path(".coverage").unlink()
 
-    if use_virutalenv:
-        virtualenv_path = paths.ROOT_PATH / "venv_test"
-        shutil.rmtree(virtualenv_path.as_posix())
+    if use_virutalenv and remove_venv:
+        my_venv.remove()
 
     if pytested.returncode != 0:
         raise RuntimeError(mylogging.return_str("Pytest failed"))
 
 
-def test_readme(readme_path=None, test_folder_path=None):
-    """Run python scripts from README.md
+def add_readme_tests(
+    readme_path: Union[str, Path] = "infer", test_folder_path: Union[str, Path] = "infer"
+) -> None:
+    """Generate pytest tests script file from README.md and save it to tests folder. Can be called from conftest.
 
     Args:
-        readme_path ((str, pathlib.Path), optional): If None, autodetected (README.md or readme.md on root). Defaults to None.
-        test_folder_path ((str, pathlib.Path), optional): If None, autodetected (if ROOT_PATH / tests). Defaults to None.
+        readme_path ((str, pathlib.Path), optional): If 'infer', autodetected (README.md, Readme.md or readme.md on root).
+            Defaults to 'infer'.
+        test_folder_path ((str, pathlib.Path), optional): If 'infer', autodetected (if ROOT_PATH / tests). Defaults to 'infer.
 
     Raises:
-        RuntimeError: If any test fails.
         FileNotFoundError: If Readme not found.
+
+    Example:
+        >>> for i in PROJECT_PATHS.TEST_PATH.glob("*"):
+        ...     if i.name.startswith("test_readme_generated"):
+        ...         i.unlink()
+        ...
+        >>> add_readme_tests()
+        >>> for i in PROJECT_PATHS.TEST_PATH.glob("*"):
+        ...     if i.name.startswith("test_readme_generated"):
+        ...         print("Readme tests found.")
+        Readme tests found.
 
     Note:
         Only blocks with python defined syntax will be evaluated. Example:
@@ -156,50 +172,39 @@ def test_readme(readme_path=None, test_folder_path=None):
             import numpy
             ```
 
-        First generate test file manually and control if test file generated as supposed with::
-
-            phmdoctest path_to_readme/README.md --outfile path_to_project/tests/test_readme_generated.py
-
         If you want to import modules and use some global variables, add `<!--phmdoctest-setup-->` this directive above
         block with setup code.
         If you want to skip some test, add `<!--phmdoctest-mark.skip-->`
     """
-    if not paths.ROOT_PATH:
-        paths.set_root()
 
-    if not readme_path:
-        if (paths.ROOT_PATH / "README.md").exists():
-            readme_path = paths.ROOT_PATH / "README.md"
+    readme_path = PROJECT_PATHS.README_PATH if readme_path == "infer" else validate_path(readme_path)
+    test_folder_path = (
+        PROJECT_PATHS.TEST_PATH if test_folder_path == "infer" else validate_path(test_folder_path)
+    )
 
-        elif (paths.ROOT_PATH / "readme.md").exists():
-            readme_path = paths.ROOT_PATH / "README.md"
+    readme_date_modified = str(readme_path.stat().st_mtime).split(".")[0]  # Keep only seconds
+    readme_tests_name = f"test_readme_generated-{readme_date_modified}.py"
 
-    else:
-        readme_path = Path(readme_path)
+    test_file_path = test_folder_path / readme_tests_name
 
-    if not readme_path.exists():
-        raise FileNotFoundError(mylogging.return_str("Readme not found."))
+    # File not changed from last tests
+    if test_file_path.exists():
+        return
 
-    if not test_folder_path:
-        test_folder_path = paths.ROOT_PATH / "tests" / "test_readme_generated.py"
+    for i in test_folder_path.glob("*"):
+        if i.name.startswith("test_readme_generated"):
+            i.unlink()
 
-    args = ["phmdoctest", readme_path.as_posix(), "--outfile", test_folder_path.as_posix()]
-    subprocess.call(args)
-
-    try:
-        run_tests(test_folder_path, False)
-    except Exception:
-        raise RuntimeError(
-            mylogging.return_str(
-                f"README tests failed. Generate tests in your test folder with \n\n{' '.join(args)}\n\nand run and analyze generated pytest tests to see details."
-            )
-        )
-    finally:
-        if test_folder_path.exists():
-            test_folder_path.unlink()
+    generate_readme_test_command = [
+        "phmdoctest",
+        readme_path.as_posix(),
+        "--outfile",
+        test_file_path.as_posix(),
+    ]
+    subprocess.run(generate_readme_test_command)
 
 
-def deactivate_test_settings():
+def deactivate_test_settings() -> None:
     """Sometimes you want to run test just in normal mode (enable plots etc.). Usually at the end of test file in `if __name__ = "__main__":` block."""
     mylogging.config.COLOR = 1
 

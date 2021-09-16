@@ -16,8 +16,7 @@ Many projects - one codebase.
 If you are not sure whether structure of your app will work with this code, check `project-starter` on github
 in content folder.
 
-Paths are infered, but if you have atypical structure or have more projects in cwd, use
-`mypythontools.paths.set_paths()` with path arguments.
+Paths are infered, but if you have atypical structure or have more projects in cwd, setup necessary paths in paths module.
 
 There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.), such a
 content is under the Content topic.
@@ -38,7 +37,7 @@ Many projects - one codebase.
 
 If you are not sure whether structure of your app will work with this code, check `project-starter` on github in content folder.
 
-Paths are infered, but if you have atypical structure or have more projects in cwd, use `mypythontools.paths.set_paths()`.
+Paths are infered, but if you have atypical structure or have more projects in cwd, setup paths in paths module.
 
 There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.), 
 such a content is in folder Content.
@@ -65,6 +64,7 @@ pip install mypythontools
 - pyvueeel (for applications build with eel and vue)
 - tests
 - utils
+- venvs
 
 Check modules help or readme docs with examples.
 
@@ -80,7 +80,7 @@ Download project-starter from (github)[https://github.com/Malachov/mypythontools
 
 And start developing.
 
-In your IDE do bulk renaming across files and replace `SET_YOUR_APP_NAME` with name of your app / library.
+In your IDE do bulk renaming across files and replace `SET_YOUR_NAME` with name of your app / library.
 
 This starter is for vue-eel applications (desktop as well as web) but also for python libraries that will be stored on Pypi.
 
@@ -131,7 +131,6 @@ Check utils module for more informations.
 **IDE files**
 It also include some default project specific settings for VS Code. You can also delete it.
 
-If developing py - vue - eel app this is the recommended way, but if you want to build just what is necassary from scratch, you can use this tutorial [readthedocs](https://mypythontools.readthedocs.io/mypythontools.pyvueeel.html#mypythontools.pyvueeel.help_starter_pack_vue_app).
 
 ### requirements
 

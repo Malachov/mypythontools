@@ -4,6 +4,7 @@ predictit/test_data/*.txt
 predictit/test_data/*.json
 
 scratch_notepad.py
+venv_test/
 
 package-lock.json
 

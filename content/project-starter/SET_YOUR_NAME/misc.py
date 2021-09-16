@@ -13,5 +13,13 @@ def print_traceback(caption="Error", message=""):
     Args:
         message (str, optional): Heading of detailed traceback. Defaults to "Error".
     """
-    mylogging.traceback(f"Catched error - server still running.\n\n{message}", caption)
-    pyvueeel.eel.create_alert(caption, message, traceback.format_exc(), "error")
+    mylogging.traceback(
+        f"Catched error - server still running.\n\n{message}",
+        caption,
+    )
+    pyvueeel.eel.create_alert(
+        caption,
+        message,
+        traceback.format_exc(),
+        "error",
+    )

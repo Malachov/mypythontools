@@ -51,7 +51,14 @@ import mylogging
 class MyProperty(property):
     """Python property on steroids. Check module docstrings for more info."""
 
-    def __init__(self, types=None, options=None, fget=None, fset=None, doc=None):
+    def __init__(
+        self,
+        types=None,
+        options=None,
+        fget=None,
+        fset=None,
+        doc=None,
+    ) -> None:
 
         if isinstance(types, types_lib.FunctionType):
             raise SyntaxError(
@@ -104,7 +111,12 @@ class MyProperty(property):
         else:
             result = content
 
-        validate(result, self.types, self.options, self.public_name)
+        validate(
+            result,
+            self.types,
+            self.options,
+            self.public_name,
+        )
 
         # Method defined can be pass as static method
         try:

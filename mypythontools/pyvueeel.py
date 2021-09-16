@@ -23,7 +23,7 @@ import os
 import sys
 from pathlib import Path
 import warnings
-
+from typing import Union, Callable
 
 import mylogging
 
@@ -45,7 +45,12 @@ expose_error_callback = None
 json_to_py = misc.json_to_py
 
 
-def run_gui(devel=None, log_file_path=None, is_multiprocessing=False, builded_gui_path="default"):
+def run_gui(
+    devel: Union[bool, None] = None,
+    log_file_path: Union[str, Path] = None,
+    is_multiprocessing: bool = False,
+    builded_gui_path: Union[str, Path] = "default",
+) -> None:
     """Function that init and run `eel` project.
 
     It will autosetup chrome mode (if installed chrome or chromium, open separate window with
@@ -81,7 +86,11 @@ def run_gui(devel=None, log_file_path=None, is_multiprocessing=False, builded_gu
     global eel
 
     with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", module="EelForkExcludeFiles", category=ResourceWarning)
+        warnings.filterwarnings(
+            "ignore",
+            module="EelForkExcludeFiles",
+            category=ResourceWarning,
+        )
 
         import EelForkExcludeFiles as eel_library
 
@@ -107,9 +116,11 @@ def run_gui(devel=None, log_file_path=None, is_multiprocessing=False, builded_gu
             gui_path = Path(sys._MEIPASS) / "gui"
         else:
             if devel:
-                paths.set_root()
+                # paths.set_root() TODO verify delete
                 gui_path = (
-                    paths.find_path("index.html", exclude=["node_modules", "build", "dist"]).parents[1]
+                    paths.find_path(
+                        "index.html",
+                    ).parents[1]
                     / "src"
                 )
             else:
@@ -117,9 +128,15 @@ def run_gui(devel=None, log_file_path=None, is_multiprocessing=False, builded_gu
                     gui_path = Path(builded_gui_path)
 
                 else:
-                    paths.set_root()
+                    # paths.set_root() TODO verify delete
                     gui_path = paths.find_path(
-                        "index.html", exclude=["public", "node_modules", "build"]
+                        "index.html",
+                        exclude_names=[
+                            "public",
+                            "node_modules",
+                            "build",
+                            "dist",
+                        ],
                     ).parent
 
         if not gui_path.exists():
@@ -143,7 +160,11 @@ def run_gui(devel=None, log_file_path=None, is_multiprocessing=False, builded_gu
             port = 0
             init_files = [".js", ".html"]
 
-        eel.init(directory.as_posix(), init_files, exlcude_patterns=["chunk-vendors"])
+        eel.init(
+            directory.as_posix(),
+            init_files,
+            exlcude_patterns=["chunk-vendors"],
+        )
 
         if is_multiprocessing:
             from multiprocessing import freeze_support
@@ -176,7 +197,7 @@ def run_gui(devel=None, log_file_path=None, is_multiprocessing=False, builded_gu
         mylogging.traceback("Py side terminated...")
 
 
-def expose(callback_function):
+def expose(callback_function: Callable) -> None:
     """Wrap eel expose with try catch block and adding exception callback function
     (for printing error to frontend usually).
 
@@ -185,7 +206,11 @@ def expose(callback_function):
     """
 
     with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", module="EelForkExcludeFiles", category=ResourceWarning)
+        warnings.filterwarnings(
+            "ignore",
+            module="EelForkExcludeFiles",
+            category=ResourceWarning,
+        )
 
         import EelForkExcludeFiles as eel
 
@@ -220,6 +245,12 @@ def to_vue_plotly(data, names=None):
 
     Returns:
         dict: Data in form for plotting in frontend.
+
+    Example:
+        >>> import pandas as pd
+        >>> df = pd.DataFrame([[1, "a"], [2, "b"]], columns=["numbers", "letters"])
+        >>> to_vue_plotly(df)
+        {'x_axis': [0, 1], 'y_axis': [[1, 2]], 'names': ['numbers']}
     """
 
     import pandas as pd
@@ -250,6 +281,12 @@ def to_table(df, index=False):
 
     Returns:
         dict: DatPa in form for creating table in Vuetify v-data-table.
+
+    Example:
+        >>> import pandas as pd
+        >>> df = pd.DataFrame([[1, "a"], [2, "b"]], columns=["numbers", "letters"])
+        >>> to_table(df)
+        {'table': [{'numbers': 1, 'letters': 'a'}, {'numbers': 2, 'letters': 'b'}], 'headers': [{'text': 'numbers', 'value': 'numbers', 'sortable': True}, {'text': 'letters', 'value': 'letters', 'sortable': True}]}
     """
     import pandas as pd
     import numpy as np
@@ -274,4 +311,7 @@ def to_table(df, index=False):
 
     headers = [{"text": i, "value": i, "sortable": True} for i in data.columns]
 
-    return {"table": data.to_dict("records"), "headers": headers}
+    return {
+        "table": data.to_dict("records"),
+        "headers": headers,
+    }

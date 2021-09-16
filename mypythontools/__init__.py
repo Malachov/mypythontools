@@ -38,11 +38,11 @@ Many projects - one codebase.
 If you are not sure whether structure of your app will work with this code, check `project-starter` on github
 in content folder.
 
-Paths are infered, but if you have atypical structure or have more projects in cwd, use
-`mypythontools.paths.set_paths()` with path arguments.
+Paths are infered, but if you have atypical structure or have more projects in cwd, setup necessary paths in paths module.
 
 There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.), 
 such a content is under the Content topic.
+
 
 Links
 =====
@@ -59,6 +59,24 @@ Python >=3.6 (Python 2 is not supported).
 Install just with::
 
     pip install mypythontools
+
+
+Modules
+=======
+
+- build
+- config
+- deploy
+- misc
+- paths
+- plots
+- property
+- pyvueeel (for applications build with eel and vue)
+- tests
+- utils
+- venvs
+
+Check modules help or readme docs with examples.
 
 
 Content
@@ -89,7 +107,7 @@ https://github.com/Malachov/mypythontools/tree/master/content/project-starter
 
 And start developing.
 
-In your IDE do bulk renaming across files and replace `SET_YOUR_APP_NAME` with name of your app / library.
+In your IDE do bulk renaming across files and replace `SET_YOUR_NAME` with name of your app / library.
 
 This starter is for vue-eel applications (desktop as well as web) but also for python libraries that will be
 stored on Pypi.
@@ -221,7 +239,7 @@ You can do CI / CD pipeline or Build app with one click now.
 
 """
 
-from . import build, config, deploy, misc, paths, plots, property, pyvueeel, tests, utils
+from . import build, config, deploy, misc, paths, plots, property, pyvueeel, tests, utils, venvs
 
 __version__ = "0.0.71"
 
@@ -229,4 +247,16 @@ __author__ = "Daniel Malachov"
 __license__ = "MIT"
 __email__ = "malachovd@seznam.cz"
 
-__all__ = ["build", "config", "deploy", "misc", "paths", "plots", "property", "pyvueeel", "tests", "utils"]
+__all__ = [
+    "build",
+    "config",
+    "deploy",
+    "misc",
+    "paths",
+    "plots",
+    "property",
+    "pyvueeel",
+    "tests",
+    "utils",
+    "venvs",
+]

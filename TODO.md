@@ -1,9 +1,10 @@
-- [ ] Transform starter to cookiecutter
 - [ ] Add tests to plot from predictit
-- [ ] Finish start vue in debug from python
+  
+- [ ] Transform starter to cookiecutter
 - [ ] Create GIF of vs code task
-- [ ] Maybe save paths as strings - for not calling as_posix()
 - [ ] Better test coverage (doctest in functions + check if in coverage)
+- [ ] Move init of myproperty from configuration and try to avoid for i in __dict__ on init and add to list of properties during declaration, then iterate that list.
+- [ ] Finish start vue in debug from python
 
 ```
     # Try to run npm run serve from app.py if not running

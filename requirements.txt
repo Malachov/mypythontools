@@ -11,5 +11,5 @@ pytest-cov
 setuptools
 sphinx
 twine
-virtualenv
 wheel
+nbmake

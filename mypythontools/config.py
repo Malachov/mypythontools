@@ -202,7 +202,7 @@ Here is example
     :align: center
 """
 
-from typing import Any
+from typing import Any, Dict
 import mylogging
 from copy import deepcopy
 
@@ -216,12 +216,21 @@ class ConfigMeta(type):
 
     As user, you probably will not need it. It's used internaly if inheriting from ConfigStructured."""
 
-    def __init__(cls, name, bases, dct):
+    def __init__(cls, name, bases, dct) -> None:
 
         # Avoid base classes here and wrap only user class init
-        if name not in ["ConfigBase", "ConfigStructured"]:
+        if name not in [
+            "ConfigBase",
+            "ConfigStructured",
+        ]:
 
-            def add_parent__init__(self, dict_values=None, frozen=None, *a, **kw):
+            def add_parent__init__(
+                self,
+                dict_values=None,
+                frozen=None,
+                *a,
+                **kw,
+            ):
                 is_structured = True if ConfigStructured in bases else False
 
                 self._base_config_map = {}
@@ -235,7 +244,11 @@ class ConfigMeta(type):
                 for i, j in vars(type(self)).items():
                     if type(j) is MyProperty:
                         self.myproperties_list.append(j.public_name)
-                        setattr(self, j.private_name, j.init_function)
+                        setattr(
+                            self,
+                            j.private_name,
+                            j.init_function,
+                        )
                     if type(j) is property:
                         self.properties_list.append(i)
 
@@ -297,12 +310,21 @@ class ConfigBase(metaclass=ConfigMeta):
         if (
             not self.frozen
             or name == "frozen"
-            or name in [*self.myproperties_list, *self.properties_list, *vars(self)]
+            or name
+            in [
+                *self.myproperties_list,
+                *self.properties_list,
+                *vars(self),
+            ]
         ):
             object.__setattr__(self, name, value)
 
         elif setter_name in self._base_config_map.keys():
-            setattr(self._base_config_map[setter_name], name, value)
+            setattr(
+                self._base_config_map[setter_name],
+                name,
+                value,
+            )
 
         else:
             raise AttributeError(
@@ -321,12 +343,11 @@ class ConfigBase(metaclass=ConfigMeta):
     def copy(self):
         return deepcopy(self)
 
-    def update(self, dict):
-
+    def update(self, dict: Dict) -> None:
         for i, j in dict.items():
             setattr(self, i, j)
 
-    def reset(self):
+    def reset(self) -> None:
         copy = type(self)()
 
         for i in vars(copy).keys():
@@ -338,14 +359,20 @@ class ConfigBase(metaclass=ConfigMeta):
         for i in copy.properties_list:
             setattr(self, i, copy[i])
 
-    def get_dict(self):
+    def get_dict(self) -> Dict:
         normal_vars = {
             key: value
             for key, value in vars(self).items()
             if not key.startswith("__")
             and not callable(value)
             and not hasattr(value, "myproperties_list")
-            and key not in ["myproperties_list", "properties_list", "frozen", "_base_config_map"]
+            and key
+            not in [
+                "myproperties_list",
+                "properties_list",
+                "frozen",
+                "_base_config_map",
+            ]
         }
 
         property_vars = {
@@ -374,7 +401,7 @@ class ConfigStructured(ConfigBase):
         """
         pass
 
-    def get_dict(self):
+    def get_dict(self) -> Dict:
         # From main class
         dict_of_values = super().get_dict()
         # From sub configs
@@ -385,7 +412,7 @@ class ConfigStructured(ConfigBase):
 
         return dict_of_values
 
-    def _propagate_base_config_map(self):
+    def _propagate_base_config_map(self) -> None:
 
         for i in vars(self).values():
             if hasattr(i, "myproperties_list"):

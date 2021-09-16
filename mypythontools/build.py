@@ -31,18 +31,22 @@ Note:
 import subprocess
 import shutil
 from pathlib import Path
-from . import paths
 import mylogging
+from typing import Union
 
 # Lazy imports
 # import EelForkExcludeFiles
 
+from . import paths
+from .paths import PROJECT_PATHS
+
 
 def build_app(
+    root_path: Union[str, Path] = "infer",
     main_file="app.py",
     preset=None,
-    web_path=None,
-    build_web=None,
+    web_path="infer",
+    build_web=True,
     remove_last_build=False,
     console=True,
     debug=False,
@@ -53,7 +57,7 @@ def build_app(
     name=None,
     env_vars={},
     cleanit=True,
-):
+) -> None:
     """One script to build .exe app from source code.
 
     This script automatically generate .spec file, build node web files and add environment variables during build.
@@ -62,12 +66,15 @@ def build_app(
     if you start with application.
 
     Args:
+        root_path (Union[str, Path], optional): Path of root folder where build and dist folders will be placed. Defaults to "infer".
         main_file (str, optional): Main file path or name with extension. Main file is found automatically
             and don't have to be in root. Defaults to 'app.py'.
         preset (str, optional): Edit other params for specific use cases (append to hidden_imports, datas etc.)
             Options ['eel']. Defaults to None.
-        web_path ((Path, str), optional): Folder with index.html. Defaults to None.
-        build_web (bool, optional): If application contain package.json in folder 'gui', build it (if using eel). Defaults to None.
+        web_path ((Path, str), optional): Folder with index.html. Defaults to 'infer'.
+        build_web ((bool, str), optional): If application contain package.json build node application. If 'preset' build automatically
+        depending on preset.
+            Defaults to 'eel'.
         remove_last_build (bool, optional): If some problems, it is possible to delete build and dist folders. Defaults to False.
         console (bool, optional): Before app run terminal window appears (good for debugging). Defaults to False.
         debug (bool, optional): If no console, then dialog window with traceback appears. Defaults to False.
@@ -92,17 +99,16 @@ def build_app(
         Back to pyinstaller folder and python `setup.py`
     """
 
-    if not paths.ROOT_PATH:
-        paths.set_root()
+    root_path = PROJECT_PATHS.ROOT_PATH if root_path == "infer" else paths.validate_path(root_path)
 
     # Try to recognize the structure of app
-    build_path = paths.ROOT_PATH / "build"
+    build_path = root_path / "build"
 
     if not build_path.exists():
         build_path.mkdir(parents=True, exist_ok=True)
 
     # Remove last dist manually to avoid permission error if opened in some application
-    dist_path = paths.ROOT_PATH / "dist"
+    dist_path = root_path / "dist"
 
     if dist_path.exists():
         try:
@@ -120,7 +126,9 @@ def build_app(
     if not main_file_path.exists():
 
         # Iter paths and find the one
-        main_file_path = paths.find_path(main_file_path, exclude=["node_modules", "build"])
+        main_file_path = paths.find_path(
+            main_file_path,
+        )
 
         if not main_file_path.exists():
             raise KeyError("Main file not found, not infered and must be configured in params...")
@@ -138,7 +146,10 @@ def build_app(
         if not icon_path.exists():
 
             # Iter paths and find the one
-            icon_path = paths.find_path(icon_path, exclude=["node_modules", "build"])
+            icon_path = paths.find_path(
+                icon_path,
+                exclude_names=["node_modules", "build"],
+            )
 
             if not icon_path.exists():
                 raise KeyError("Icon not found, not infered check path or name...")
@@ -160,13 +171,24 @@ def build_app(
             pass
 
     # Build JS to static asset
-    if build_web:
+    if build_web is True or (build_web == "preset" and preset in ["eel"]):
         gui_path = paths.find_path("package.json").parent
-        subprocess.run(["npm", "run", "build"], shell=True, check=True, cwd=gui_path)
+        subprocess.run(
+            ["npm", "run", "build"],
+            check=True,
+            cwd=gui_path,
+        )
 
     if build_web or preset == "eel":
-        if not web_path:
-            web_path = paths.find_path("index.html", exclude=["public", "node_modules", "build"]).parent
+        if web_path == "infer":
+            web_path = paths.find_path(
+                "index.html",
+                exclude_names=[
+                    "public",
+                    "node_modules",
+                    "build",
+                ],
+            ).parent
 
         else:
             web_path = Path(web_path)
@@ -183,15 +205,22 @@ def build_app(
 
         import EelForkExcludeFiles
 
-        if build_web is None:
-            build_web = True
-
-        hidden_imports = [*hidden_imports, "EelForkExcludeFiles", "bottle_websocket"]
+        hidden_imports = [
+            *hidden_imports,
+            "EelForkExcludeFiles",
+            "bottle_websocket",
+        ]
         datas = (
             *datas,
-            (EelForkExcludeFiles._eel_js_file, "EelForkExcludeFiles"),
+            (
+                EelForkExcludeFiles._eel_js_file,
+                "EelForkExcludeFiles",
+            ),
         )
-        env_vars = {**env_vars, "MY_PYTHON_VUE_ENVIRONMENT": "production"}
+        env_vars = {
+            **env_vars,
+            "MY_PYTHON_VUE_ENVIRONMENT": "production",
+        }
 
     if env_vars:
         env_vars_template = f"""
@@ -263,9 +292,8 @@ coll = COLLECT(exe,
 
     subprocess.run(
         ["pyinstaller", "-y", spec_path.as_posix()],
-        shell=True,
         check=True,
-        cwd=paths.ROOT_PATH,
+        cwd=PROJECT_PATHS.ROOT_PATH.as_posix(),
     )
 
     if cleanit:

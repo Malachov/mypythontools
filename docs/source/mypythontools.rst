@@ -17,6 +17,7 @@ Submodules
    mypythontools.pyvueeel
    mypythontools.tests
    mypythontools.utils
+   mypythontools.venvs
 
 Module contents
 ---------------

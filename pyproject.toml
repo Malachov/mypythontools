@@ -1,2 +1,7 @@
 [tool.pytest.ini_options]
-addopts = "--doctest-modules --ignore-glob=content"
+addopts = "--doctest-modules"
+usefixtures = "setup_tests"
+norecursedirs = "tested_project content"  # Ignore folders
+
+[tool.black]
+line-length = 110

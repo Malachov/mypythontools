@@ -1,5 +1,6 @@
 """Plot data. There is only one main function plot. Check it's documentation for how to use it.
 """
+from typing import Union
 
 import mylogging
 
@@ -16,16 +17,16 @@ from . import paths
 
 def plot(
     complete_dataframe,
-    plot_type="plotly",
-    plot_name="Plot",
-    legend=True,
+    plot_type: str = "plotly",
+    plot_name: str = "Plot",
+    legend: bool = True,
     highlighted_column="",
     surrounded_column="",
-    grey_area=False,
-    save=False,
-    plot_return=False,
-    show=True,
-):
+    grey_area: bool = False,
+    save: bool = False,
+    plot_return: bool = False,
+    show: bool = True,
+) -> Union[None, str]:
     """Plots the data. Plotly or matplotlib can be used. It is possible to highlite two columns with different formating.
     It is usually used for time series visualization, but it can be used for different use case of course.
 
@@ -116,7 +117,10 @@ def plot(
                     name=surrounded_column,
                     x=complete_dataframe.index,
                     y=complete_dataframe[surrounded_column],
-                    line={"color": "rgb(51, 19, 10)", "width": 5},
+                    line={
+                        "color": "rgb(51, 19, 10)",
+                        "width": 5,
+                    },
                     fillcolor="rgba(68, 68, 68, 0.3)",
                     fill="tonexty" if grey_area else None,
                 )
@@ -152,7 +156,10 @@ def plot(
                     name=str(highlighted_column),
                     x=complete_dataframe.index,
                     y=complete_dataframe[highlighted_column],
-                    line={"color": "rgb(31, 119, 180)", "width": 2},
+                    line={
+                        "color": "rgb(31, 119, 180)",
+                        "width": 2,
+                    },
                 )
 
                 used_columns.remove(highlighted_column)
@@ -170,7 +177,11 @@ def plot(
         for i in complete_dataframe.columns:
             if i in used_columns:
                 fig.add_trace(
-                    pl.graph_objs.Scatter(x=complete_dataframe.index, y=complete_dataframe[i], name=i)
+                    pl.graph_objs.Scatter(
+                        x=complete_dataframe.index,
+                        y=complete_dataframe[i],
+                        name=i,
+                    )
                 )
 
         fig.layout.update(
@@ -187,7 +198,12 @@ def plot(
             legend_orientation="h",
             hoverlabel={"namelength": -1},
             font={"size": 17},
-            margin={"l": 160, "r": 130, "b": 160, "t": 110},
+            margin={
+                "l": 160,
+                "r": 130,
+                "b": 160,
+                "t": 110,
+            },
         )
 
         if show:
@@ -205,4 +221,8 @@ def plot(
                 margin={"b": 35, "t": 35, "pad": 4},
             )
 
-            return pl.offline.plot(fig, include_plotlyjs=False, output_type="div")
+            return pl.offline.plot(
+                fig,
+                include_plotlyjs=False,
+                output_type="div",
+            )

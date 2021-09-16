@@ -12,13 +12,15 @@ with tasks (one button click).
 import subprocess
 import os
 import shutil
+from pathlib import Path
+from typing import Union
 
 import mylogging
 
 from . import paths
 
 
-def deploy_to_pypi(setup_path=None):
+def deploy_to_pypi(setup_path: Union[str, Path] = "infer") -> None:
     """Publish python library to Pypi. Username and password are set
     with env vars `TWINE_USERNAME` and `TWINE_PASSWORD`.
 
@@ -29,7 +31,7 @@ def deploy_to_pypi(setup_path=None):
 
     Args:
         setup_path((str, pathlib.Path), optional): Function suppose, that there is a setup.py somewhere in cwd.
-            If not, pass path to setup.py. Defaults to None.
+            If not, pass path to setup.py. Defaults to "infer".
     """
 
     usr = os.environ.get("TWINE_USERNAME")
@@ -40,12 +42,14 @@ def deploy_to_pypi(setup_path=None):
             mylogging.return_str("Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.")
         )
 
-    setup_path = paths.ROOT_PATH if not setup_path else setup_path
-
-    setup_py_path = setup_path / "setup.py"
+    setup_py_path = (
+        paths.PROJECT_PATHS.ROOT_PATH / "setup.py"
+        if setup_path == "infer"
+        else paths.validate_path(setup_path)
+    )
 
     if not setup_py_path.exists():
-        setup_py_path = paths.find_path("setup.py", exclude=["node_modules"])
+        setup_py_path = paths.find_path("setup.py")
         setup_path = setup_py_path.parent
 
         if not (setup_path / "setup.py").exists():
@@ -62,7 +66,12 @@ def deploy_to_pypi(setup_path=None):
 
     build_command = "python setup.py sdist bdist_wheel"
 
-    subprocess.run(build_command.split(), cwd=setup_path, shell=True, check=True)
+    subprocess.run(
+        build_command.split(),
+        cwd=setup_path,
+        shell=True,
+        check=True,
+    )
 
     subprocess.run(
         [
@@ -75,7 +84,6 @@ def deploy_to_pypi(setup_path=None):
             "dist/*",
         ],
         cwd=setup_path,
-        shell=True,
         check=True,
     )
 
