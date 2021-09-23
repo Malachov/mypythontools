@@ -14,3 +14,4 @@ sphinx
 twine
 wheel
 nbmake
+black

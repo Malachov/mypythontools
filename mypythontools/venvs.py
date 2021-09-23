@@ -90,13 +90,17 @@ class MyVenv:
         requirements_command = (
             "pip install pip-tools && "
             f"pip-compile {requirements_all_console_path_str} --output-file {freezed_requirements_console_path_str}  --quiet && "
-            f"pip-sync {freezed_requirements_console_path_str} --quiet --user"
+            f"pip-sync {freezed_requirements_console_path_str} --quiet"
         )
 
         try:
-            subprocess.run(f"{self.activate_command} && {requirements_command}", check=True)
+            subprocess.run(f"{self.activate_command} && {requirements_command}", check=True, shell=True)
         except (Exception,):
-            mylogging.traceback("Update of venv libraries based on requirements failed. Check logge error.")
+            mylogging.traceback(
+                "Update of venv libraries based on requirements failed. Check logged error."
+                "Try this command with administrator rights in your project root folder because of permission errors.\n\n"
+                f"`{requirements_command}`\n\n"
+            )
             raise
 
     def remove(self) -> None:

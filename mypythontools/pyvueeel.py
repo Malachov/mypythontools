@@ -251,7 +251,7 @@ def to_vue_plotly(data, names=None):
         >>> import pandas as pd
         >>> df = pd.DataFrame([[1, "a"], [2, "b"]], columns=["numbers", "letters"])
         >>> to_vue_plotly(df)
-        {'x_axis': [0, 1], 'y_axis': [[1, 2]], 'names': ['numbers']}
+        {'x_axis': [0, 1], 'y_axis': [[1.0, 2.0]], 'names': ['numbers']}
     """
     import pandas as pd
     import numpy as np
@@ -264,8 +264,8 @@ def to_vue_plotly(data, names=None):
     data = pd.DataFrame(data)
 
     numeric_data = data.select_dtypes(include="number").round(decimals=3)
-    numeric_data = numeric_data.where(np.isfinite(numeric_data), None)
     numeric_data = mdp.misc.add_none_to_gaps(numeric_data)
+    numeric_data = numeric_data.where(np.isfinite(numeric_data), None)
 
     return {
         "x_axis": numeric_data.index.to_list(),

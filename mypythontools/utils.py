@@ -357,14 +357,13 @@ def git_push(
         git_command += " --follow-tags"
 
     try:
-        subprocess.run(
-            git_command,
-            check=True,
-            cwd=PROJECT_PATHS.ROOT_PATH.as_posix(),
-        )
+        subprocess.run(git_command, check=True, cwd=PROJECT_PATHS.ROOT_PATH.as_posix(), shell=True)
     except (Exception,):
         Repo(PROJECT_PATHS.ROOT_PATH.as_posix()).delete_tag(tag)
-        mylogging.traceback()
+        mylogging.traceback(
+            "Push to git failed. Version restored and created git tag deleted."
+            f"Try to run command `{git_command}` manually in your root {PROJECT_PATHS.ROOT_PATH}."
+        )
         raise
 
 
