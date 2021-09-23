@@ -1,0 +1,374 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>mypythontools.pyvueeel &#8212; mypythontools 03-08-2021 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="https://malachov.github.io/mypythontools/content/sphinx-alabaster-css/custom.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for mypythontools.pyvueeel</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Common functions for Python / Vue / Eel project.</span>
+
+<span class="sd">It contains functions for running eel, overriding eel.expose decorator, converting json to correct python</span>
+<span class="sd">format or transform data into form for vue tables and plots.</span>
+
+<span class="sd">Go on</span>
+
+<span class="sd">https://mypythontools.readthedocs.io/#project-starter</span>
+
+<span class="sd">for example with working examples.</span>
+
+<span class="sd">Image of such an app</span>
+
+<span class="sd">.. image:: /_static/project-starter-gui.png</span>
+<span class="sd">    :width: 620</span>
+<span class="sd">    :alt: project-starter-gui</span>
+<span class="sd">    :align: center</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+
+<span class="kn">import</span> <span class="nn">mylogging</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">paths</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">misc</span>
+
+<span class="c1"># Lazy imports</span>
+<span class="c1"># import numpy as np</span>
+<span class="c1"># import inspect</span>
+<span class="c1"># import ast</span>
+
+<span class="c1"># import pandas as pd</span>
+<span class="c1"># import EelForkExcludeFiles as eel</span>
+
+
+<span class="n">eel</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">expose_error_callback</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">json_to_py</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">json_to_py</span>
+
+
+<div class="viewcode-block" id="run_gui"><a class="viewcode-back" href="../../mypythontools.pyvueeel.html#mypythontools.pyvueeel.run_gui">[docs]</a><span class="k">def</span> <span class="nf">run_gui</span><span class="p">(</span><span class="n">devel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log_file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_multiprocessing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">builded_gui_path</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function that init and run `eel` project.</span>
+
+<span class="sd">    It will autosetup chrome mode (if installed chrome or chromium, open separate window with</span>
+<span class="sd">    no url bar, no bookmarks etc...) if chrome is not installed, it open microsoft Edge (by default</span>
+<span class="sd">    on windows).</span>
+
+<span class="sd">    In devel mode, app is connected on live vue server. Serve your web application with node, debug python app file</span>
+<span class="sd">    that calls this function (do not run, just debug - server could stay running after close and occupy used port). Open browser on 8080.</span>
+
+<span class="sd">    Debugger should correctly stop at breakpoints if frontend run some python function.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Check project-starter on github for working examples and tutorial how to run.</span>
+
+<span class="sd">        https://mypythontools.readthedocs.io/#project-starter</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        devel((bool, None), optional): If None, detected. Can be overwritten. Devel 0 run static assets, 1 run Vue server on localhost.</span>
+<span class="sd">            Defaults to None.</span>
+<span class="sd">        log_file_path ((str, Path, None)), optional): If not exist, it will create, if exist, it will append,</span>
+<span class="sd">            if None, log to relative log.log and only if in production mode. Defaults to None.</span>
+<span class="sd">        is_multiprocessing (bool, optional): If using multiprocessing in some library, set up to True. Defaults to False.</span>
+<span class="sd">        builded_gui_path ((str, Path, None)), optional): Where the web asset is. Only if debug is 0 but not run with pyinstaller.</span>
+<span class="sd">            If None, it&#39;s automatically find (but is slower then). If &#39;default&#39;, path from project-starter is used - &#39;gui/web_builded&#39;</span>
+<span class="sd">            is used. Defaults to &#39;default&#39;.</span>
+
+<span class="sd">    If you want to understand this technology more into detail, check this tutorial</span>
+
+<span class="sd">    https://mypythontools.readthedocs.io/pyvueeel-tutorial.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Just for lazy load of eel for users that will not use this module</span>
+    <span class="k">global</span> <span class="n">eel</span>
+
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="s2">&quot;EelForkExcludeFiles&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">ResourceWarning</span><span class="p">)</span>
+
+        <span class="kn">import</span> <span class="nn">EelForkExcludeFiles</span> <span class="k">as</span> <span class="nn">eel_library</span>
+
+    <span class="n">eel</span> <span class="o">=</span> <span class="n">eel_library</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">devel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># env var MY_PYTHON_VUE_ENVIRONMENT is configured and added with pyinstaller automatically in build module</span>
+            <span class="n">devel</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MY_PYTHON_VUE_ENVIRONMENT&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;production&quot;</span> <span class="k">else</span> <span class="kc">True</span>
+
+        <span class="c1"># Whether run is from .exe or from python</span>
+        <span class="n">is_builded</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;frozen&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">log_file_path</span><span class="p">:</span>
+            <span class="n">log_file</span> <span class="o">=</span> <span class="n">log_file_path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log_file</span> <span class="o">=</span> <span class="s2">&quot;log.log&quot;</span> <span class="k">if</span> <span class="n">is_builded</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">mylogging</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">TO_FILE</span> <span class="o">=</span> <span class="n">log_file</span>
+
+        <span class="k">if</span> <span class="n">is_builded</span><span class="p">:</span>
+            <span class="c1"># gui folder is created with pyinstaller in build</span>
+            <span class="n">gui_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">_MEIPASS</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;gui&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">devel</span><span class="p">:</span>
+                <span class="n">paths</span><span class="o">.</span><span class="n">set_root</span><span class="p">()</span>
+                <span class="n">gui_path</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">paths</span><span class="o">.</span><span class="n">find_path</span><span class="p">(</span><span class="s2">&quot;index.html&quot;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;node_modules&quot;</span><span class="p">,</span> <span class="s2">&quot;build&quot;</span><span class="p">,</span> <span class="s2">&quot;dist&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="o">/</span> <span class="s2">&quot;src&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">builded_gui_path</span><span class="p">:</span>
+                    <span class="n">gui_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">builded_gui_path</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">paths</span><span class="o">.</span><span class="n">set_root</span><span class="p">()</span>
+                    <span class="n">gui_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">find_path</span><span class="p">(</span>
+                        <span class="s2">&quot;index.html&quot;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;public&quot;</span><span class="p">,</span> <span class="s2">&quot;node_modules&quot;</span><span class="p">,</span> <span class="s2">&quot;build&quot;</span><span class="p">]</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">gui_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Web files not found, setup gui_path (where builded index.html is).&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">devel</span><span class="p">:</span>
+            <span class="n">directory</span> <span class="o">=</span> <span class="n">gui_path</span>
+            <span class="n">app</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">page</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="mi">8080</span><span class="p">}</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="mi">8686</span>
+            <span class="n">init_files</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;.vue&quot;</span><span class="p">,</span> <span class="s2">&quot;.js&quot;</span><span class="p">,</span> <span class="s2">&quot;.html&quot;</span><span class="p">]</span>
+
+            <span class="k">def</span> <span class="nf">close_callback</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">sockets</span><span class="p">):</span>
+                <span class="k">pass</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">directory</span> <span class="o">=</span> <span class="n">gui_path</span>
+            <span class="n">close_callback</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">app</span> <span class="o">=</span> <span class="s2">&quot;chrome&quot;</span>
+            <span class="n">page</span> <span class="o">=</span> <span class="s2">&quot;index.html&quot;</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">init_files</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;.js&quot;</span><span class="p">,</span> <span class="s2">&quot;.html&quot;</span><span class="p">]</span>
+
+        <span class="n">eel</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">directory</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">init_files</span><span class="p">,</span> <span class="n">exlcude_patterns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chunk-vendors&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">is_multiprocessing</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">freeze_support</span>
+
+            <span class="n">freeze_support</span><span class="p">()</span>
+
+        <span class="n">mylogging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Py side started&quot;</span><span class="p">)</span>
+
+        <span class="n">eel</span><span class="o">.</span><span class="n">start</span><span class="p">(</span>
+            <span class="n">page</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="n">app</span><span class="p">,</span>
+            <span class="n">cmdline_args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--disable-features=TranslateUI&quot;</span><span class="p">],</span>
+            <span class="n">close_callback</span><span class="o">=</span><span class="n">close_callback</span><span class="p">,</span>
+            <span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+            <span class="n">disable_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">),</span>
+
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="n">eel</span><span class="o">.</span><span class="n">start</span><span class="p">(</span>
+            <span class="n">page</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;edge&quot;</span><span class="p">,</span>
+            <span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+            <span class="n">close_callback</span><span class="o">=</span><span class="n">close_callback</span><span class="p">,</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+            <span class="n">disable_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">),</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">mylogging</span><span class="o">.</span><span class="n">traceback</span><span class="p">(</span><span class="s2">&quot;Py side terminated...&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="expose"><a class="viewcode-back" href="../../mypythontools.pyvueeel.html#mypythontools.pyvueeel.expose">[docs]</a><span class="k">def</span> <span class="nf">expose</span><span class="p">(</span><span class="n">callback_function</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Wrap eel expose with try catch block and adding exception callback function</span>
+<span class="sd">    (for printing error to frontend usually).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        callback_function (function): Function that will be called if exposed function fails on some error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="s2">&quot;EelForkExcludeFiles&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">ResourceWarning</span><span class="p">)</span>
+
+        <span class="kn">import</span> <span class="nn">EelForkExcludeFiles</span> <span class="k">as</span> <span class="nn">eel</span>
+
+    <span class="k">def</span> <span class="nf">inner</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">callback_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">expose_error_callback</span><span class="p">:</span>
+                <span class="n">expose_error_callback</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mylogging</span><span class="o">.</span><span class="n">traceback</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected error in function `</span><span class="si">{</span><span class="n">callback_function</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
+
+    <span class="n">eel</span><span class="o">.</span><span class="n">_expose</span><span class="p">(</span><span class="n">callback_function</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">inner</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="to_vue_plotly"><a class="viewcode-back" href="../../mypythontools.pyvueeel.html#mypythontools.pyvueeel.to_vue_plotly">[docs]</a><span class="k">def</span> <span class="nf">to_vue_plotly</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Takes data (dataframe or numpy array) and transforms it to form, that vue-plotly understand.</span>
+
+<span class="sd">    Links to vue-plotly:</span>
+
+<span class="sd">    https://www.npmjs.com/package/vue-plotly</span>
+<span class="sd">    https://www.npmjs.com/package/@rleys/vue-plotly  - fork for vue 3 version</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        In js, you still need to edit the function, it&#39;s because no need to have all x axis for every column.</span>
+<span class="sd">        Download the js function from project-starter and check for example.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data ((np.array, pd.DataFrame)): Plotted data.</span>
+<span class="sd">        names (list, optional): If using array, you can define names. Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Data in form for plotting in frontend.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">generic</span><span class="p">)):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="n">numeric_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="s2">&quot;number&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">numeric_data</span> <span class="o">=</span> <span class="n">numeric_data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">numeric_data</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="c1"># numeric_data = add_none_to_gaps(numeric_data)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;x_axis&quot;</span><span class="p">:</span> <span class="n">numeric_data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span>
+        <span class="s2">&quot;y_axis&quot;</span><span class="p">:</span> <span class="n">numeric_data</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="s2">&quot;names&quot;</span><span class="p">:</span> <span class="n">numeric_data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="to_table"><a class="viewcode-back" href="../../mypythontools.pyvueeel.html#mypythontools.pyvueeel.to_table">[docs]</a><span class="k">def</span> <span class="nf">to_table</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Takes data (dataframe or numpy array) and transforms it to form, that vue-plotly library understands.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): Data.</span>
+<span class="sd">        index (bool): Whether use index as first column (or not at all).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: DatPa in form for creating table in Vuetify v-data-table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span>
+                <span class="s2">&quot;Only dataframe is allowed in to_table function. If you have Series, &quot;</span>
+                <span class="s2">&quot;convert it to dataframe. You can use shape (1, x) for one row or use &quot;</span>
+                <span class="s2">&quot;df.T and shape (x, 1) for one column.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">index</span><span class="p">:</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Numpy nan cannot be send to json - replace with None</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">data</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]),</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s2">&quot;sortable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;table&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s2">&quot;records&quot;</span><span class="p">),</span> <span class="s2">&quot;headers&quot;</span><span class="p">:</span> <span class="n">headers</span><span class="p">}</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div id="logo">
+    <a href="/">
+        <img src="/page/_static/logo.png" alt="Logo">
+    </a>
+</div>
+
+<div class="section" id="table-of-contents">
+
+    <h1>Table of contents</h1>
+
+    <h2>Submodules</h2>
+
+    <ul>
+        <li><a href="/page/mypythontools.build.html">build</a></li>
+        <li><a href="/page/mypythontools.deploy.html">deploy</a></li>
+        <li><a href="/page/mypythontools.paths.html">paths</a></li>
+        <li><a href="/page/mypythontools.misc.html">misc</a></li>
+        <li><a href="/page/mypythontools.pyvueeel.html">pyvueeel</a></li>
+        <li><a href="/page/mypythontools.utils.html">utils</a></li>
+    </ul>
+
+    <h2><a href="/page/genindex.html">Index</a></h2>
+
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Daniel Malachov.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/Malachov/mypythontools" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

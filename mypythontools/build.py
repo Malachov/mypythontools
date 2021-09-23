@@ -114,6 +114,7 @@ def build_app(
         try:
             shutil.rmtree(dist_path, ignore_errors=False)
         except (PermissionError, OSError):
+
             raise PermissionError(
                 mylogging.return_str(
                     "App is opened (May be in another app(terminal, explorer...)). Close it first."
@@ -173,11 +174,15 @@ def build_app(
     # Build JS to static asset
     if build_web is True or (build_web == "preset" and preset in ["eel"]):
         gui_path = paths.find_path("package.json").parent
-        subprocess.run(
-            ["npm", "run", "build"],
-            check=True,
-            cwd=gui_path,
-        )
+        try:
+            subprocess.run(
+                ["npm", "run", "build"],
+                check=True,
+                cwd=gui_path,
+            )
+        except Exception:
+            mylogging.traceback(f"Build of web files failed. Try `npm run build` in folder {gui_path}.")
+            raise
 
     if build_web or preset == "eel":
         if web_path == "infer":
@@ -289,12 +294,18 @@ coll = COLLECT(exe,
         spec_file.write(spec_template)
 
     # Build py to exe
-
-    subprocess.run(
-        ["pyinstaller", "-y", spec_path.as_posix()],
-        check=True,
-        cwd=PROJECT_PATHS.ROOT_PATH.as_posix(),
-    )
+    command_list = ["pyinstaller", "-y", spec_path.as_posix()]
+    try:
+        subprocess.run(
+            command_list,
+            check=True,
+            cwd=PROJECT_PATHS.ROOT_PATH.as_posix(),
+        )
+    except Exception:
+        mylogging.traceback(
+            f"Build with pyinstaller failed. Try `{' '.join(command_list)}`` in folder {PROJECT_PATHS.ROOT_PATH.as_posix()}."
+        )
+        raise
 
     if cleanit:
         try:

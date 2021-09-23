@@ -1,5 +1,4 @@
 - [ ] Add tests to plot from predictit
-  
 - [ ] Transform starter to cookiecutter
 - [ ] Create GIF of vs code task
 - [ ] Better test coverage (doctest in functions + check if in coverage)

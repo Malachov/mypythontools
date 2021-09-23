@@ -125,11 +125,10 @@ def run_tests(
     try:
         pytested = subprocess.run(test_command)  # , shell=True
     except Exception:
-        raise RuntimeError(
-            mylogging.return_str(
-                f"Tests failed and did not run. Try this command in terminal to know why it failed.\n{test_command}"
-            )
+        mylogging.traceback(
+            f"Tests failed and did not run. Try this command in terminal to know why it failed.\n{test_command}"
         )
+        raise
 
     if test_coverage and Path(".coverage").exists():
         Path(".coverage").unlink()
@@ -201,7 +200,13 @@ def add_readme_tests(
         "--outfile",
         test_file_path,
     ]
-    subprocess.run(generate_readme_test_command)
+    try:
+        subprocess.run(generate_readme_test_command)
+    except Exception:
+        mylogging.traceback(
+            f"Readme test creation failed. Try `{generate_readme_test_command}` in on your root."
+        )
+        raise
 
 
 def deactivate_test_settings() -> None:

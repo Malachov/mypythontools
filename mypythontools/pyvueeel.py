@@ -34,6 +34,7 @@ from . import misc
 # import numpy as np
 # import inspect
 # import ast
+# import mydatapreprocessing as mdp
 
 # import pandas as pd
 # import EelForkExcludeFiles as eel
@@ -252,9 +253,10 @@ def to_vue_plotly(data, names=None):
         >>> to_vue_plotly(df)
         {'x_axis': [0, 1], 'y_axis': [[1, 2]], 'names': ['numbers']}
     """
-
     import pandas as pd
     import numpy as np
+
+    import mydatapreprocessing as mdp
 
     if isinstance(data, (np.ndarray, np.generic)):
         data = pd.DataFrame(data, columns=names)
@@ -263,7 +265,7 @@ def to_vue_plotly(data, names=None):
 
     numeric_data = data.select_dtypes(include="number").round(decimals=3)
     numeric_data = numeric_data.where(np.isfinite(numeric_data), None)
-    # numeric_data = add_none_to_gaps(numeric_data)
+    numeric_data = mdp.misc.add_none_to_gaps(numeric_data)
 
     return {
         "x_axis": numeric_data.index.to_list(),

@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>mypythontools.tests module &#8212; mypythontools 24-08-2021 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="https://malachov.github.io/mypythontools/content/sphinx-alabaster-css/custom.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-mypythontools.tests">
+<span id="mypythontools-tests-module"></span><h1>mypythontools.tests module<a class="headerlink" href="#module-mypythontools.tests" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="mypythontools.tests.deactivate_test_settings">
+<span class="sig-prename descclassname"><span class="pre">mypythontools.tests.</span></span><span class="sig-name descname"><span class="pre">deactivate_test_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mypythontools/tests.html#deactivate_test_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mypythontools.tests.deactivate_test_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sometimes you want to run test just in normal mode (enable plots etc.). Usually at the end of test file in <cite>if __name__ = “__main__”:</cite> block.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mypythontools.tests.run_tests">
+<span class="sig-prename descclassname"><span class="pre">mypythontools.tests.</span></span><span class="sig-name descname"><span class="pre">run_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_coverage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_on_first_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_virutalenv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requirements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mypythontools/tests.html#run_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mypythontools.tests.run_tests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run tests. If any test fails, raise an error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_path</strong> (<em>(</em><em>str</em><em>, </em><em>pathlib.Path</em><em>)</em><em>, </em><em>optional</em>) – If None, ROOT_PATH is used. ROOT_PATH is necessary if using doctests
+‘Tests’ folder not works for doctests in modules. Defaults to None.</p></li>
+<li><p><strong>test_coverage</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether run test coverage plugin. If True, pytest-cov must be installed. Defaults to True</p></li>
+<li><p><strong>stop_on_first_error</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether stop on first error. Defaults to True</p></li>
+<li><p><strong>use_virutalenv</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether run new virtualenv and install all libraries from requirements.txt. Defaults to True</p></li>
+<li><p><strong>requirements</strong> (<em>(</em><em>str</em><em>, </em><em>pathlib.Path</em><em>, </em><em>list</em><em>)</em><em>, </em><em>optional</em>) – If using <cite>use_virutalenv</cite> define what libraries will be installed.
+If None, autodetected. Can also be a list of more files e.g <cite>[“requirements.txt”, “requirements_dev.txt”]</cite>. Defaults to None.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether print detailes on errors or keep silent. If False, parameters <cite>-q and `–tb=no</cite> are added.
+Defaults to False.</p></li>
+<li><p><strong>extra_args</strong> (<em>list</em><em>, </em><em>optional</em>) – List of args passed to pytest. Defaults to []</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>Exception</strong> – If any test fail, it will raise exception (git hook do not continue…).</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If not using with utils.push_pipeline, paths.set_paths().</p>
+<p>By default args to quiet mode and no traceback are passed. Usually this just runs automatic tests. If some of them fail,
+it’s further analyzed in some other tool in IDE.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mypythontools.tests.setup_tests">
+<span class="sig-prename descclassname"><span class="pre">mypythontools.tests.</span></span><span class="sig-name descname"><span class="pre">setup_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matplotlib_test_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mypythontools/tests.html#setup_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mypythontools.tests.setup_tests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add paths to be able to import local version of library as well as other test files.</p>
+<p>Value Mylogging.config.COLOR = 0 changed globally.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Function expect <cite>tests</cite> folder on root. If not, test folder will not be added to sys path and
+imports from tests will not work.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matplotlib_test_backend</strong> (<em>bool</em><em>, </em><em>optional</em>) – If using matlplotlib, it need to be
+closed to continue tests. Change backend to agg. Defaults to False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mypythontools.tests.test_readme">
+<span class="sig-prename descclassname"><span class="pre">mypythontools.tests.</span></span><span class="sig-name descname"><span class="pre">test_readme</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">readme_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_folder_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mypythontools/tests.html#test_readme"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mypythontools.tests.test_readme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run python scripts from README.md</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>readme_path</strong> (<em>(</em><em>str</em><em>, </em><em>pathlib.Path</em><em>)</em><em>, </em><em>optional</em>) – If None, autodetected (README.md or readme.md on root). Defaults to None.</p></li>
+<li><p><strong>test_folder_path</strong> (<em>(</em><em>str</em><em>, </em><em>pathlib.Path</em><em>)</em><em>, </em><em>optional</em>) – If None, autodetected (if ROOT_PATH / tests). Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If any test fails.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If Readme not found.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only blocks with python defined syntax will be evaluated. Example:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">import</span> <span class="pre">numpy</span>
+<span class="pre">`</span></code></p>
+</div></blockquote>
+<p>First generate test file manually and control if test file generated as supposed with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">phmdoctest</span> <span class="n">path_to_readme</span><span class="o">/</span><span class="n">README</span><span class="o">.</span><span class="n">md</span> <span class="o">--</span><span class="n">outfile</span> <span class="n">path_to_project</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">test_readme_generated</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>If you want to import modules and use some global variables, add <cite>&lt;!–phmdoctest-setup–&gt;</cite> this directive above
+block with setup code.
+If you want to skip some test, add <cite>&lt;!–phmdoctest-mark.skip–&gt;</cite></p>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div id="logo">
+    <a href="/">
+        <img src="/page/_static/logo.png" alt="Logo">
+    </a>
+</div>
+
+<div class="section" id="table-of-contents">
+
+    <h1>Table of contents</h1>
+
+    <ul>
+        <li><a href="/#links">links</a></li>
+        <li><a href="/#installation">installation</a></li>
+    </ul>
+
+    <h2>Content</h2>
+
+    <ul>
+        <li><a href="/#project-starter">project-starter</a></li>
+        <li><a href="/#requirements">requirements</a></li>
+        <li><a href="/#sphinx-alabaster-css">sphinx-alabaster-css</a></li>
+        <li><a href="/#Tasks">Tasks</a></li>
+    </ul>
+
+    <h2>Submodules</h2>
+
+    <ul>
+        <li><a href="/page/mypythontools.build.html">build</a></li>
+        <li><a href="/page/mypythontools.config.html">config</a></li>
+        <li><a href="/page/mypythontools.deploy.html">deploy</a></li>
+        <li><a href="/page/mypythontools.misc.html">misc</a></li>
+        <li><a href="/page/mypythontools.paths.html">paths</a></li>
+        <li><a href="/page/mypythontools.plots.html">plots</a></li>
+        <li><a href="/page/mypythontools.property.html">property</a></li>
+        <li><a href="/page/mypythontools.pyvueeel.html">pyvueeel</a></li>
+        <li><a href="/page/mypythontools.tests.html">tests</a></li>
+        <li><a href="/page/mypythontools.utils.html">utils</a></li>
+    </ul>
+
+    <h2><a href="/genindex.html">Index</a></h2>
+
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Daniel Malachov.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/mypythontools.tests.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/Malachov/mypythontools" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

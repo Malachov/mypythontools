@@ -1,4 +1,5 @@
 mylogging>=3.0.4
+mydatapreprocessing
 EelForkExcludeFiles
 GitPython
 pandas

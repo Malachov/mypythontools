@@ -1,0 +1,518 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>mypythontools.config &#8212; mypythontools 24-08-2021 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="https://malachov.github.io/mypythontools/content/sphinx-alabaster-css/custom.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for mypythontools.config</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This is not module that configure library mypythontools, but module that help create config for your project.</span>
+
+<span class="sd">What</span>
+<span class="sd">====</span>
+
+<span class="sd">1) Simple and short syntax.</span>
+<span class="sd">2) Ability to have docstrings on variables (not dynamically, so visible in IDE) and good for sphinx docs.</span>
+<span class="sd">3) Type checking, one-of-options checking.</span>
+<span class="sd">4) Also function evaluation from other config values (not only static value stored).</span>
+<span class="sd">5) Options hierarchy (nested options).</span>
+
+<span class="sd">How</span>
+<span class="sd">===</span>
+
+<span class="sd">Boosted property with simplified implementation. To be able to provide docstrings in IDE, first function is created.</span>
+
+<span class="sd">Examples:</span>
+<span class="sd">=========</span>
+
+<span class="sd">&gt;&gt;&gt; class SimpleConfig(ConfigBase):</span>
+<span class="sd">...     @MyProperty(int)  # Use tuple like (str, int, bool) if more classes.</span>
+<span class="sd">...     def var() -&gt; int:  # This is for type hints in IDE.</span>
+<span class="sd">...         &#39;&#39;&#39;</span>
+<span class="sd">...         Type:</span>
+<span class="sd">...             int</span>
+<span class="sd">...</span>
+<span class="sd">...         Default:</span>
+<span class="sd">...             123</span>
+<span class="sd">...</span>
+<span class="sd">...         This is docstrings (also visible in IDE, because not defined dynamically).&#39;&#39;&#39;</span>
+<span class="sd">...</span>
+<span class="sd">...         return 123  # This is initial value that can be edited.</span>
+<span class="sd">...</span>
+<span class="sd">...     @MyProperty()  # Even if you don&#39;t need any params, use empty brackets</span>
+<span class="sd">...     def evaluated(self) -&gt; int:</span>
+<span class="sd">...         return self.var + 1</span>
+<span class="sd">...</span>
+<span class="sd">&gt;&gt;&gt; config = SimpleConfig()</span>
+<span class="sd">&gt;&gt;&gt; config.var</span>
+<span class="sd">123</span>
+<span class="sd">&gt;&gt;&gt; config.var = 665</span>
+<span class="sd">&gt;&gt;&gt; config.var</span>
+<span class="sd">665</span>
+<span class="sd">&gt;&gt;&gt; config[&#39;var&#39;]  # You can also access params as in a dictionary</span>
+<span class="sd">665</span>
+<span class="sd">&gt;&gt;&gt; config.evaluated</span>
+<span class="sd">666</span>
+<span class="sd">&gt;&gt;&gt; config.var = &quot;String is problem&quot;</span>
+<span class="sd">Traceback (most recent call last):</span>
+<span class="sd">TypeError: ...</span>
+
+<span class="sd">This is how help looks like in VS Code</span>
+
+<span class="sd">.. image:: /_static/intellisense.png</span>
+<span class="sd">    :width: 620</span>
+<span class="sd">    :alt: tasks</span>
+<span class="sd">    :align: center</span>
+
+<span class="sd">You can also use options checker validation.</span>
+
+<span class="sd">&gt;&gt;&gt; class SimpleConfig(ConfigBase):</span>
+<span class="sd">...     @MyProperty(options=[1, 2, 3])</span>
+<span class="sd">...     def var(self) -&gt; int:</span>
+<span class="sd">...         2  # This means that value will not be set on init</span>
+<span class="sd">...</span>
+<span class="sd">&gt;&gt;&gt; config = SimpleConfig()</span>
+<span class="sd">&gt;&gt;&gt; config.var = 4</span>
+<span class="sd">Traceback (most recent call last):</span>
+<span class="sd">KeyError: ...</span>
+
+<span class="sd">You can also edit getter or setter. You can use lambda function (if more logic,</span>
+<span class="sd">it&#39;s better to use normal property and add type checking manually).</span>
+
+<span class="sd">Use setattr and name with underscore as prefix or self.private_name self means property, not config object.</span>
+
+<span class="sd">&gt;&gt;&gt; class SimpleConfig(ConfigBase):</span>
+<span class="sd">...     @MyProperty(</span>
+<span class="sd">...         int,</span>
+<span class="sd">...         fset=lambda self, object, new: (</span>
+<span class="sd">...             print(&quot;I&#39;m listener, i can call any function on change.&quot;),</span>
+<span class="sd">...             setattr(object, self.private_name, new + 1),</span>
+<span class="sd">...         ),</span>
+<span class="sd">...     )</span>
+<span class="sd">...     def with_setter() -&gt; int:</span>
+<span class="sd">...         return 1</span>
+<span class="sd">...</span>
+<span class="sd">&gt;&gt;&gt; config = SimpleConfig()</span>
+<span class="sd">&gt;&gt;&gt; config.with_setter</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; config.with_setter = 665</span>
+<span class="sd">I&#39;m listener, i can call any function on change.</span>
+<span class="sd">&gt;&gt;&gt; config.with_setter</span>
+<span class="sd">666</span>
+
+<span class="sd">Hierarchical config</span>
+<span class="sd">-------------------</span>
+
+<span class="sd">If last level, do inherit from ConfigBase, else inherit from ConfigStructured</span>
+
+<span class="sd">Note:</span>
+<span class="sd">    Use unique values for all config variables even if they are in various subconfig.</span>
+
+<span class="sd">&gt;&gt;&gt; class Config(ConfigStructured):</span>
+<span class="sd">...     def __init__(self) -&gt; None:</span>
+<span class="sd">...         self.subconfig1 = self.SubConfiguration1()</span>
+<span class="sd">...         self.subconfig2 = self.SubConfiguration2()</span>
+<span class="sd">...</span>
+<span class="sd">...     class SubConfiguration1(ConfigStructured):</span>
+<span class="sd">...         def __init__(self) -&gt; None:</span>
+<span class="sd">...             self.subsubconfig = self.SubSubConfiguration()</span>
+<span class="sd">...</span>
+<span class="sd">...         class SubSubConfiguration(ConfigBase):</span>
+<span class="sd">...             @MyProperty(options=[0, 1, 2, 3])</span>
+<span class="sd">...             def value1() -&gt; int:</span>
+<span class="sd">...                 &#39;&#39;&#39;Documentation here</span>
+<span class="sd">...</span>
+<span class="sd">...                 Options: [0, 1, 2, 3]</span>
+<span class="sd">...                 &#39;&#39;&#39;</span>
+<span class="sd">...                 return 3</span>
+<span class="sd">...</span>
+<span class="sd">...             @MyProperty()</span>
+<span class="sd">...             def value2(self):</span>
+<span class="sd">...                 return self.value1 + 1</span>
+<span class="sd">...</span>
+<span class="sd">...     class SubConfiguration2(ConfigBase):</span>
+<span class="sd">...         @MyProperty()</span>
+<span class="sd">...         def other_val(self):</span>
+<span class="sd">...             return self.value2 + 1</span>
+<span class="sd">...</span>
+<span class="sd">...     # Also subconfig category can contain values itself</span>
+<span class="sd">...     @MyProperty(options=[0, 1, 2, 3])</span>
+<span class="sd">...     def value3() -&gt; int:</span>
+<span class="sd">...         return 3</span>
+<span class="sd">...</span>
+<span class="sd">&gt;&gt;&gt; config = Config()</span>
+<span class="sd">...</span>
+<span class="sd">&gt;&gt;&gt; config.subconfig1.subsubconfig.value2</span>
+<span class="sd">4</span>
+
+<span class="sd">You can access value from config as well as from subcategory</span>
+
+<span class="sd">&gt;&gt;&gt; config.value2</span>
+<span class="sd">4</span>
+
+<span class="sd">Copy</span>
+<span class="sd">----</span>
+
+<span class="sd">Sometimes you need more instances of settings and you need copy of existing configuration. Copy is deepcopy by default.</span>
+
+<span class="sd">&gt;&gt;&gt; config2 = config.copy()</span>
+<span class="sd">&gt;&gt;&gt; config2.value3 = 0</span>
+<span class="sd">&gt;&gt;&gt; config2.value3</span>
+<span class="sd">0</span>
+<span class="sd">&gt;&gt;&gt; config.value3</span>
+<span class="sd">3</span>
+
+<span class="sd">Bulk update</span>
+<span class="sd">-----------</span>
+
+<span class="sd">Sometimes you want to update many values with flat dictionary.</span>
+
+<span class="sd">&gt;&gt;&gt; config.update({&#39;value3&#39;: 2, &#39;value1&#39;: 0})</span>
+<span class="sd">&gt;&gt;&gt; config.value3</span>
+<span class="sd">2</span>
+
+<span class="sd">Get flat dictionary</span>
+<span class="sd">-------------------</span>
+
+<span class="sd">There is a function that will export all the values to the flat dictionary (no dynamic anymore, just values).</span>
+
+<span class="sd">&gt;&gt;&gt; config.get_dict()</span>
+<span class="sd">{&#39;value3&#39;: 2, &#39;value1&#39;: 0, &#39;value2&#39;: 1, &#39;other_val&#39;: 2}</span>
+
+<span class="sd">Reset</span>
+<span class="sd">-----</span>
+<span class="sd">You can reset to default values</span>
+
+<span class="sd">&gt;&gt;&gt; config.value1 = 1</span>
+<span class="sd">&gt;&gt;&gt; config.reset()</span>
+<span class="sd">&gt;&gt;&gt; config.value1</span>
+<span class="sd">3</span>
+
+<span class="sd">Sphinx docs</span>
+<span class="sd">===========</span>
+
+<span class="sd">If you want to have documentation via sphinx, you can add this to conf.py::</span>
+
+<span class="sd">    napoleon_custom_sections = [</span>
+<span class="sd">        (&quot;Types&quot;, &quot;returns_style&quot;),</span>
+<span class="sd">        (&quot;Type&quot;, &quot;returns_style&quot;),</span>
+<span class="sd">        (&quot;Options&quot;, &quot;returns_style&quot;),</span>
+<span class="sd">        (&quot;Default&quot;, &quot;returns_style&quot;),</span>
+<span class="sd">        (&quot;Example&quot;, &quot;returns_style&quot;),</span>
+<span class="sd">        (&quot;Examples&quot;, &quot;returns_style&quot;),</span>
+<span class="sd">    ]</span>
+
+<span class="sd">Here is example</span>
+
+<span class="sd">.. image:: /_static/config_on_sphinx.png</span>
+<span class="sd">    :width: 620</span>
+<span class="sd">    :alt: tasks</span>
+<span class="sd">    :align: center</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">import</span> <span class="nn">mylogging</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">from</span> <span class="nn">.property</span> <span class="kn">import</span> <span class="n">MyProperty</span>
+
+
+<div class="viewcode-block" id="ConfigMeta"><a class="viewcode-back" href="../../mypythontools.config.html#mypythontools.config.ConfigMeta">[docs]</a><span class="k">class</span> <span class="nc">ConfigMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Metaclass that will edit Config class. Main reason is for being able to define own __init__ but</span>
+<span class="sd">    still has functionality from parent __init__ that is necessary. With this meta, there is no need</span>
+<span class="sd">    to use super().__init__ by user.</span>
+
+<span class="sd">    As user, you probably will not need it. It&#39;s used internaly if inheriting from ConfigStructured.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">):</span>
+
+        <span class="c1"># Avoid base classes here and wrap only user class init</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ConfigBase&quot;</span><span class="p">,</span> <span class="s2">&quot;ConfigStructured&quot;</span><span class="p">]:</span>
+
+            <span class="k">def</span> <span class="nf">add_parent__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+                <span class="n">is_structured</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">ConfigStructured</span> <span class="ow">in</span> <span class="n">bases</span> <span class="k">else</span> <span class="kc">False</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_base_config_map</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">myproperties_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">properties_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="c1"># Call user defined init</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_original__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+                <span class="c1"># Init all MyProperty values</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="ow">is</span> <span class="n">MyProperty</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">myproperties_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">public_name</span><span class="p">)</span>
+                        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">private_name</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">init_function</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">property</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">properties_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+                <span class="c1"># If structured config, add proxies to subconfigs</span>
+                <span class="k">if</span> <span class="n">is_structured</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_propagate_base_config_map</span><span class="p">()</span>
+
+                <span class="c1"># Update values from dict param in init</span>
+                <span class="k">if</span> <span class="n">dict_values</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">dict_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">frozen</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">frozen</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">frozen</span> <span class="o">=</span> <span class="n">frozen</span>
+
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_original__init__</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span> <span class="o">=</span> <span class="n">add_parent__init__</span></div>
+
+
+<div class="viewcode-block" id="ConfigBase"><a class="viewcode-back" href="../../mypythontools.config.html#mypythontools.config.ConfigBase">[docs]</a><span class="k">class</span> <span class="nc">ConfigBase</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ConfigMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Main config class. If need nested config, use ConfigStructured instead.</span>
+<span class="sd">    You can find working examples in module docstrings.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Usually this config is created from someone else that user using this config. Therefore new attributes</span>
+    <span class="c1"># should not be created. It is possible to force it (raise error). It is possible to set frozen to False</span>
+    <span class="c1"># to enable creating new instances.</span>
+    <span class="n">frozen</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># _base_config_map is used only if using structured config. You can access attribute from subconfig as</span>
+    <span class="c1"># well as from main config object, there is proxy mapping config dict (same for base and subconfig) if</span>
+    <span class="c1"># attribute not found on defined object, it will find if it&#39;s in this dict where are all config values as</span>
+    <span class="c1"># key and config object where it&#39;s stored. It&#39;s poppulated automatically in metaclass during init</span>
+    <span class="n">_base_config_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Init is wrapped in metaclass so __init__ can be overriden by user</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            You don&#39;t need to use parameters from wrapper in your init (but you can use it on instance).</span>
+<span class="sd">        Args in wrapper:</span>
+<span class="sd">            dict_values (dict, optional): Values that will updated after init. Defaults to None.</span>
+<span class="sd">            frozen (bool, optional): If frozen, it&#39;s not possible to add new attributes. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># If structured config. Value may not be in this object, but in another related object.</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_config_map</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found in config.&quot;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">setter_name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">name</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">frozen</span>
+            <span class="ow">or</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;frozen&quot;</span>
+            <span class="ow">or</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">myproperties_list</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">properties_list</span><span class="p">,</span> <span class="o">*</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)]</span>
+        <span class="p">):</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">setter_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_config_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_config_map</span><span class="p">[</span><span class="n">setter_name</span><span class="p">],</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Object </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> is frozen. New attributes cannot be set and attribute &lt; </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> &gt; not found. Maybe you misspelled name. &quot;</span>
+                    <span class="s2">&quot;If you really need to change the value, set attribute frozen to false.&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ConfigBase.copy"><a class="viewcode-back" href="../../mypythontools.config.html#mypythontools.config.ConfigBase.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConfigBase.update"><a class="viewcode-back" href="../../mypythontools.config.html#mypythontools.config.ConfigBase.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConfigBase.reset"><a class="viewcode-back" href="../../mypythontools.config.html#mypythontools.config.ConfigBase.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">copy</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)()</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="n">copy</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">copy</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">copy</span><span class="o">.</span><span class="n">myproperties_list</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">copy</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">copy</span><span class="o">.</span><span class="n">properties_list</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">copy</span><span class="p">[</span><span class="n">i</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ConfigBase.get_dict"><a class="viewcode-back" href="../../mypythontools.config.html#mypythontools.config.ConfigBase.get_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">normal_vars</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="n">value</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;myproperties_list&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;myproperties_list&quot;</span><span class="p">,</span> <span class="s2">&quot;properties_list&quot;</span><span class="p">,</span> <span class="s2">&quot;frozen&quot;</span><span class="p">,</span> <span class="s2">&quot;_base_config_map&quot;</span><span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="n">property_vars</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1"># Values from myproperties</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">myproperties_list</span><span class="p">},</span>
+            <span class="c1"># Values from properties</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties_list</span><span class="p">},</span>
+        <span class="p">}</span>
+
+        <span class="n">normal_vars</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">i</span><span class="p">:</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">normal_vars</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="ow">in</span> <span class="n">property_vars</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="o">**</span><span class="n">normal_vars</span><span class="p">,</span> <span class="o">**</span><span class="n">property_vars</span><span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="ConfigStructured"><a class="viewcode-back" href="../../mypythontools.config.html#mypythontools.config.ConfigStructured">[docs]</a><span class="k">class</span> <span class="nc">ConfigStructured</span><span class="p">(</span><span class="n">ConfigBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for creating config. Read why and how in config module docstrings.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Init is redefined in metaclass so __init__ can be overriden by user</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dict_values (dict, optional): Values that will updated after init. Defaults to None.</span>
+<span class="sd">            frozen (bool, optional): If frozen, it&#39;s not possible to add new attributes. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="ConfigStructured.get_dict"><a class="viewcode-back" href="../../mypythontools.config.html#mypythontools.config.ConfigStructured.get_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># From main class</span>
+        <span class="n">dict_of_values</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_dict</span><span class="p">()</span>
+        <span class="c1"># From sub configs</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;myproperties_list&quot;</span><span class="p">):</span>
+                <span class="n">subconfig_dict</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">get_dict</span><span class="p">()</span>
+                <span class="n">dict_of_values</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">subconfig_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dict_of_values</span></div>
+
+    <span class="k">def</span> <span class="nf">_propagate_base_config_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;myproperties_list&quot;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">i</span><span class="o">.</span><span class="n">myproperties_list</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_base_config_map</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;properties_list&quot;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">i</span><span class="o">.</span><span class="n">properties_list</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_base_config_map</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ConfigBase</span><span class="p">):</span>
+                <span class="n">i</span><span class="o">.</span><span class="n">_base_config_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_config_map</span>
+
+            <span class="k">if</span> <span class="n">ConfigStructured</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">mro</span><span class="p">():</span>
+                <span class="n">i</span><span class="o">.</span><span class="n">_propagate_base_config_map</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div id="logo">
+    <a href="/">
+        <img src="/page/_static/logo.png" alt="Logo">
+    </a>
+</div>
+
+<div class="section" id="table-of-contents">
+
+    <h1>Table of contents</h1>
+
+    <ul>
+        <li><a href="/#links">links</a></li>
+        <li><a href="/#installation">installation</a></li>
+    </ul>
+
+    <h2>Content</h2>
+
+    <ul>
+        <li><a href="/#project-starter">project-starter</a></li>
+        <li><a href="/#requirements">requirements</a></li>
+        <li><a href="/#sphinx-alabaster-css">sphinx-alabaster-css</a></li>
+        <li><a href="/#Tasks">Tasks</a></li>
+    </ul>
+
+    <h2>Submodules</h2>
+
+    <ul>
+        <li><a href="/page/mypythontools.build.html">build</a></li>
+        <li><a href="/page/mypythontools.config.html">config</a></li>
+        <li><a href="/page/mypythontools.deploy.html">deploy</a></li>
+        <li><a href="/page/mypythontools.misc.html">misc</a></li>
+        <li><a href="/page/mypythontools.paths.html">paths</a></li>
+        <li><a href="/page/mypythontools.plots.html">plots</a></li>
+        <li><a href="/page/mypythontools.property.html">property</a></li>
+        <li><a href="/page/mypythontools.pyvueeel.html">pyvueeel</a></li>
+        <li><a href="/page/mypythontools.tests.html">tests</a></li>
+        <li><a href="/page/mypythontools.utils.html">utils</a></li>
+    </ul>
+
+    <h2><a href="/genindex.html">Index</a></h2>
+
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Daniel Malachov.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/Malachov/mypythontools" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

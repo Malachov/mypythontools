@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Union, List
 import shutil
 
+import mylogging
+
 from . import paths
 from . import misc
 
@@ -38,10 +40,14 @@ class MyVenv:
         """Create virtual environment. If it already exists, it will be skipped and nothing happens."""
 
         if not self.exists:
-            if platform.system() == "Windows":
-                subprocess.run(self.create_command, check=True)
-            else:
-                subprocess.run(self.create_command, check=True)
+            try:
+                if platform.system() == "Windows":
+                    subprocess.run(self.create_command, check=True)
+                else:
+                    subprocess.run(self.create_command, check=True)
+            except (Exception,):
+                mylogging.traceback("Creation of venv failed. Check logged error.")
+                raise
 
     def sync_requirements(self, requirements: Union[Union[str, Path], List[Union[str, Path]]] = "infer"):
         """Sync libraries based on requirements. Install missing, remove unnecessary.
@@ -84,10 +90,14 @@ class MyVenv:
         requirements_command = (
             "pip install pip-tools && "
             f"pip-compile {requirements_all_console_path_str} --output-file {freezed_requirements_console_path_str}  --quiet && "
-            f"pip-sync {freezed_requirements_console_path_str} --quiet"
+            f"pip-sync {freezed_requirements_console_path_str} --quiet --user"
         )
 
-        subprocess.run(f"{self.activate_command} && {requirements_command}", check=True)
+        try:
+            subprocess.run(f"{self.activate_command} && {requirements_command}", check=True)
+        except (Exception,):
+            mylogging.traceback("Update of venv libraries based on requirements failed. Check logge error.")
+            raise
 
     def remove(self) -> None:
         shutil.rmtree(self.venv_path.as_posix())

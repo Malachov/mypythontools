@@ -92,7 +92,7 @@ def str_to_infer_type(string_var: str) -> Any:
     return evaluated
 
 
-def json_to_py(json: Dict, replace_comma_decimal: bool = True) -> Any:
+def json_to_py(json: Dict, replace_comma_decimal: bool = True, replace_true_false: bool = True) -> Any:
     """Take json and eval it from strings. If string to string, if float to float, if object then to dict.
 
     When to use? - If sending object as parameter in function.
@@ -103,6 +103,8 @@ def json_to_py(json: Dict, replace_comma_decimal: bool = True) -> Any:
             If True, comma replaced with dot (Only if there are no brackets (list, dict...)
             and if not converted to number string remain untouched) . For example '2,6' convert to 2.6.
             Defaults to True
+        replace_true_false (bool, optional): If string is 'false' or 'true' (for example from javascript),
+            it will be capitalized first for correct type conversion. Defaults to True
 
     Returns:
         dict: Python dictionary with correct types.
@@ -119,8 +121,18 @@ def json_to_py(json: Dict, replace_comma_decimal: bool = True) -> Any:
 
     for i, j in json.items():
 
-        if replace_comma_decimal and isinstance(j, str) and "(" not in j and "[" not in j and "{" not in j:
+        replace_condition = isinstance(j, str) and "(" not in j and "[" not in j and "{" not in j
+
+        if replace_comma_decimal and replace_condition:
             j = j.replace(",", ".")
+
+        if replace_true_false and replace_condition:
+            if j == "true":
+                evaluated[i] = True
+            if j == "false":
+                evaluated[i] = False
+            if j == "true" or j == "false":
+                continue
 
         try:
             evaluated[i] = ast.literal_eval(j)
@@ -130,7 +142,7 @@ def json_to_py(json: Dict, replace_comma_decimal: bool = True) -> Any:
     return evaluated
 
 
-def watchdog(timeout: int, function: Callable, *args, **kwargs) -> None:
+def watchdog(timeout: int, function: Callable, *args, **kwargs) -> Any:
     """Time-limited execution for python function. TimeoutError raised if not finished during defined time.
 
     Args:
@@ -157,9 +169,6 @@ def watchdog(timeout: int, function: Callable, *args, **kwargs) -> None:
         TimeoutError: ...
     """
 
-    raise_timeout_error = False
-    raise_runtime_error = False
-
     def tracer(frame, event, arg, start=time.time()):
         "Helper."
         now = time.time()
@@ -168,35 +177,34 @@ def watchdog(timeout: int, function: Callable, *args, **kwargs) -> None:
         return tracer if event == "call" else None
 
     old_tracer = sys.gettrace()
+
+    error = None
+
     try:
         sys.settrace(tracer)
         result = function(*args, **kwargs)
-        return result
 
     except TimeoutError:
-        raise_timeout_error = True
+        error = TimeoutError
+        error_message = mylogging.return_str(
+            "Timeout defined in watchdog exceeded.",
+            caption="TimeoutError",
+            level="ERROR",
+        )
 
     except Exception:
-        raise_runtime_error = True
+        error = RuntimeError
+        error_message = mylogging.return_str(
+            f"Watchdog with function {function.__name__}, args {args} and kwargs {kwargs} failed."
+        )
 
     finally:
         sys.settrace(old_tracer)
 
-    if raise_timeout_error:
-        raise TimeoutError(
-            mylogging.return_str(
-                "Timeout defined in watchdog exceeded.",
-                caption="TimeoutError",
-                level="ERROR",
-            )
-        )
+    if error:
+        raise error(error_message)
 
-    elif raise_runtime_error:
-        raise RuntimeError(
-            mylogging.return_str(
-                f"Watchdog with function {function.__name__}, args {args} and kwargs {kwargs} failed."
-            )
-        )
+    return result
 
 
 def get_console_str_with_quotes(string: Union[str, Path]):

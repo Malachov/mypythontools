@@ -14,6 +14,7 @@ import os
 import shutil
 from pathlib import Path
 from typing import Union
+import platform
 
 import mylogging
 
@@ -31,7 +32,7 @@ def deploy_to_pypi(setup_path: Union[str, Path] = "infer") -> None:
 
     Args:
         setup_path((str, pathlib.Path), optional): Function suppose, that there is a setup.py somewhere in cwd.
-            If not, pass path to setup.py. Defaults to "infer".
+            If not, pass path to setup.py. Build and dist folders will be created in same directory. Defaults to "infer".
     """
 
     usr = os.environ.get("TWINE_USERNAME")
@@ -42,50 +43,63 @@ def deploy_to_pypi(setup_path: Union[str, Path] = "infer") -> None:
             mylogging.return_str("Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.")
         )
 
-    setup_py_path = (
+    setup_path = (
         paths.PROJECT_PATHS.ROOT_PATH / "setup.py"
         if setup_path == "infer"
         else paths.validate_path(setup_path)
     )
 
-    if not setup_py_path.exists():
-        setup_py_path = paths.find_path("setup.py")
-        setup_path = setup_py_path.parent
+    setup_dir_path = setup_path.parent
 
-        if not (setup_path / "setup.py").exists():
-            raise FileNotFoundError(
-                mylogging.return_str("Setup.py file not found. Setup `setup_path` param.")
-            )
+    dist_path = setup_dir_path / "dist"
+    build_path = setup_dir_path / "build"
+
+    if dist_path.exists():
+        shutil.rmtree(dist_path)
+
+    if build_path.exists():
+        shutil.rmtree(build_path)
+
+    if platform.system() == "Windows":
+        python_command = "python"
+    else:
+        python_command = "python3"
+
+    build_command = f"{python_command} setup.py sdist bdist_wheel"
 
     try:
-        shutil.rmtree(setup_path / "dist")
-        shutil.rmtree(setup_path / "build")
-
+        subprocess.run(
+            build_command.split(),
+            cwd=setup_dir_path.as_posix(),
+            check=True,
+        )
     except Exception:
-        pass
+        mylogging.traceback(
+            f"Library build with pyinstaller failed. Try `{build_command}`` in folder {setup_dir_path}."
+        )
+        raise
 
-    build_command = "python setup.py sdist bdist_wheel"
+    command_list = [
+        "twine",
+        "upload",
+        "-u",
+        os.environ["TWINE_USERNAME"],
+        "-p",
+        os.environ["TWINE_PASSWORD"],
+        "dist/*",
+    ]
 
-    subprocess.run(
-        build_command.split(),
-        cwd=setup_path,
-        shell=True,
-        check=True,
-    )
+    try:
+        subprocess.run(
+            command_list,
+            cwd=setup_dir_path.as_posix(),
+            check=True,
+        )
+    except Exception:
+        mylogging.traceback(
+            f"Build with pyinstaller failed. Try `{' '.join(command_list)}`` in folder {setup_dir_path}."
+        )
+        raise
 
-    subprocess.run(
-        [
-            "twine",
-            "upload",
-            "-u",
-            os.environ["TWINE_USERNAME"],
-            "-p",
-            os.environ["TWINE_PASSWORD"],
-            "dist/*",
-        ],
-        cwd=setup_path,
-        check=True,
-    )
-
-    shutil.rmtree(setup_path / "dist")
-    shutil.rmtree(setup_path / "build")
+    shutil.rmtree(dist_path)
+    shutil.rmtree(build_path)

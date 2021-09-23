@@ -317,7 +317,14 @@ def reformat_with_black(root_path: Union[str, Path] = "infer", extra_args: List[
     """
     root_path = PROJECT_PATHS.ROOT_PATH if root_path == "infer" else validate_path(root_path)
 
-    subprocess.run(f"black . {' '.join(extra_args)}", check=True, cwd=root_path)
+    try:
+        subprocess.run(f"black . {' '.join(extra_args)}", check=True, cwd=root_path)
+    except (Exception,):
+        mylogging.traceback(
+            "Reformatting with `black` failed. Check if it's installed, check logged error, "
+            "then try format manually with `black .`"
+        )
+        raise
 
 
 def git_push(
@@ -349,11 +356,16 @@ def git_push(
         Repo(PROJECT_PATHS.ROOT_PATH.as_posix()).create_tag(tag, message=tag_message)
         git_command += " --follow-tags"
 
-    subprocess.run(
-        git_command,
-        check=True,
-        cwd=PROJECT_PATHS.ROOT_PATH.as_posix(),
-    )
+    try:
+        subprocess.run(
+            git_command,
+            check=True,
+            cwd=PROJECT_PATHS.ROOT_PATH.as_posix(),
+        )
+    except (Exception,):
+        Repo(PROJECT_PATHS.ROOT_PATH.as_posix()).delete_tag(tag)
+        mylogging.traceback()
+        raise
 
 
 def set_version(
