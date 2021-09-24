@@ -1,3 +1,5 @@
+- [ ] Check if coverage from doctest included
+- [ ] Update venv outside tests and use it in pyinstaller build
 - [ ] Add tests to plot from predictit
 - [ ] Transform starter to cookiecutter
 - [ ] Create GIF of vs code task

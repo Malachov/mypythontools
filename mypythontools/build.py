@@ -175,11 +175,10 @@ def build_app(
     if build_web is True or (build_web == "preset" and preset in ["eel"]):
         gui_path = paths.find_path("package.json").parent
         try:
-            subprocess.run(
-                ["npm", "run", "build"],
-                check=True,
-                cwd=gui_path,
-            )
+            builded = subprocess.run("npm run build", check=True, cwd=gui_path.as_posix(), shell=True)
+            if builded.returncode != 0:
+                raise RuntimeError()
+
         except Exception:
             mylogging.traceback(f"Build of web files failed. Try `npm run build` in folder {gui_path}.")
             raise
@@ -303,7 +302,7 @@ coll = COLLECT(exe,
         )
     except Exception:
         mylogging.traceback(
-            f"Build with pyinstaller failed. Try `{' '.join(command_list)}`` in folder {PROJECT_PATHS.ROOT_PATH.as_posix()}."
+            f"Build with pyinstaller failed. Try `{' '.join(command_list)}` in folder `{PROJECT_PATHS.ROOT_PATH.as_posix()}`."
         )
         raise
 

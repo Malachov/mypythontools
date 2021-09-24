@@ -264,12 +264,26 @@ def to_vue_plotly(data, names=None):
     data = pd.DataFrame(data)
 
     numeric_data = data.select_dtypes(include="number").round(decimals=3)
-    numeric_data = mdp.misc.add_none_to_gaps(numeric_data)
-    numeric_data = numeric_data.where(np.isfinite(numeric_data), None)
+
+    # TODO fix datetime
+    try:
+        numeric_data = mdp.misc.add_none_to_gaps(numeric_data)
+    except Exception:
+        pass
+
+    numeric_data = numeric_data.where(np.isfinite(numeric_data), np.nan)
+
+    # TODO
+    # Dirty hack... edit lists
+
+    values_list = numeric_data.values.T.tolist()
+
+    for i, j in enumerate(values_list):
+        values_list[i] = [k if not np.isnan(k) else None for k in j]
 
     return {
         "x_axis": numeric_data.index.to_list(),
-        "y_axis": numeric_data.values.T.tolist(),
+        "y_axis": values_list,
         "names": numeric_data.columns.values.tolist(),
     }
 

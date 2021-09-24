@@ -14,5 +14,6 @@ import mypythontools
 if __name__ == "__main__":
     mypythontools.utils.push_pipeline(
         sphinx_docs=["pyvueeel-tutorial.rst"],
+        test=False,
         deploy=True,
     )

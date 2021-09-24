@@ -93,13 +93,15 @@ class MyVenv:
             f"pip-sync {freezed_requirements_console_path_str} --quiet"
         )
 
+        sync_command = f"{self.activate_command} && {requirements_command}"
+
         try:
-            subprocess.run(f"{self.activate_command} && {requirements_command}", check=True, shell=True)
+            subprocess.run(sync_command, check=True, shell=True)
         except (Exception,):
             mylogging.traceback(
                 "Update of venv libraries based on requirements failed. Check logged error."
                 "Try this command with administrator rights in your project root folder because of permission errors.\n\n"
-                f"`{requirements_command}`\n\n"
+                f"`{sync_command}`\n\n"
             )
             raise
 
