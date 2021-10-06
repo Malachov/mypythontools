@@ -29,6 +29,11 @@ def test_utils():
     if rst_path.exists():
         rst_path.unlink()  # missing_ok=True from python 3.8 on...
 
+    if not not_deleted.exists():
+        with open(not_deleted, "w") as not_deleted_file:
+            not_deleted_file.write("I will not be deleted.")
+            # missing_ok=True from python 3.8 on...
+
     mypythontools.utils.sphinx_docs_regenerate(exclude_paths=["not_deleted.rst"])
 
     mypythontools.utils.reformat_with_black()
@@ -52,6 +57,7 @@ def test_build():
         debug=True,
         cleanit=False,
         build_web=False,
+        ignored_packages=["matplotlib"],
     )
 
     assert (test_project_path / "dist").exists()

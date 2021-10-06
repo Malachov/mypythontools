@@ -4,10 +4,12 @@ in mypythontools with PROJECT_PATHS. You can also use `find_path()` to find some
 some folder, excluding some other inner folders (like venv, node_modules etc.).There is also function
 to get desktop path in posix way.
 """
+
+from __future__ import annotations
+from typing import Union
 from pathlib import Path
 import sys
 import builtins
-from typing import Union, List
 
 import mylogging
 
@@ -225,8 +227,8 @@ PROJECT_PATHS = _ProjectPaths()
 def find_path(
     file: str,
     folder: Union[str, Path] = None,
-    exclude_names: List[str] = ["node_modules", "build", "dist"],
-    exclude_paths: List[Union[str, Path]] = [],
+    exclude_names: list[str] = ["node_modules", "build", "dist"],
+    exclude_paths: list[Union[str, Path]] = [],
     levels: int = 5,
 ):
     """Search for file in defined folder (cwd() by default) and return it's path.
@@ -236,7 +238,7 @@ def find_path(
         folder (str, optional): Where to search. If None, then ROOT_PATH is used (cwd by default). Defaults to None.
         exclude_names ((str, Path), optional): List of ignored names. If this name is whenever in path, it will be ignored.
             Defaults to ['node_modules', 'build', 'dist'].
-        exclude_paths (List[Union[str, Path]], optional): List of ignored paths. If defined path is subpath of found file,
+        exclude_paths (list[Union[str, Path]], optional): List of ignored paths. If defined path is subpath of found file,
             it will be ignored. If relative, it has to be from cwd. Defaults to [].
         levels (str, optional): Recursive number of analyzed folders. Defaults to 5.
 
@@ -273,7 +275,7 @@ def find_path(
     raise FileNotFoundError(mylogging.return_str(f"File `{file}` not found"))
 
 
-def get_desktop_path():
+def get_desktop_path() -> Path:
     """Get desktop path.
 
     Returns:
@@ -287,7 +289,7 @@ def get_desktop_path():
     return Path.home() / "Desktop"
 
 
-def validate_path(path: Union[str, Path]):
+def validate_path(path: Union[str, Path]) -> Path:
     """Convert to pathlib path, resolve to full path and check if exists.
 
     Args:

@@ -12,7 +12,12 @@ if ROOT_PATH not in sys.path:
 
 import mypythontools
 
-mypythontools.tests.setup_tests()
+mypythontools.tests.setup_tests(matplotlib_test_backend=True)
+
+# Can be loaded from tests here or tests in test project
+test_project_path = (
+    Path("tests").resolve() / "tested_project" if Path.cwd().name != "tested_project" else Path.cwd()
+)
 
 
 @pytest.fixture(autouse=True)
@@ -20,7 +25,6 @@ def setup_tests():
 
     cwd_backup = Path.cwd()
 
-    test_project_path = Path("tests").resolve() / "tested_project"
     os.chdir(test_project_path.as_posix())
     mypythontools.paths.PROJECT_PATHS.reset_paths()
 

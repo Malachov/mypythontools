@@ -1,9 +1,10 @@
 """Module that will help with virtual environments so it's possible to work with venv from python."""
 
+from __future__ import annotations
 import platform
 import subprocess
 from pathlib import Path
-from typing import Union, List
+from typing import Union
 import shutil
 
 import mylogging
@@ -13,6 +14,14 @@ from . import misc
 
 
 class MyVenv:
+    """You can create new venv or sync it's dependencies.
+
+    Example:
+        >>> myvenv = MyVenv("venv")
+        >>> myvenv.create()
+        >>> myvenv.sync_requirements()
+    """
+
     def __init__(self, venv_path: Union[Path, str]) -> None:
 
         self.venv_path = Path(venv_path)
@@ -49,11 +58,13 @@ class MyVenv:
                 mylogging.traceback("Creation of venv failed. Check logged error.")
                 raise
 
-    def sync_requirements(self, requirements: Union[Union[str, Path], List[Union[str, Path]]] = "infer"):
+    def sync_requirements(
+        self, requirements: Union[Union[str, Path], list[Union[str, Path]]] = "infer"
+    ) -> None:
         """Sync libraries based on requirements. Install missing, remove unnecessary.
 
         Args:
-            requirements (Union[str, list], optional): Define what libraries will be installed.
+            requirements (Union[Union[str, Path], list[Union[str, Path]]], optional): Define what libraries will be installed.
                 If "infer", autodetected. Can also be a list of more files
                 e.g `["requirements.txt", "requirements_dev.txt"]`. Defaults to "infer".
         """
@@ -99,9 +110,9 @@ class MyVenv:
             subprocess.run(sync_command, check=True, shell=True)
         except (Exception,):
             mylogging.traceback(
-                "Update of venv libraries based on requirements failed. Check logged error."
-                "Try this command with administrator rights in your project root folder because of permission errors.\n\n"
-                f"`{sync_command}`\n\n"
+                "Update of venv libraries based on requirements failed. Check logged error. Try this command (if windows, use cmd) "
+                "with administrator rights in your project root folder because of permission errors."
+                f"\n\n{sync_command}\n\n"
             )
             raise
 

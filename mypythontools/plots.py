@@ -1,6 +1,9 @@
-"""Plot data. There is only one main function plot. Check it's documentation for how to use it.
-"""
+"""Plot data. There is only one main function plot. Check it's documentation for how to use it."""
+
+from __future__ import annotations
 from typing import Union
+
+from typing_extensions import Literal
 
 import mylogging
 
@@ -17,14 +20,14 @@ from . import paths
 
 def plot(
     complete_dataframe,
-    plot_type: str = "plotly",
+    plot_library: Literal["plotly", "matplotlib"] = "plotly",
     plot_name: str = "Plot",
     legend: bool = True,
     highlighted_column="",
     surrounded_column="",
     grey_area: bool = False,
     save: bool = False,
-    plot_return: bool = False,
+    return_div: bool = False,
     show: bool = True,
 ) -> Union[None, str]:
     """Plots the data. Plotly or matplotlib can be used. It is possible to highlite two columns with different formating.
@@ -32,7 +35,7 @@ def plot(
 
     Args:
         complete_dataframe (pd.DataFrame): Data to be plotted.
-        plot_type (str, optional): 'plotly' or 'matplotlib'. Defaults to "plotly".
+        plot_library (Literal['plotly', 'matplotlib'], optional): 'plotly' or 'matplotlib'. Defaults to "plotly".
         legend (bool, optional): Whether display legend or not. Defaults to True.
         highlighted_column (str, optional): Column name that will be formatted differently (blue). Can be empty. Defaults to "".
         surrounded_column (str, optional): Column name that will be formatted differently (black, wider). And is surrounded by
@@ -41,25 +44,29 @@ def plot(
             or list of ['lower_bound_column', 'upper_bound_column']. Both columns has to be in complete_dataframe. Defaults to False.
         save ((False, str), optional): Whether save the plot.  If False or "", do not save, if path as str, save to defined path,
             if "DESKTOP" save to desktop. Defaults to "".
-        plot_return ((bool, str), optional): If 'div', return html div with plot as string. If False, just plot and do not return.
+        return_div ((bool, str), optional): If 'div', return html div with plot as string. If False, just plot and do not return.
             Defaults to False.
         show (bool, optional): Can be evaluated, but not shown (testing reasons). Defaults to True.
 
     Returns:
-        str: Only if plot_return == 'div
+        str: Only if return_div is True, else None.
 
     Examples:
         Plot dataframe with
 
         >>> import pandas as pd
-        >>> plot(pd.DataFrame([[None, None, 1], [None, None, 2], [3, 3, 6], [3, 2.5, 4]]), show=False)  # Show False just for testing reasons
+        >>> df = pd.DataFrame([[None, None, 1], [None, None, 2], [3, 3, 6], [3, 2.5, 4]])
+        >>> plot(df, show=False)  # Show False just for testing reasons
 
+        You can use matplotlib
+
+        >>> plot(df, plot_library="matplotlib")
     """
 
     if save == "DESKTOP":
         save = paths.get_desktop_path() / "plot.html"
 
-    if plot_type == "matplotlib":
+    if plot_library == "matplotlib":
         if misc._JUPYTER:
             from IPython import get_ipython
 
@@ -85,7 +92,7 @@ def plot(
         if show:
             plt.show()
 
-    elif plot_type == "plotly":
+    elif plot_library == "plotly":
 
         import plotly as pl
 
@@ -212,7 +219,7 @@ def plot(
         if save:
             fig.write_html(save)
 
-        if plot_return == "div":
+        if return_div == "div":
 
             fig.layout.update(
                 title=None,

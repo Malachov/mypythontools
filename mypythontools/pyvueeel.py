@@ -19,6 +19,8 @@ Image of such an app
 
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import os
 import sys
 from pathlib import Path
@@ -31,13 +33,12 @@ from . import paths
 from . import misc
 
 # Lazy imports
-# import numpy as np
-# import inspect
-# import ast
-# import mydatapreprocessing as mdp
+if TYPE_CHECKING:
+    import numpy as np
+    import pandas as pd
 
-# import pandas as pd
-# import EelForkExcludeFiles as eel
+    # import mydatapreprocessing as mdp
+    # import EelForkExcludeFiles as eel
 
 
 eel = None
@@ -50,7 +51,7 @@ def run_gui(
     devel: Union[bool, None] = None,
     log_file_path: Union[str, Path] = None,
     is_multiprocessing: bool = False,
-    builded_gui_path: Union[str, Path] = "default",
+    build_gui_path: Union[str, Path] = "default",
 ) -> None:
     """Function that init and run `eel` project.
 
@@ -59,7 +60,8 @@ def run_gui(
     on windows).
 
     In devel mode, app is connected on live vue server. Serve your web application with node, debug python app file
-    that calls this function (do not run, just debug - server could stay running after close and occupy used port). Open browser on 8080.
+    that calls this function (do not run, just debug - server could stay running after close and occupy used port).
+    Open browser on 8080.
 
     Debugger should correctly stop at breakpoints if frontend run some python function.
 
@@ -69,12 +71,12 @@ def run_gui(
         https://mypythontools.readthedocs.io/#project-starter
 
     Args:
-        devel((bool, None), optional): If None, detected. Can be overwritten. Devel 0 run static assets, 1 run Vue server on localhost.
-            Defaults to None.
+        devel((bool, None), optional): If None, detected. Can be overwritten. Devel 0 run static assets,
+            1 run Vue server on localhost. Defaults to None.
         log_file_path ((str, Path, None)), optional): If not exist, it will create, if exist, it will append,
             if None, log to relative log.log and only if in production mode. Defaults to None.
         is_multiprocessing (bool, optional): If using multiprocessing in some library, set up to True. Defaults to False.
-        builded_gui_path ((str, Path, None)), optional): Where the web asset is. Only if debug is 0 but not run with pyinstaller.
+        build_gui_path ((str, Path, None)), optional): Where the web asset is. Only if debug is 0 but not run with pyinstaller.
             If None, it's automatically find (but is slower then). If 'default', path from project-starter is used - 'gui/web_builded'
             is used. Defaults to 'default'.
 
@@ -103,21 +105,20 @@ def run_gui(
             devel = False if os.environ.get("MY_PYTHON_VUE_ENVIRONMENT") == "production" else True
 
         # Whether run is from .exe or from python
-        is_builded = True if getattr(sys, "frozen", False) else False
+        is_built = True if getattr(sys, "frozen", False) else False
 
         if log_file_path:
             log_file = log_file_path
         else:
-            log_file = "log.log" if is_builded else None
+            log_file = "log.log" if is_built else None
 
-        mylogging.config.TO_FILE = log_file
+        mylogging.config.OUTPUT = log_file
 
-        if is_builded:
+        if is_built:
             # gui folder is created with pyinstaller in build
             gui_path = Path(sys._MEIPASS) / "gui"
         else:
             if devel:
-                # paths.set_root() TODO verify delete
                 gui_path = (
                     paths.find_path(
                         "index.html",
@@ -125,11 +126,10 @@ def run_gui(
                     / "src"
                 )
             else:
-                if builded_gui_path:
-                    gui_path = Path(builded_gui_path)
+                if build_gui_path:
+                    gui_path = Path(build_gui_path)
 
                 else:
-                    # paths.set_root() TODO verify delete
                     gui_path = paths.find_path(
                         "index.html",
                         exclude_names=[
@@ -141,7 +141,9 @@ def run_gui(
                     ).parent
 
         if not gui_path.exists():
-            raise FileNotFoundError("Web files not found, setup gui_path (where builded index.html is).")
+            raise FileNotFoundError(
+                "Web files not found, setup `build_gui_path` (where builded index.html is)."
+            )
 
         if devel:
             directory = gui_path
@@ -196,6 +198,7 @@ def run_gui(
 
     except Exception:
         mylogging.traceback("Py side terminated...")
+        raise
 
 
 def expose(callback_function: Callable) -> None:
@@ -228,7 +231,7 @@ def expose(callback_function: Callable) -> None:
     eel._expose(callback_function.__name__, inner)
 
 
-def to_vue_plotly(data, names=None):
+def to_vue_plotly(data: Union["np.ndarray", "pd.DataFrame"], names: list = None) -> dict:
     """Takes data (dataframe or numpy array) and transforms it to form, that vue-plotly understand.
 
     Links to vue-plotly:
@@ -241,8 +244,9 @@ def to_vue_plotly(data, names=None):
         Download the js function from project-starter and check for example.
 
     Args:
-        data ((np.array, pd.DataFrame)): Plotted data.
-        names (list, optional): If using array, you can define names. Defaults to None.
+        data (Union[np.array, pd.DataFrame]): Plotted data.
+        names (list, optional): If using array, you can define names. If using pandas, columns are
+            automatically used. Defaults to None.
 
     Returns:
         dict: Data in form for plotting in frontend.
@@ -258,7 +262,7 @@ def to_vue_plotly(data, names=None):
 
     import mydatapreprocessing as mdp
 
-    if isinstance(data, (np.ndarray, np.generic)):
+    if isinstance(data, np.ndarray):
         data = pd.DataFrame(data, columns=names)
 
     data = pd.DataFrame(data)
@@ -274,13 +278,14 @@ def to_vue_plotly(data, names=None):
     numeric_data = numeric_data.where(np.isfinite(numeric_data), np.nan)
 
     # TODO
-    # Dirty hack... edit lists
+    # Remove dirty hack... editing lists
 
     values_list = numeric_data.values.T.tolist()
 
     for i, j in enumerate(values_list):
         values_list[i] = [k if not np.isnan(k) else None for k in j]
 
+    # TODO use typed dict
     return {
         "x_axis": numeric_data.index.to_list(),
         "y_axis": values_list,
@@ -288,7 +293,7 @@ def to_vue_plotly(data, names=None):
     }
 
 
-def to_table(df, index=False):
+def to_table(df: "pd.DataFrame", index: bool = False) -> dict:
     """Takes data (dataframe or numpy array) and transforms it to form, that vue-plotly library understands.
 
     Args:
@@ -327,6 +332,7 @@ def to_table(df, index=False):
 
     headers = [{"text": i, "value": i, "sortable": True} for i in data.columns]
 
+    # TODO use typed dict
     return {
         "table": data.to_dict("records"),
         "headers": headers,

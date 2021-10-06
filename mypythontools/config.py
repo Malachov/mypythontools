@@ -61,7 +61,7 @@ You can also use options checker validation.
 >>> class SimpleConfig(ConfigBase):
 ...     @MyProperty(options=[1, 2, 3])
 ...     def var(self) -> int:
-...         2  # This means that value will not be set on init
+...         return 2
 ...
 >>> config = SimpleConfig()
 >>> config.var = 4
@@ -202,7 +202,8 @@ Here is example
     :align: center
 """
 
-from typing import Any, Dict
+from __future__ import annotations
+from typing import Any
 import mylogging
 from copy import deepcopy
 
@@ -340,10 +341,10 @@ class ConfigBase(metaclass=ConfigMeta):
     def __setitem__(self, key, value):
         return setattr(self, key, value)
 
-    def copy(self):
+    def copy(self) -> ConfigBase:
         return deepcopy(self)
 
-    def update(self, dict: Dict) -> None:
+    def update(self, dict: dict) -> None:
         for i, j in dict.items():
             setattr(self, i, j)
 
@@ -359,7 +360,7 @@ class ConfigBase(metaclass=ConfigMeta):
         for i in copy.properties_list:
             setattr(self, i, copy[i])
 
-    def get_dict(self) -> Dict:
+    def get_dict(self) -> dict:
         normal_vars = {
             key: value
             for key, value in vars(self).items()
@@ -401,7 +402,7 @@ class ConfigStructured(ConfigBase):
         """
         pass
 
-    def get_dict(self) -> Dict:
+    def get_dict(self) -> dict:
         # From main class
         dict_of_values = super().get_dict()
         # From sub configs

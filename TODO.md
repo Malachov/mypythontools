@@ -4,7 +4,7 @@
 - [ ] Transform starter to cookiecutter
 - [ ] Create GIF of vs code task
 - [ ] Better test coverage (doctest in functions + check if in coverage)
-- [ ] Move init of myproperty from configuration and try to avoid for i in __dict__ on init and add to list of properties during declaration, then iterate that list.
+- [ ] Check if in pyinstaller better way than hidden imports (add to analysis to build only necessary files)
 - [ ] Finish start vue in debug from python
 
 ```

@@ -18,7 +18,7 @@ Examples:
     ...                setattr(self, j.private_name, j.init_function)
     ...
     ...     @MyProperty(int)  # New value will be validated whether it's int
-    ...     def var() -> int:  # This is for type hints in IDE.
+    ...     def var() -> int:  # This is for type hints in IDE. Self is not necessary, but better for code inspection tools to avoid errors.
     ...         '''
     ...         Type:
     ...             int
@@ -31,7 +31,7 @@ Examples:
     ...         return 123  # This is initial value that can be edited.
     ...
     ...     @MyProperty()  # Even if you don't need any params, use empty brackets
-    ...     def var2():
+    ...     def var2(self):
     ...         return 111
     ...
     >>> myobject = MyClass()
@@ -42,7 +42,9 @@ Examples:
     124
 """
 
+from __future__ import annotations
 import types as types_lib
+from typing import Any
 from .misc import validate
 
 import mylogging
@@ -70,16 +72,16 @@ class MyProperty(property):
         self.types = types
         self.options = options
 
-    def __call__(self, init_function):
+    def __call__(self, init_function) -> MyProperty:
         self.init_function = init_function
         self.__doc__ = init_function.__doc__
 
         return self
 
-    def default_fget(self, object):
+    def default_fget(self, object) -> Any:
         return getattr(object, self.private_name)
 
-    def default_fset(self, object, content):
+    def default_fset(self, object, content) -> None:
         setattr(object, self.private_name, content)
 
     def __set_name__(self, _, name):

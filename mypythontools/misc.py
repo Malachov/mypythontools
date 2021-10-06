@@ -3,10 +3,12 @@ Module with miscellaneous functions. For example myproperty, which is decarator 
 simplified properties or json_to_py that can convert json string to correct python types or
 str_to_infer_type that will convert string to correct type.
 """
+
+from __future__ import annotations
 import builtins
 import time
 import sys
-from typing import Callable, Union, List, Dict, Any
+from typing import Callable, Union, Any
 from pathlib import Path
 
 import mylogging
@@ -15,7 +17,7 @@ import mylogging
 _JUPYTER = 1 if hasattr(builtins, "__IPYTHON__") else 0
 
 
-def validate(value, types=None, options: List = None, name: str = None) -> None:
+def validate(value, types=None, options: list = None, name: str = None) -> None:
     """Validate type of variable and check if this variable is in defined options.
 
     Args:
@@ -92,7 +94,7 @@ def str_to_infer_type(string_var: str) -> Any:
     return evaluated
 
 
-def json_to_py(json: Dict, replace_comma_decimal: bool = True, replace_true_false: bool = True) -> Any:
+def json_to_py(json: dict, replace_comma_decimal: bool = True, replace_true_false: bool = True) -> Any:
     """Take json and eval it from strings. If string to string, if float to float, if object then to dict.
 
     When to use? - If sending object as parameter in function.

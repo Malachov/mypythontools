@@ -17,14 +17,14 @@ Examples:
     be configured on the beginning and therefore you don't need to wait for test finish.
     Default values can be also used, so in small starting projects, push is actually very fast.
 
-    Create folder utils, create `push_script.py` inside, add
+    Create folder utils, create `push_script.py` inside, add::
 
-    >>> import mypythontools
-    ...
-    >>> if __name__ == "__main__":
-    ...     # Params that are always the same define here. Params that are changing define in IDE when run action.
-    ...     # For example in tasks (command line arguments and argparse will be used).
-    ...     mypythontools.utils.push_pipeline(deploy=True)
+        import mypythontools
+
+        if __name__ == "__main__":
+            # Params that are always the same define here. Params that are changing define in IDE when run action.
+            # For example in tasks (command line arguments and argparse will be used).
+            mypythontools.utils.push_pipeline(deploy=True)
 
     Then just add this task to global tasks.json::
 
@@ -106,20 +106,16 @@ Examples:
         # -*- coding: UTF-8 -*-
 
     Then just import any function from here and call with desired params. E.g.
-
-    >>> import mypythontools
-    >>> version = mypythontools.utils.get_version()  # For example 1.0.2
-    >>> print(len(version.split(".")) == 3 and all([i.isdecimal() for i in version.split(".")]))
-    True
 """
 
+from __future__ import annotations
 import argparse
 import ast
 import importlib
 from pathlib import Path
 import subprocess
 import sys
-from typing import Union, Dict, List
+from typing import Union
 
 import mylogging
 
@@ -137,9 +133,9 @@ parser = argparse.ArgumentParser(description="Prediction framework setting via c
 def push_pipeline(
     reformat: bool = True,
     test: bool = True,
-    test_options: Dict = {},
+    test_options: dict = {},
     version: str = "increment",
-    sphinx_docs: Union[bool, List[str]] = True,
+    sphinx_docs: Union[bool, list[str]] = True,
     push_git: bool = True,
     commit_message: str = "New commit",
     tag: str = "__version__",
@@ -165,7 +161,7 @@ def push_pipeline(
             `{"test_coverage": True, "verbose": False, "use_virutalenv":True}`. Defaults to {}.
         version (str, optional): New version. E.g. '1.2.5'. If 'increment', than it's auto incremented. E.g from '1.0.2' to 'v1.0.3'.
             If None, then version is not changed. 'Defaults to "increment".
-        sphinx_docs((bool, list), optional): Whether generate sphinx apidoc and generate rst files for documentation.
+        sphinx_docs(Union[bool, list[str]], optional): Whether generate sphinx apidoc and generate rst files for documentation.
             Some files in docs source can be deleted - check `sphinx_docs` docstrings for details and insert
             `exclude_paths` list if have some extra files other than ['conf.py', 'index.rst', '_static', '_templates'].
             Defaults to True.
@@ -180,11 +176,9 @@ def push_pipeline(
         Recommended use is from IDE (for example with Tasks in VS Code). Check utils docs for how to use it.
         You can also use it from python...
 
-        >>> import mypythontools
-        ...
-        >>> if __name__ == "__main__":
-        ...     # All the params that change everytime configure for example in VS Code tasks with CLI parameters.
-        ...     mypythontools.utils.push_pipeline(deploy=True)
+        Put it in `if __name__ == "__main__":` block
+
+        >>> push_pipeline(push_git=False, deploy=False)
 
     """
     config = {
@@ -308,21 +302,29 @@ def push_pipeline(
         )
 
 
-def reformat_with_black(root_path: Union[str, Path] = "infer", extra_args: List[str] = ["--quiet"]) -> None:
+def reformat_with_black(root_path: Union[str, Path] = "infer", extra_args: list[str] = ["--quiet"]) -> None:
     """Reformat code with black.
 
     Args:
         root_path (Union[str, Path], optional): Root path of project. Defaults to "infer".
-        extra_args (List[str], optional): Some extra args for black. Defaults to ["--quiet"].
+        extra_args (list[str], optional): Some extra args for black. Defaults to ["--quiet"].
+
+    Example:
+        >>> reformat_with_black()
     """
     root_path = PROJECT_PATHS.ROOT_PATH if root_path == "infer" else validate_path(root_path)
 
     try:
         subprocess.run(f"black . {' '.join(extra_args)}", check=True, cwd=root_path)
+    except FileNotFoundError:
+        mylogging.traceback(
+            "FileNotFoundError can happen if `black` is not installed. Check it with pip list in used python interpreter."
+        )
+        raise
     except (Exception,):
         mylogging.traceback(
             "Reformatting with `black` failed. Check if it's installed, check logged error, "
-            "then try format manually with `black .`"
+            "then try format manually with \n\nblack .\n\n"
         )
         raise
 
@@ -362,7 +364,7 @@ def git_push(
         Repo(PROJECT_PATHS.ROOT_PATH.as_posix()).delete_tag(tag)
         mylogging.traceback(
             "Push to git failed. Version restored and created git tag deleted."
-            f"Try to run command `{git_command}` manually in your root {PROJECT_PATHS.ROOT_PATH}."
+            f"Try to run command \n\n{git_command}\n\n manually in your root {PROJECT_PATHS.ROOT_PATH}."
         )
         raise
 
@@ -434,7 +436,7 @@ def get_version(init_path: Union[str, Path] = "infer") -> str:
     """Get version info from __init__.py file.
 
     Args:
-        init_path ((str, Path), optional): Path to __init__.py file. Defaults to "infer".
+        init_path (Union[str, Path], optional): Path to __init__.py file. Defaults to "infer".
 
     Returns:
         str: String of version from __init__.py.
@@ -466,8 +468,8 @@ def sphinx_docs_regenerate(
     docs_path: Union[str, Path] = "infer",
     build_locally: bool = False,
     git_add: bool = True,
-    exclude_paths: List[Union[str, Path]] = [],
-    delete: List[Union[str, Path]] = ["modules.rst"],
+    exclude_paths: list[Union[str, Path]] = [],
+    delete: list[Union[str, Path]] = ["modules.rst"],
 ) -> None:
     """This will generate all rst files necessary for sphinx documentation generation with sphinx-apidoc.
     It automatically delete removed and renamed files.
@@ -480,15 +482,15 @@ def sphinx_docs_regenerate(
     Function suppose sphinx build and source in separate folders...
 
     Args:
-        docs_path ((str, Path), optional): Where source folder is. Usually infered automatically.
+        docs_path (Union[str, Path], optional): Where source folder is. Usually infered automatically.
             Defaults to "infer".
         build_locally (bool, optional): If true, build folder with html files locally.
             Defaults to False.
         git_add (bool, optional): Whether to add generated files to stage. False mostly for
             testing reasons. Defaults to True.
-        exclude_paths (list, optional): List of files and folder names that will not be deleted.
+        exclude_paths (list[Union[str, Path]], optional): List of files and folder names that will not be deleted.
             ['conf.py', 'index.rst', '_static', '_templates'] are excluded by default. Defaults to [].
-        delete (list, optional): If delete some files (for example to have no errors in sphinx build for unused modules)
+        delete (list[Union[str, Path]], optional): If delete some files (for example to have no errors in sphinx build for unused modules)
 
     Note:
         Function suppose structure of docs like::
@@ -502,7 +504,7 @@ def sphinx_docs_regenerate(
     if not importlib.util.find_spec("sphinx"):
         raise ImportError(
             mylogging.return_str(
-                "Sphinx library is necessary for docs generation. Install via `pip install sphinx`"
+                "Sphinx library is necessary for docs generation. Install via \n\npip install sphinx\n\n"
             )
         )
 

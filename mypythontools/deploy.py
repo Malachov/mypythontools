@@ -9,6 +9,8 @@ Usually this function is not called manually, but it's a part of `push_pipeline`
 Check utils docs where is described, how to use VS Code Task to be able to optionally test, push and deploy
 with tasks (one button click).
 """
+
+from __future__ import annotations
 import subprocess
 import os
 import shutil
@@ -26,7 +28,7 @@ def deploy_to_pypi(setup_path: Union[str, Path] = "infer") -> None:
     with env vars `TWINE_USERNAME` and `TWINE_PASSWORD`.
 
     Note:
-        You need working `setup.py` file. If you want to see example, try the one from project-statrer on
+        You need working `setup.py` file. If you want to see example, try the one from project-starter on
 
         https://github.com/Malachov/mypythontools/blob/master/content/project-starter/setup.py
 
@@ -75,7 +77,7 @@ def deploy_to_pypi(setup_path: Union[str, Path] = "infer") -> None:
         )
     except Exception:
         mylogging.traceback(
-            f"Library build with pyinstaller failed. Try `{build_command}`` in folder {setup_dir_path}."
+            f"Library build with pyinstaller failed. Try \n\n{build_command}\n\n in folder {setup_dir_path}."
         )
         raise
 
@@ -97,7 +99,7 @@ def deploy_to_pypi(setup_path: Union[str, Path] = "infer") -> None:
         )
     except Exception:
         mylogging.traceback(
-            f"Build with pyinstaller failed. Try `{' '.join(command_list)}`` in folder {setup_dir_path}."
+            f"Build with pyinstaller failed. Try \n\n{' '.join(command_list)}\n\n in folder {setup_dir_path}."
         )
         raise
 

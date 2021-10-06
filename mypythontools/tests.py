@@ -1,8 +1,12 @@
+"""Module with functions around testing. You can run tests including doctest with generating coverage,
+you can generate tests from readme or you can configure tests in conftest with single call."""
+
+from __future__ import annotations
 import subprocess
 from pathlib import Path
 import sys
 import warnings
-from typing import Union, List
+from typing import Union
 
 import mylogging
 
@@ -17,7 +21,7 @@ def setup_tests(
 ) -> None:
     """Add paths to be able to import local version of library as well as other test files.
 
-    Value Mylogging.config.COLOR = 0 changed globally.
+    Value Mylogging.config.COLORIZE = 0 changed globally.
 
     Note:
         Function expect `tests` folder on root. If not, test folder will not be added to sys path and
@@ -55,21 +59,21 @@ def run_tests(
     stop_on_first_error: bool = True,
     use_virutalenv: bool = True,
     remove_venv: bool = False,
-    requirements: Union[List, str, Path] = "infer",
+    requirements: Union[list, str, Path] = "infer",
     verbose: int = 1,
-    extra_args: List = [],
+    extra_args: list = [],
 ) -> None:
     """Run tests. If any test fails, raise an error.
 
     Args:
-        tested_path ((str, pathlib.Path), optional): If "infer", ROOT_PATH is used. ROOT_PATH is necessary if using doctests
+        tested_path (Union[str, Path], optional): If "infer", ROOT_PATH is used. ROOT_PATH is necessary if using doctests
             'Tests' folder not works for doctests in modules. Defaults to None.
-        tests_path ((str, pathlib.Path), optional): If "infer", TEST_PATH is used. It means where venv will be stored etc. Defaults to "infer".
-        test_coverage (bool, optional): Whether run test coverage plugin. If True, pytest-cov must be installed. Defaults to True
-        stop_on_first_error (bool, optional): Whether stop on first error. Defaults to True
-        use_virutalenv (bool, optional): Whether run new virtualenv and install all libraries from requirements.txt. Defaults to True
+        tests_path (Union[str, Path], optional): If "infer", TEST_PATH is used. It means where venv will be stored etc. Defaults to "infer".
+        test_coverage (bool, optional): Whether run test coverage plugin. If True, pytest-cov must be installed. Defaults to True.
+        stop_on_first_error (bool, optional): Whether stop on first error. Defaults to True.
+        use_virutalenv (bool, optional): Whether run new virtualenv and install all libraries from requirements.txt. Defaults to True.
         remove_venv (bool, optional): Whether remove created venv. It's usually not necessary, because packages not in requirements are updated. Defaults to True
-        requirements ((str, pathlib.Path, list), optional): If using `use_virutalenv` define what libraries will be installed by path to requirements.txt.
+        requirements (Union[list, str, Path], optional): If using `use_virutalenv` define what libraries will be installed by path to requirements.txt.
            Can also be a list of more files e.g `["requirements.txt", "requirements_dev.txt"]`. If "infer", autodetected (all requirements). Defaults to "infer".
         verbose (int, optional): Whether print detailes on errors or keep silent. If 0, no details, parameters `-q and `--tb=no` are added.
             if 1, some details are added --tb=short. If 2, more details are printed (default --tb=auto)
@@ -82,6 +86,9 @@ def run_tests(
     Note:
         By default args to quiet mode and no traceback are passed. Usually this just runs automatic tests. If some of them fail,
         it's further analyzed in some other tool in IDE.
+
+    Example:
+        >>> run_tests()
     """
     tested_path = PROJECT_PATHS.ROOT_PATH if tested_path == "infer" else validate_path(tested_path)
     tests_path = PROJECT_PATHS.TEST_PATH if tests_path == "infer" else validate_path(tests_path)
@@ -116,14 +123,14 @@ def run_tests(
     test_command = " ".join(complete_args)
 
     if use_virutalenv:
-        my_venv = venvs.MyVenv(tests_path / "venv")
+        my_venv = venvs.MyVenv(PROJECT_PATHS.ROOT_PATH / "venv")
         my_venv.create()
         my_venv.sync_requirements(requirements)
 
         test_command = f"{my_venv.activate_command} && {test_command}"
 
     try:
-        pytested = subprocess.run(test_command)  # , shell=True
+        pytested = subprocess.run(test_command, cwd=tested_path.as_posix())  # , shell=True
     except Exception:
         mylogging.traceback(
             f"Tests failed and did not run. Try this command in terminal to know why it failed.\n{test_command}"
@@ -146,9 +153,9 @@ def add_readme_tests(
     """Generate pytest tests script file from README.md and save it to tests folder. Can be called from conftest.
 
     Args:
-        readme_path ((str, pathlib.Path), optional): If 'infer', autodetected (README.md, Readme.md or readme.md on root).
+        readme_path (Union[str, Path], optional): If 'infer', autodetected (README.md, Readme.md or readme.md on root).
             Defaults to 'infer'.
-        test_folder_path ((str, pathlib.Path), optional): If 'infer', autodetected (if ROOT_PATH / tests). Defaults to 'infer.
+        test_folder_path (Union[str, Path], optional): If 'infer', autodetected (if ROOT_PATH / tests). Defaults to 'infer.
 
     Raises:
         FileNotFoundError: If Readme not found.
@@ -204,14 +211,14 @@ def add_readme_tests(
         subprocess.run(generate_readme_test_command)
     except Exception:
         mylogging.traceback(
-            f"Readme test creation failed. Try `{generate_readme_test_command}` in on your root."
+            f"Readme test creation failed. Try \n\n{generate_readme_test_command}\n\n in on your root."
         )
         raise
 
 
 def deactivate_test_settings() -> None:
     """Sometimes you want to run test just in normal mode (enable plots etc.). Usually at the end of test file in `if __name__ = "__main__":` block."""
-    mylogging.config.COLOR = 1
+    mylogging.config.COLORIZE = 1
 
     if "matplotlib" in sys.modules:
 

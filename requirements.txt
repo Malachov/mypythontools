@@ -1,5 +1,5 @@
-mylogging>=3.0.10
-mydatapreprocessing
+mylogging>=3.0.12
+mydatapreprocessing>=2.0.9
 EelForkExcludeFiles
 GitPython
 pandas

@@ -28,6 +28,7 @@ Note:
         },
 """
 
+from __future__ import annotations
 import subprocess
 import shutil
 from pathlib import Path
@@ -38,25 +39,27 @@ from typing import Union
 # import EelForkExcludeFiles
 
 from . import paths
+from . import venvs
 from .paths import PROJECT_PATHS
 
 
 def build_app(
     root_path: Union[str, Path] = "infer",
-    main_file="app.py",
-    preset=None,
-    web_path="infer",
-    build_web=True,
-    remove_last_build=False,
-    console=True,
-    debug=False,
-    icon=None,
-    hidden_imports=[],
-    ignored_packages=[],
-    datas=[],
-    name=None,
-    env_vars={},
-    cleanit=True,
+    main_file: Union[str, Path] = "app.py",
+    preset: str = None,
+    web_path: Union[str, Path] = "infer",
+    build_web: bool = True,
+    use_virutalenv: bool = True,
+    remove_last_build: bool = False,
+    console: bool = True,
+    debug: bool = False,
+    icon: Union[str, Path] = None,
+    hidden_imports: list[str] = [],
+    ignored_packages: list[str] = [],
+    datas: list[str] = [],
+    name: str = None,
+    env_vars: dict = {},
+    cleanit: bool = True,
 ) -> None:
     """One script to build .exe app from source code.
 
@@ -73,8 +76,8 @@ def build_app(
             Options ['eel']. Defaults to None.
         web_path ((Path, str), optional): Folder with index.html. Defaults to 'infer'.
         build_web ((bool, str), optional): If application contain package.json build node application. If 'preset' build automatically
-        depending on preset.
-            Defaults to 'eel'.
+            depending on preset. Defaults to 'eel'.
+        use_virutalenv (bool, optional): Whether run new virtualenv and install all libraries from requirements.txt. Defaults to True.
         remove_last_build (bool, optional): If some problems, it is possible to delete build and dist folders. Defaults to False.
         console (bool, optional): Before app run terminal window appears (good for debugging). Defaults to False.
         debug (bool, optional): If no console, then dialog window with traceback appears. Defaults to False.
@@ -180,7 +183,7 @@ def build_app(
                 raise RuntimeError()
 
         except Exception:
-            mylogging.traceback(f"Build of web files failed. Try `npm run build` in folder {gui_path}.")
+            mylogging.traceback(f"Build of web files failed. Try \n\nnpm run build\n\n in folder {gui_path}.")
             raise
 
     if build_web or preset == "eel":
@@ -294,15 +297,26 @@ coll = COLLECT(exe,
 
     # Build py to exe
     command_list = ["pyinstaller", "-y", spec_path.as_posix()]
+
+    if use_virutalenv:
+        my_venv = venvs.MyVenv(PROJECT_PATHS.ROOT_PATH / "venv")
+        my_venv.create()
+        my_venv.sync_requirements()
+
+        command_list = [*my_venv.activate_command.split(), " && ", *command_list]
+
     try:
-        subprocess.run(
-            command_list,
-            check=True,
-            cwd=PROJECT_PATHS.ROOT_PATH.as_posix(),
-        )
-    except Exception:
+        subprocess.run(" ".join(command_list), check=True, cwd=PROJECT_PATHS.ROOT_PATH.as_posix(), shell=True)
+    except FileNotFoundError:
         mylogging.traceback(
-            f"Build with pyinstaller failed. Try `{' '.join(command_list)}` in folder `{PROJECT_PATHS.ROOT_PATH.as_posix()}`."
+            "FileNotFoundError can happen if `pyinstaller` is not installed. Check it with pip list in used python interpreter. "
+            f"Build with pyinstaller failed. Try \n\n{' '.join(command_list)}\n\n in folder `{PROJECT_PATHS.ROOT_PATH.as_posix()}`."
+        )
+        raise
+    except (Exception,):
+        mylogging.traceback(
+            "Build with pyinstaller failed. First, check if `pyinstaller` is installed. Check it with pip list in used python interpreter. "
+            f" Try (if windows, use cmd) \n\n{' '.join(command_list)}\n\n in folder `{PROJECT_PATHS.ROOT_PATH.as_posix()}`."
         )
         raise
 
