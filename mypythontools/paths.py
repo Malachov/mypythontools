@@ -6,7 +6,7 @@ to get desktop path in posix way.
 """
 
 from __future__ import annotations
-from typing import Union
+from typing import Union, cast
 from pathlib import Path
 import sys
 import builtins
@@ -49,6 +49,8 @@ class _ProjectPaths:
         if not self._root_path:
             self.ROOT_PATH = "infer"
 
+        self._root_path = cast(Path, self._root_path)
+
         return self._root_path
 
     @ROOT_PATH.setter
@@ -79,6 +81,8 @@ class _ProjectPaths:
 
         if not self._init_path:
             self.INIT_PATH = "infer"
+
+        self._init_path = cast(Path, self._init_path)
 
         return self._init_path
 
@@ -116,6 +120,8 @@ class _ProjectPaths:
         if not self._app_path:
             self.APP_PATH = "infer"
 
+        self._app_path = cast(Path, self._app_path)
+
         return self._app_path
 
     @APP_PATH.setter
@@ -139,16 +145,17 @@ class _ProjectPaths:
         if not self._test_path:
             self.TEST_PATH = "infer"
 
+        self._test_path = cast(Path, self._test_path)
+
         return self._test_path
 
     @TEST_PATH.setter
     def TEST_PATH(self, new_path: Union[str, Path]) -> None:
         if new_path == "infer":
-            root_pathlib = Path(self.ROOT_PATH)
 
             for i in ["tests", "test", "Test", "Tests", "TEST", "TESTS"]:
-                if (root_pathlib / i).exists():
-                    new_path = root_pathlib / i
+                if (self.ROOT_PATH / i).exists():
+                    new_path = self.ROOT_PATH / i
                     break
 
         self._test_path = validate_path(new_path)
@@ -166,6 +173,8 @@ class _ProjectPaths:
 
         if not self._docs_path:
             self.DOCS_PATH = "infer"
+
+        self._docs_path = cast(Path, self._docs_path)
 
         return self._docs_path
 
@@ -193,6 +202,8 @@ class _ProjectPaths:
         if not self._readme_path:
             self.README_PATH = "infer"
 
+        self._readme_path = cast(Path, self._readme_path)
+
         return self._readme_path
 
     @README_PATH.setter
@@ -206,6 +217,13 @@ class _ProjectPaths:
 
             elif (self.ROOT_PATH / "readme.md").exists():
                 new_readme_path = self.ROOT_PATH / "readme.md"
+            else:
+                new_readme_path = validate_path(
+                    find_path(
+                        "readme.md",
+                        self.ROOT_PATH,
+                    )
+                )
 
         else:
             new_readme_path = new_path
@@ -225,16 +243,16 @@ PROJECT_PATHS = _ProjectPaths()
 
 
 def find_path(
-    file: str,
+    name: str,
     folder: Union[str, Path] = None,
     exclude_names: list[str] = ["node_modules", "build", "dist"],
     exclude_paths: list[Union[str, Path]] = [],
     levels: int = 5,
 ):
-    """Search for file in defined folder (cwd() by default) and return it's path.
+    """Search for file or folder in defined folder (cwd() by default) and return it's path.
 
     Args:
-        file (str): Name with extension e.g. "app.py".
+        name (str): Name of folder or file that should be found. If using file, use it with extension e.g. "app.py".
         folder (str, optional): Where to search. If None, then ROOT_PATH is used (cwd by default). Defaults to None.
         exclude_names ((str, Path), optional): List of ignored names. If this name is whenever in path, it will be ignored.
             Defaults to ['node_modules', 'build', 'dist'].
@@ -243,7 +261,7 @@ def find_path(
         levels (str, optional): Recursive number of analyzed folders. Defaults to 5.
 
     Returns:
-        Path: Path of file.
+        Path: Found path.
 
     Raises:
         FileNotFoundError: If file is not found.
@@ -252,7 +270,7 @@ def find_path(
     folder = PROJECT_PATHS.ROOT_PATH if not folder else validate_path(folder)
 
     for lev in range(levels):
-        glob_file_str = f"{'*/' * lev}{file}"
+        glob_file_str = f"{'*/' * lev}{name}"
 
         for i in folder.glob(glob_file_str):
             isthatfile = True
@@ -272,7 +290,7 @@ def find_path(
                 return i
 
     # If not returned - not found
-    raise FileNotFoundError(mylogging.return_str(f"File `{file}` not found"))
+    raise FileNotFoundError(mylogging.return_str(f"File `{name}` not found"))
 
 
 def get_desktop_path() -> Path:

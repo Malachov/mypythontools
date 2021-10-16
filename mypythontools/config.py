@@ -203,11 +203,14 @@ Here is example
 """
 
 from __future__ import annotations
-from typing import Any
+from typing import Any, TypeVar
 import mylogging
 from copy import deepcopy
 
-from .property import MyProperty
+from mypythontools.property import MyProperty
+
+
+ConfigType = TypeVar("ConfigType", bound="ConfigBase")
 
 
 class ConfigMeta(type):
@@ -237,6 +240,7 @@ class ConfigMeta(type):
                 self._base_config_map = {}
                 self.myproperties_list = []
                 self.properties_list = []
+                self.is_inherited = True
 
                 # Call user defined init
                 cls._original__init__(self, *a, **kw)
@@ -280,6 +284,8 @@ class ConfigBase(metaclass=ConfigMeta):
     # to enable creating new instances.
     frozen = False
 
+    is_inherited = False
+
     # _base_config_map is used only if using structured config. You can access attribute from subconfig as
     # well as from main config object, there is proxy mapping config dict (same for base and subconfig) if
     # attribute not found on defined object, it will find if it's in this dict where are all config values as
@@ -295,7 +301,12 @@ class ConfigBase(metaclass=ConfigMeta):
             dict_values (dict, optional): Values that will updated after init. Defaults to None.
             frozen (bool, optional): If frozen, it's not possible to add new attributes. Defaults to None.
         """
-        pass
+        if not self.is_inherited:
+            raise TypeError(
+                mylogging.return_str(
+                    "Class is not suppesed to be called. Just inherit it to create custom config class."
+                )
+            )
 
     def __getattr__(self, name: str):
         try:
@@ -339,9 +350,16 @@ class ConfigBase(metaclass=ConfigMeta):
         return getattr(self, key)
 
     def __setitem__(self, key, value):
-        return setattr(self, key, value)
+        setattr(self, key, value)
 
-    def copy(self) -> ConfigBase:
+    def __call__(self, *args: Any, **kwds) -> None:
+        raise TypeError(
+            mylogging.return_str(
+                "Class is not suppesed to be called. Just inherit it to create custom config."
+            )
+        )
+
+    def copy(self: ConfigType) -> ConfigType:
         return deepcopy(self)
 
     def update(self, dict: dict) -> None:
@@ -368,12 +386,7 @@ class ConfigBase(metaclass=ConfigMeta):
             and not callable(value)
             and not hasattr(value, "myproperties_list")
             and key
-            not in [
-                "myproperties_list",
-                "properties_list",
-                "frozen",
-                "_base_config_map",
-            ]
+            not in ["myproperties_list", "properties_list", "frozen", "_base_config_map", "is_inherited"]
         }
 
         property_vars = {
@@ -400,6 +413,7 @@ class ConfigStructured(ConfigBase):
             dict_values (dict, optional): Values that will updated after init. Defaults to None.
             frozen (bool, optional): If frozen, it's not possible to add new attributes. Defaults to None.
         """
+        super().__init__()
         pass
 
     def get_dict(self) -> dict:

@@ -4,4 +4,4 @@ import pytest
 
 import mypythontools
 
-mypythontools.tests.setup_tests()
+mypythontools.tests.setup_tests(generate_readme_tests=False)

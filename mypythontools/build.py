@@ -56,7 +56,7 @@ def build_app(
     icon: Union[str, Path] = None,
     hidden_imports: list[str] = [],
     ignored_packages: list[str] = [],
-    datas: list[str] = [],
+    datas: tuple[tuple[str, str], ...] = (),
     name: str = None,
     env_vars: dict = {},
     cleanit: bool = True,
@@ -85,7 +85,7 @@ def build_app(
         hidden_imports (list, optional): If app is not working, it can be because some library was not builded. Add such
             libraries into this list. Defaults to [].
         ignored_packages (list, optional): Libraries take space even if not necessary. Defaults to [].
-        datas (list, optional): Add static files to build. Example: [('my_source_path, 'destination_path')]. Defaults to [].
+        datas (tuple[tuple[str, str], ...], optional): Add static files to build. Example: [('my_source_path, 'destination_path')]. Defaults to [].
         name (str, optional): If name of app is different than main py file. Defaults to None.
         env_vars (dict, optional): Add some env vars during build. Mostly to tell main script that it's production (ne development) mode.
             Defaults to {}.
@@ -131,7 +131,7 @@ def build_app(
 
         # Iter paths and find the one
         main_file_path = paths.find_path(
-            main_file_path,
+            main_file_path.name,
         )
 
         if not main_file_path.exists():
@@ -151,7 +151,7 @@ def build_app(
 
             # Iter paths and find the one
             icon_path = paths.find_path(
-                icon_path,
+                icon_path.name,
                 exclude_names=["node_modules", "build"],
             )
 
@@ -307,16 +307,13 @@ coll = COLLECT(exe,
 
     try:
         subprocess.run(" ".join(command_list), check=True, cwd=PROJECT_PATHS.ROOT_PATH.as_posix(), shell=True)
-    except FileNotFoundError:
-        mylogging.traceback(
-            "FileNotFoundError can happen if `pyinstaller` is not installed. Check it with pip list in used python interpreter. "
-            f"Build with pyinstaller failed. Try \n\n{' '.join(command_list)}\n\n in folder `{PROJECT_PATHS.ROOT_PATH.as_posix()}`."
-        )
-        raise
+
     except (Exception,):
         mylogging.traceback(
             "Build with pyinstaller failed. First, check if `pyinstaller` is installed. Check it with pip list in used python interpreter. "
-            f" Try (if windows, use cmd) \n\n{' '.join(command_list)}\n\n in folder `{PROJECT_PATHS.ROOT_PATH.as_posix()}`."
+            f" Try (if windows, use cmd) \n\n{' '.join(command_list)}\n\n in folder `{PROJECT_PATHS.ROOT_PATH.as_posix()}`.\n\n"
+            "Troubleshooting: If there are still errors, try to install newset pyinstaller locally with `python setup.py install`, "
+            "update setuptools, delete `build` and `dist` folder and try again."
         )
         raise
 

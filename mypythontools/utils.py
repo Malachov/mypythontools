@@ -111,7 +111,7 @@ Examples:
 from __future__ import annotations
 import argparse
 import ast
-import importlib
+import importlib.util
 from pathlib import Path
 import subprocess
 import sys
@@ -126,8 +126,7 @@ from .paths import PROJECT_PATHS, validate_path
 
 # Lazy loaded
 # from git import Repo
-
-parser = argparse.ArgumentParser(description="Prediction framework setting via command line asdasdparser!")
+# import json
 
 
 def push_pipeline(
@@ -181,6 +180,7 @@ def push_pipeline(
         >>> push_pipeline(push_git=False, deploy=False)
 
     """
+
     config = {
         "reformat": reformat,
         "test": test,
@@ -211,7 +211,7 @@ def push_pipeline(
         )
         parser.add_argument(
             "--test_options",
-            type=dict,
+            type=str,
             help=(
                 "Check tests module and function run_tests for what parameters you can use. Defaults to: {}."
             ),
@@ -267,6 +267,11 @@ def push_pipeline(
         reformat_with_black()
 
     if config["test"]:
+        if isinstance(config["test_options"], str):
+            import json
+
+            config["test_options"] = json.loads(config["test_options"])
+
         tests.run_tests(**test_options)
 
     if config["version"]:
@@ -286,7 +291,9 @@ def push_pipeline(
                 tag_message=config["tag_mesage"],
             )
     except Exception:
-        set_version(original_version)
+        if config["version"]:
+            set_version(original_version)
+
         mylogging.traceback(
             "Utils pipeline failed. Original version restored. Nothing was pushed to repo, you can restart pipeline."
         )
@@ -344,7 +351,7 @@ def git_push(
         tag_message (str, optional): Message in anotated tag. Defaults to 'New version'.
     """
 
-    from git import Repo
+    import git.repo
 
     git_command = f"git add . && git commit -m {misc.get_console_str_with_quotes(commit_message)} && git push"
 
@@ -355,13 +362,13 @@ def git_push(
         if not tag_message:
             tag_message = "New version"
 
-        Repo(PROJECT_PATHS.ROOT_PATH.as_posix()).create_tag(tag, message=tag_message)
+        git.repo.Repo(PROJECT_PATHS.ROOT_PATH.as_posix()).create_tag(tag, message=tag_message)
         git_command += " --follow-tags"
 
     try:
         subprocess.run(git_command, check=True, cwd=PROJECT_PATHS.ROOT_PATH.as_posix(), shell=True)
     except (Exception,):
-        Repo(PROJECT_PATHS.ROOT_PATH.as_posix()).delete_tag(tag)
+        git.repo.Repo(PROJECT_PATHS.ROOT_PATH.as_posix()).delete_tag(tag)
         mylogging.traceback(
             "Push to git failed. Version restored and created git tag deleted."
             f"Try to run command \n\n{git_command}\n\n manually in your root {PROJECT_PATHS.ROOT_PATH}."

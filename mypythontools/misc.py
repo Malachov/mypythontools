@@ -144,11 +144,11 @@ def json_to_py(json: dict, replace_comma_decimal: bool = True, replace_true_fals
     return evaluated
 
 
-def watchdog(timeout: int, function: Callable, *args, **kwargs) -> Any:
+def watchdog(timeout: Union[int, float], function: Callable, *args, **kwargs) -> Any:
     """Time-limited execution for python function. TimeoutError raised if not finished during defined time.
 
     Args:
-        timeout (int): Max time execution in seconds.
+        timeout (Union[int,float]): Max time execution in seconds.
         function (Callable): Function that will be evaluated.
         *args: Args for the function.
         *kwargs: Kwargs for the function.

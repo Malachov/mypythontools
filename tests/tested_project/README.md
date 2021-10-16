@@ -1,9 +1,5 @@
-This is test
+Tested readme - should fail
 
 ```python
-assert 1
-```
-
-```python
-a = 8
+assert True
 ```

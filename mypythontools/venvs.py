@@ -39,7 +39,7 @@ class MyVenv:
             self.exists = True if (self.venv_path / "bin").exists() else False
             self.create_command = f"python3 -m virtualenv {self.venv_path_console_str}"
             self.activate_command = (
-                f"source {misc.get_console_str_with_quotes(self._venv_path / 'bin' / 'activate')}"
+                f"source {misc.get_console_str_with_quotes(self.venv_path / 'bin' / 'activate')}"
             )
         # self.deactivate_command = "TODO"
 

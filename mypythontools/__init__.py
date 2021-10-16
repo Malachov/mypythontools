@@ -248,7 +248,7 @@ if sys.version_info.major < 3 or (sys.version_info.major == 3 and sys.version_in
 
 from . import build, config, deploy, misc, paths, plots, property, pyvueeel, tests, utils, venvs
 
-__version__ = "0.0.76"
+__version__ = "0.0.77"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

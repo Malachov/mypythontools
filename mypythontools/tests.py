@@ -203,9 +203,9 @@ def add_readme_tests(
 
     generate_readme_test_command = [
         "phmdoctest",
-        readme_path,
+        readme_path.as_posix(),
         "--outfile",
-        test_file_path,
+        test_file_path.as_posix(),
     ]
     try:
         subprocess.run(generate_readme_test_command)
@@ -218,11 +218,11 @@ def add_readme_tests(
 
 def deactivate_test_settings() -> None:
     """Sometimes you want to run test just in normal mode (enable plots etc.). Usually at the end of test file in `if __name__ = "__main__":` block."""
-    mylogging.config.COLORIZE = 1
+    mylogging.config.COLORIZE = True
 
     if "matplotlib" in sys.modules:
 
         import matplotlib
-        import importlib
+        from importlib import reload
 
-        importlib.reload(matplotlib)
+        reload(matplotlib)
