@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>mypythontools.build module &#8212; mypythontools 24-08-2021 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="https://malachov.github.io/mypythontools/content/sphinx-alabaster-css/custom.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-mypythontools.build">
+<span id="mypythontools-build-module"></span><h1>mypythontools.build module<a class="headerlink" href="#module-mypythontools.build" title="Permalink to this headline">¶</a></h1>
+<p>This module build the app via pyinstaller.
+It has presets to build applications build with eel.</p>
+<p>There is one main function <cite>build_app</cite>. Check it’s help for how to use
+it (should be very simple).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can run build for example from vs code tasks, create folder utils,
+create build_script.py inside, add</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">mypythontools</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">mypythontools</span><span class="o">.</span><span class="n">build</span><span class="o">.</span><span class="n">build_app</span><span class="p">()</span>  <span class="c1"># With all the params you need.</span>
+</pre></div>
+</div>
+<p>Then just add this task to global tasks.json:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Build app&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;shell&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;$</span><span class="si">{workspaceFolder}</span><span class="s2">/utils/build_script.py&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;presentation&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;reveal&quot;</span><span class="p">:</span> <span class="s2">&quot;always&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;panel&quot;</span><span class="p">:</span> <span class="s2">&quot;new&quot;</span>
+    <span class="p">}</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="mypythontools.build.build_app">
+<span class="sig-prename descclassname"><span class="pre">mypythontools.build.</span></span><span class="sig-name descname"><span class="pre">build_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">main_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'app.py'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">web_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_web</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_last_build</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">icon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_imports</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignored_packages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_vars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cleanit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mypythontools/build.html#build_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mypythontools.build.build_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>One script to build .exe app from source code.</p>
+<p>This script automatically generate .spec file, build node web files and add environment variables during build.</p>
+<p>This script suppose some structure of the app (may have way different though). You can use project-starter from the same repository,
+if you start with application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>main_file</strong> (<em>str</em><em>, </em><em>optional</em>) – Main file path or name with extension. Main file is found automatically
+and don’t have to be in root. Defaults to ‘app.py’.</p></li>
+<li><p><strong>preset</strong> (<em>str</em><em>, </em><em>optional</em>) – Edit other params for specific use cases (append to hidden_imports, datas etc.)
+Options [‘eel’]. Defaults to None.</p></li>
+<li><p><strong>web_path</strong> (<em>(</em><em>Path</em><em>, </em><em>str</em><em>)</em><em>, </em><em>optional</em>) – Folder with index.html. Defaults to None.</p></li>
+<li><p><strong>build_web</strong> (<em>bool</em><em>, </em><em>optional</em>) – If application contain package.json in folder ‘gui’, build it (if using eel). Defaults to None.</p></li>
+<li><p><strong>remove_last_build</strong> (<em>bool</em><em>, </em><em>optional</em>) – If some problems, it is possible to delete build and dist folders. Defaults to False.</p></li>
+<li><p><strong>console</strong> (<em>bool</em><em>, </em><em>optional</em>) – Before app run terminal window appears (good for debugging). Defaults to False.</p></li>
+<li><p><strong>debug</strong> (<em>bool</em><em>, </em><em>optional</em>) – If no console, then dialog window with traceback appears. Defaults to False.</p></li>
+<li><p><strong>icon</strong> (<em>(</em><em>Path</em><em>, </em><em>str</em><em>, </em><em>None</em><em>)</em><em>, </em><em>optional</em>) – Path or name with extension to .ico file (!no png!). Defaults to None.</p></li>
+<li><p><strong>hidden_imports</strong> (<em>list</em><em>, </em><em>optional</em>) – If app is not working, it can be because some library was not builded. Add such
+libraries into this list. Defaults to [].</p></li>
+<li><p><strong>ignored_packages</strong> (<em>list</em><em>, </em><em>optional</em>) – Libraries take space even if not necessary. Defaults to [].</p></li>
+<li><p><strong>datas</strong> (<em>list</em><em>, </em><em>optional</em>) – Add static files to build. Example: [(‘my_source_path, ‘destination_path’)]. Defaults to [].</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – If name of app is different than main py file. Defaults to None.</p></li>
+<li><p><strong>env_vars</strong> (<em>dict</em><em>, </em><em>optional</em>) – Add some env vars during build. Mostly to tell main script that it’s production (ne development) mode.
+Defaults to {}.</p></li>
+<li><p><strong>cleanit</strong> (<em>bool</em><em>, </em><em>optional</em>) – Remove spec file and var env py hook. Defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Build pyinstaller bootloader on your pc, otherwise antivirus can check the
+file for a while on first run and even alert false positive.</p>
+<p>Download from github, cd to bootloader and:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">./</span><span class="n">waf</span> <span class="nb">all</span>
+</pre></div>
+</div>
+<p>Back to pyinstaller folder and python <cite>setup.py</cite></p>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div id="logo">
+    <a href="/">
+        <img src="/page/_static/logo.png" alt="Logo">
+    </a>
+</div>
+
+<div class="section" id="table-of-contents">
+
+    <h1>Table of contents</h1>
+
+    <ul>
+        <li><a href="/#links">links</a></li>
+        <li><a href="/#installation">installation</a></li>
+    </ul>
+
+    <h2>Content</h2>
+
+    <ul>
+        <li><a href="/#project-starter">project-starter</a></li>
+        <li><a href="/#requirements">requirements</a></li>
+        <li><a href="/#sphinx-alabaster-css">sphinx-alabaster-css</a></li>
+        <li><a href="/#Tasks">Tasks</a></li>
+    </ul>
+
+    <h2>Submodules</h2>
+
+    <ul>
+        <li><a href="/page/mypythontools.build.html">build</a></li>
+        <li><a href="/page/mypythontools.config.html">config</a></li>
+        <li><a href="/page/mypythontools.deploy.html">deploy</a></li>
+        <li><a href="/page/mypythontools.misc.html">misc</a></li>
+        <li><a href="/page/mypythontools.paths.html">paths</a></li>
+        <li><a href="/page/mypythontools.plots.html">plots</a></li>
+        <li><a href="/page/mypythontools.property.html">property</a></li>
+        <li><a href="/page/mypythontools.pyvueeel.html">pyvueeel</a></li>
+        <li><a href="/page/mypythontools.tests.html">tests</a></li>
+        <li><a href="/page/mypythontools.utils.html">utils</a></li>
+    </ul>
+
+    <h2><a href="/genindex.html">Index</a></h2>
+
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Daniel Malachov.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/mypythontools.build.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/Malachov/mypythontools" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -15,7 +15,6 @@ import subprocess
 import os
 import shutil
 from pathlib import Path
-from typing import Union
 import platform
 
 import mylogging
@@ -23,7 +22,7 @@ import mylogging
 from . import paths
 
 
-def deploy_to_pypi(setup_path: Union[str, Path] = "infer") -> None:
+def deploy_to_pypi(setup_path: str | Path = "infer") -> "infer":
     """Publish python library to Pypi. Username and password are set
     with env vars `TWINE_USERNAME` and `TWINE_PASSWORD`.
 
@@ -33,7 +32,7 @@ def deploy_to_pypi(setup_path: Union[str, Path] = "infer") -> None:
         https://github.com/Malachov/mypythontools/blob/master/content/project-starter/setup.py
 
     Args:
-        setup_path((str, pathlib.Path), optional): Function suppose, that there is a setup.py somewhere in cwd.
+        setup_path(str | Path | None, optional): Function suppose, that there is a setup.py somewhere in cwd.
             If not, pass path to setup.py. Build and dist folders will be created in same directory. Defaults to "infer".
     """
 

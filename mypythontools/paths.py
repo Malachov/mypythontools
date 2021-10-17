@@ -6,7 +6,7 @@ to get desktop path in posix way.
 """
 
 from __future__ import annotations
-from typing import Union, cast
+from typing import cast
 from pathlib import Path
 import sys
 import builtins
@@ -23,7 +23,7 @@ class _ProjectPaths:
         to string with `.as_posix()`."""
 
     def __init__(self) -> None:
-        self._root_path: Union[None, Path] = None
+        self._root_path: None | Path = None
         self._app_path = None
         self._init_path = None
         self._test_path = None
@@ -54,7 +54,7 @@ class _ProjectPaths:
         return self._root_path
 
     @ROOT_PATH.setter
-    def ROOT_PATH(self, new_path: Union[str, Path]) -> None:
+    def ROOT_PATH(self, new_path: str | Path) -> None:
 
         if new_path == "infer":
             new_root_path = Path.cwd()
@@ -87,7 +87,7 @@ class _ProjectPaths:
         return self._init_path
 
     @INIT_PATH.setter
-    def INIT_PATH(self, new_path: Union[str, Path]) -> None:
+    def INIT_PATH(self, new_path: str | Path) -> None:
         if new_path == "infer":
             exclude = []
             for i in ["DOCS_PATH", "TEST_PATH"]:
@@ -125,7 +125,7 @@ class _ProjectPaths:
         return self._app_path
 
     @APP_PATH.setter
-    def APP_PATH(self, new_path: Union[str, Path]) -> None:
+    def APP_PATH(self, new_path: str | Path) -> None:
         if new_path == "infer":
             self._app_path = self.INIT_PATH.parent
         else:
@@ -150,7 +150,7 @@ class _ProjectPaths:
         return self._test_path
 
     @TEST_PATH.setter
-    def TEST_PATH(self, new_path: Union[str, Path]) -> None:
+    def TEST_PATH(self, new_path: str | Path) -> None:
         if new_path == "infer":
 
             for i in ["tests", "test", "Test", "Tests", "TEST", "TESTS"]:
@@ -179,7 +179,7 @@ class _ProjectPaths:
         return self._docs_path
 
     @DOCS_PATH.setter
-    def DOCS_PATH(self, new_path: Union[str, Path]) -> None:
+    def DOCS_PATH(self, new_path: str | Path) -> None:
         if new_path == "infer":
             for i in ["doc", "docs", "Doc", "Docs", "DOC", "DOCS"]:
                 if (self.ROOT_PATH / i).exists():
@@ -207,7 +207,7 @@ class _ProjectPaths:
         return self._readme_path
 
     @README_PATH.setter
-    def README_PATH(self, new_path: Union[str, Path]) -> None:
+    def README_PATH(self, new_path: str | Path) -> None:
         if new_path == "infer":
             if (self.ROOT_PATH / "README.md").exists():
                 new_readme_path = self.ROOT_PATH / "README.md"
@@ -244,19 +244,19 @@ PROJECT_PATHS = _ProjectPaths()
 
 def find_path(
     name: str,
-    folder: Union[str, Path] = None,
+    folder: str | Path | None = None,
     exclude_names: list[str] = ["node_modules", "build", "dist"],
-    exclude_paths: list[Union[str, Path]] = [],
+    exclude_paths: list[str | Path] = [],
     levels: int = 5,
 ):
     """Search for file or folder in defined folder (cwd() by default) and return it's path.
 
     Args:
         name (str): Name of folder or file that should be found. If using file, use it with extension e.g. "app.py".
-        folder (str, optional): Where to search. If None, then ROOT_PATH is used (cwd by default). Defaults to None.
+        folder (str | Path | None, optional): Where to search. If None, then ROOT_PATH is used (cwd by default). Defaults to None.
         exclude_names ((str, Path), optional): List of ignored names. If this name is whenever in path, it will be ignored.
             Defaults to ['node_modules', 'build', 'dist'].
-        exclude_paths (list[Union[str, Path]], optional): List of ignored paths. If defined path is subpath of found file,
+        exclude_paths (list[str | Path], optional): List of ignored paths. If defined path is subpath of found file,
             it will be ignored. If relative, it has to be from cwd. Defaults to [].
         levels (str, optional): Recursive number of analyzed folders. Defaults to 5.
 
@@ -307,11 +307,11 @@ def get_desktop_path() -> Path:
     return Path.home() / "Desktop"
 
 
-def validate_path(path: Union[str, Path]) -> Path:
+def validate_path(path: str | Path) -> Path:
     """Convert to pathlib path, resolve to full path and check if exists.
 
     Args:
-        path ((str, Path)): Validated path.
+        path (str | Path): Validated path.
 
     Raises:
         FileNotFoundError: If file do not exists.

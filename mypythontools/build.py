@@ -33,7 +33,8 @@ import subprocess
 import shutil
 from pathlib import Path
 import mylogging
-from typing import Union
+
+from typing_extensions import Literal
 
 # Lazy imports
 # import EelForkExcludeFiles
@@ -44,16 +45,16 @@ from .paths import PROJECT_PATHS
 
 
 def build_app(
-    root_path: Union[str, Path] = "infer",
-    main_file: Union[str, Path] = "app.py",
-    preset: str = None,
-    web_path: Union[str, Path] = "infer",
-    build_web: bool = True,
+    root_path: str | Path = "infer",
+    main_file: str | Path = "app.py",
+    preset: Literal["eel", None] = None,
+    web_path: str | Path | None = "infer",
+    build_web: bool | str = "preset",
     use_virutalenv: bool = True,
     remove_last_build: bool = False,
     console: bool = True,
     debug: bool = False,
-    icon: Union[str, Path] = None,
+    icon: str | Path | None = None,
     hidden_imports: list[str] = [],
     ignored_packages: list[str] = [],
     datas: tuple[tuple[str, str], ...] = (),
@@ -69,19 +70,19 @@ def build_app(
     if you start with application.
 
     Args:
-        root_path (Union[str, Path], optional): Path of root folder where build and dist folders will be placed. Defaults to "infer".
+        root_path (str | Path, optional): Path of root folder where build and dist folders will be placed. Defaults to "infer".
         main_file (str, optional): Main file path or name with extension. Main file is found automatically
             and don't have to be in root. Defaults to 'app.py'.
-        preset (str, optional): Edit other params for specific use cases (append to hidden_imports, datas etc.)
-            Options ['eel']. Defaults to None.
-        web_path ((Path, str), optional): Folder with index.html. Defaults to 'infer'.
-        build_web ((bool, str), optional): If application contain package.json build node application. If 'preset' build automatically
-            depending on preset. Defaults to 'eel'.
+        preset (Literal['eel', None], optional): Edit other params for specific use cases (append to hidden_imports, datas etc.).
+            Defaults to None.
+        web_path (str | Path | None, optional): Folder with index.html. Defaults to 'infer'.
+        build_web (bool | str, optional): If application contain package.json build node application. If 'preset' build automatically
+            depending on preset. Defaults to 'preset'.
         use_virutalenv (bool, optional): Whether run new virtualenv and install all libraries from requirements.txt. Defaults to True.
         remove_last_build (bool, optional): If some problems, it is possible to delete build and dist folders. Defaults to False.
         console (bool, optional): Before app run terminal window appears (good for debugging). Defaults to False.
         debug (bool, optional): If no console, then dialog window with traceback appears. Defaults to False.
-        icon ((Path, str, None), optional): Path or name with extension to .ico file (!no png!). Defaults to None.
+        icon (str | Path | None, optional): Path or name with extension to .ico file (!no png!). Defaults to None.
         hidden_imports (list, optional): If app is not working, it can be because some library was not builded. Add such
             libraries into this list. Defaults to [].
         ignored_packages (list, optional): Libraries take space even if not necessary. Defaults to [].

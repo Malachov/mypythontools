@@ -25,7 +25,7 @@ import os
 import sys
 from pathlib import Path
 import warnings
-from typing import Union, Callable
+from typing import Callable
 
 import mylogging
 
@@ -48,10 +48,10 @@ json_to_py = misc.json_to_py
 
 
 def run_gui(
-    devel: Union[bool, None] = None,
-    log_file_path: Union[str, Path] = None,
+    devel: bool | None = None,
+    log_file_path: str | Path | None = None,
     is_multiprocessing: bool = False,
-    build_gui_path: Union[str, Path] = "default",
+    build_gui_path: str | Path = "default",
 ) -> None:
     """Function that init and run `eel` project.
 
@@ -71,12 +71,12 @@ def run_gui(
         https://mypythontools.readthedocs.io/#project-starter
 
     Args:
-        devel((bool, None), optional): If None, detected. Can be overwritten. Devel 0 run static assets,
+        devel(bool | None, optional): If None, detected. Can be overwritten. Devel 0 run static assets,
             1 run Vue server on localhost. Defaults to None.
-        log_file_path ((str, Path, None)), optional): If not exist, it will create, if exist, it will append,
+        log_file_path (str | Path | None), optional): If not exist, it will create, if exist, it will append,
             if None, log to relative log.log and only if in production mode. Defaults to None.
         is_multiprocessing (bool, optional): If using multiprocessing in some library, set up to True. Defaults to False.
-        build_gui_path ((str, Path, None)), optional): Where the web asset is. Only if debug is 0 but not run with pyinstaller.
+        build_gui_path (str | Path), optional): Where the web asset is. Only if debug is 0 but not run with pyinstaller.
             If None, it's automatically find (but is slower then). If 'default', path from project-starter is used - 'gui/web_builded'
             is used. Defaults to 'default'.
 
@@ -206,7 +206,7 @@ def expose(callback_function: Callable) -> None:
     (for printing error to frontend usually).
 
     Args:
-        callback_function (function): Function that will be called if exposed function fails on some error.
+        callback_function (Callable): Function that will be called if exposed function fails on some error.
     """
 
     with warnings.catch_warnings():
@@ -231,7 +231,7 @@ def expose(callback_function: Callable) -> None:
     eel._expose(callback_function.__name__, inner)
 
 
-def to_vue_plotly(data: Union["np.ndarray", "pd.DataFrame"], names: list = None) -> dict:
+def to_vue_plotly(data: "np.ndarray" | "pd.DataFrame", names: list = None) -> dict:
     """Takes data (dataframe or numpy array) and transforms it to form, that vue-plotly understand.
 
     Links to vue-plotly:
@@ -244,7 +244,7 @@ def to_vue_plotly(data: Union["np.ndarray", "pd.DataFrame"], names: list = None)
         Download the js function from project-starter and check for example.
 
     Args:
-        data (Union[np.array, pd.DataFrame]): Plotted data.
+        data (np.array | pd.DataFrame): Plotted data.
         names (list, optional): If using array, you can define names. If using pandas, columns are
             automatically used. Defaults to None.
 
@@ -298,10 +298,10 @@ def to_table(df: "pd.DataFrame", index: bool = False) -> dict:
 
     Args:
         df (pd.DataFrame): Data.
-        index (bool): Whether use index as first column (or not at all).
+        index (bool, optional): Whether use index as first column (or not at all).
 
     Returns:
-        dict: DatPa in form for creating table in Vuetify v-data-table.
+        dict: Data in form for creating table in Vuetify v-data-table.
 
     Example:
         >>> import pandas as pd

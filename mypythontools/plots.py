@@ -1,7 +1,8 @@
 """Plot data. There is only one main function plot. Check it's documentation for how to use it."""
 
 from __future__ import annotations
-from typing import Union
+from typing import cast
+from pathlib import Path
 
 from typing_extensions import Literal
 
@@ -25,11 +26,11 @@ def plot(
     legend: bool = True,
     highlighted_column="",
     surrounded_column="",
-    grey_area: bool = False,
-    save: bool = False,
+    grey_area: None | list[str] = None,
+    save: None | Path | str = None,
     return_div: bool = False,
     show: bool = True,
-) -> Union[None, str]:
+) -> None | str:
     """Plots the data. Plotly or matplotlib can be used. It is possible to highlite two columns with different formating.
     It is usually used for time series visualization, but it can be used for different use case of course.
 
@@ -39,17 +40,17 @@ def plot(
         legend (bool, optional): Whether display legend or not. Defaults to True.
         highlighted_column (str, optional): Column name that will be formatted differently (blue). Can be empty. Defaults to "".
         surrounded_column (str, optional): Column name that will be formatted differently (black, wider). And is surrounded by
-            grey_area. Can be empty (if grey_area is False). Defaults to "".
-        grey_area ((bool, list[str])), optional): Whether to show grey area surrounding the surrounded_column. Can be False,
-            or list of ['lower_bound_column', 'upper_bound_column']. Both columns has to be in complete_dataframe. Defaults to False.
-        save ((False, str), optional): Whether save the plot.  If False or "", do not save, if path as str, save to defined path,
-            if "DESKTOP" save to desktop. Defaults to "".
-        return_div ((bool, str), optional): If 'div', return html div with plot as string. If False, just plot and do not return.
+            grey_area. Can be empty (if grey_area is None). Defaults to "".
+        grey_area (None | list[str]), optional): Whether to show grey area surrounding the surrounded_column. Can be None,
+            or list of ['lower_bound_column', 'upper_bound_column']. Both columns has to be in complete_dataframe. Defaults to None.
+        save (None | Path | str, optional): Whether save the plot.  If False or "", do not save, if Path as str path, save to defined path.
+            If "DESKTOP" save to desktop. Defaults to None.
+        return_div (bool, optional): If True, return html div with plot as string. If False, just plot and do not return.
             Defaults to False.
         show (bool, optional): Can be evaluated, but not shown (testing reasons). Defaults to True.
 
     Returns:
-        str: Only if return_div is True, else None.
+        None | str: Only if return_div is True, else None.
 
     Examples:
         Plot dataframe with
@@ -103,10 +104,11 @@ def plot(
         graph_data = []
 
         if grey_area:
+            grey_area = cast(list, grey_area)
+
             lower_bound_column = grey_area[0]
             upper_bound_column = grey_area[1]
 
-        if grey_area:
             upper_bound = pl.graph_objs.Scatter(
                 name="Upper bound",
                 x=complete_dataframe.index,
@@ -219,7 +221,7 @@ def plot(
         if save:
             fig.write_html(save)
 
-        if return_div == "div":
+        if return_div:
 
             fig.layout.update(
                 title=None,

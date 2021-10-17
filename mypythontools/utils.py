@@ -115,7 +115,6 @@ import importlib.util
 from pathlib import Path
 import subprocess
 import sys
-from typing import Union
 
 import mylogging
 
@@ -134,7 +133,7 @@ def push_pipeline(
     test: bool = True,
     test_options: dict = {},
     version: str = "increment",
-    sphinx_docs: Union[bool, list[str]] = True,
+    sphinx_docs: bool | list[str] = True,
     push_git: bool = True,
     commit_message: str = "New commit",
     tag: str = "__version__",
@@ -160,7 +159,7 @@ def push_pipeline(
             `{"test_coverage": True, "verbose": False, "use_virutalenv":True}`. Defaults to {}.
         version (str, optional): New version. E.g. '1.2.5'. If 'increment', than it's auto incremented. E.g from '1.0.2' to 'v1.0.3'.
             If None, then version is not changed. 'Defaults to "increment".
-        sphinx_docs(Union[bool, list[str]], optional): Whether generate sphinx apidoc and generate rst files for documentation.
+        sphinx_docs(bool | list[str], optional): Whether generate sphinx apidoc and generate rst files for documentation.
             Some files in docs source can be deleted - check `sphinx_docs` docstrings for details and insert
             `exclude_paths` list if have some extra files other than ['conf.py', 'index.rst', '_static', '_templates'].
             Defaults to True.
@@ -309,11 +308,11 @@ def push_pipeline(
         )
 
 
-def reformat_with_black(root_path: Union[str, Path] = "infer", extra_args: list[str] = ["--quiet"]) -> None:
+def reformat_with_black(root_path: str | Path = "infer", extra_args: list[str] = ["--quiet"]) -> None:
     """Reformat code with black.
 
     Args:
-        root_path (Union[str, Path], optional): Root path of project. Defaults to "infer".
+        root_path (str | Path, optional): Root path of project. Defaults to "infer".
         extra_args (list[str], optional): Some extra args for black. Defaults to ["--quiet"].
 
     Example:
@@ -378,7 +377,7 @@ def git_push(
 
 def set_version(
     version: str = "increment",
-    init_path: Union[str, Path] = "infer",
+    init_path: str | Path = "infer",
 ) -> None:
     """Change your version in your __init__.py file.
 
@@ -386,7 +385,7 @@ def set_version(
     Args:
         version (str, optional): Form that is used in __init__, so for example "1.2.3". Do not use 'v' appendix.
             If version is 'increment', it will increment your __version__ in you __init__.py by 0.0.1. Defaults to "increment".
-        init_path (Union[str, Path], optional): Path of file where __version__ is defined. Usually __init__.py, Defaults to "infer".
+        init_path (str | Path, optional): Path of file where __version__ is defined. Usually __init__.py, Defaults to "infer".
 
     Raises:
         ValueError: If no __version__ is find.
@@ -439,11 +438,11 @@ def set_version(
         init_file.writelines(list_of_lines)
 
 
-def get_version(init_path: Union[str, Path] = "infer") -> str:
+def get_version(init_path: str | Path = "infer") -> str:
     """Get version info from __init__.py file.
 
     Args:
-        init_path (Union[str, Path], optional): Path to __init__.py file. Defaults to "infer".
+        init_path (str | Path, optional): Path to __init__.py file. Defaults to "infer".
 
     Returns:
         str: String of version from __init__.py.
@@ -472,11 +471,11 @@ def get_version(init_path: Union[str, Path] = "infer") -> str:
 
 
 def sphinx_docs_regenerate(
-    docs_path: Union[str, Path] = "infer",
+    docs_path: str | Path = "infer",
     build_locally: bool = False,
     git_add: bool = True,
-    exclude_paths: list[Union[str, Path]] = [],
-    delete: list[Union[str, Path]] = ["modules.rst"],
+    exclude_paths: list[str | Path] = [],
+    delete: list[str | Path] = ["modules.rst"],
 ) -> None:
     """This will generate all rst files necessary for sphinx documentation generation with sphinx-apidoc.
     It automatically delete removed and renamed files.
@@ -489,15 +488,15 @@ def sphinx_docs_regenerate(
     Function suppose sphinx build and source in separate folders...
 
     Args:
-        docs_path (Union[str, Path], optional): Where source folder is. Usually infered automatically.
+        docs_path (str | Path, optional): Where source folder is. Usually infered automatically.
             Defaults to "infer".
         build_locally (bool, optional): If true, build folder with html files locally.
             Defaults to False.
         git_add (bool, optional): Whether to add generated files to stage. False mostly for
             testing reasons. Defaults to True.
-        exclude_paths (list[Union[str, Path]], optional): List of files and folder names that will not be deleted.
+        exclude_paths (list[str | Path], optional): List of files and folder names that will not be deleted.
             ['conf.py', 'index.rst', '_static', '_templates'] are excluded by default. Defaults to [].
-        delete (list[Union[str, Path]], optional): If delete some files (for example to have no errors in sphinx build for unused modules)
+        delete (list[str | Path], optional): If delete some files (for example to have no errors in sphinx build for unused modules)
 
     Note:
         Function suppose structure of docs like::

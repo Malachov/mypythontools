@@ -6,8 +6,8 @@ import subprocess
 from pathlib import Path
 import sys
 import warnings
-from typing import Union
 
+from typing_extensions import Literal
 import mylogging
 
 from .paths import PROJECT_PATHS, validate_path
@@ -28,6 +28,8 @@ def setup_tests(
         imports from tests will not work.
 
     Args:
+        generate_readme_tests (bool, optional): If True, generete new tests from readme if there are new changes.
+            Defaults to True.
         matplotlib_test_backend (bool, optional): If using matlplotlib, it need to be
             closed to continue tests. Change backend to agg. Defaults to False.
     """
@@ -53,29 +55,29 @@ def setup_tests(
 
 
 def run_tests(
-    tested_path: Union[str, Path] = "infer",
-    tests_path: Union[str, Path] = "infer",
+    tested_path: str | Path = "infer",
+    tests_path: str | Path = "infer",
     test_coverage: bool = True,
     stop_on_first_error: bool = True,
     use_virutalenv: bool = True,
     remove_venv: bool = False,
-    requirements: Union[list, str, Path] = "infer",
-    verbose: int = 1,
+    requirements: list | str | Path = "infer",
+    verbose: Literal[0, 1, 2] = 1,
     extra_args: list = [],
 ) -> None:
     """Run tests. If any test fails, raise an error.
 
     Args:
-        tested_path (Union[str, Path], optional): If "infer", ROOT_PATH is used. ROOT_PATH is necessary if using doctests
+        tested_path (str | Path, optional): If "infer", ROOT_PATH is used. ROOT_PATH is necessary if using doctests
             'Tests' folder not works for doctests in modules. Defaults to None.
-        tests_path (Union[str, Path], optional): If "infer", TEST_PATH is used. It means where venv will be stored etc. Defaults to "infer".
+        tests_path (str | Path, optional): If "infer", TEST_PATH is used. It means where venv will be stored etc. Defaults to "infer".
         test_coverage (bool, optional): Whether run test coverage plugin. If True, pytest-cov must be installed. Defaults to True.
         stop_on_first_error (bool, optional): Whether stop on first error. Defaults to True.
         use_virutalenv (bool, optional): Whether run new virtualenv and install all libraries from requirements.txt. Defaults to True.
         remove_venv (bool, optional): Whether remove created venv. It's usually not necessary, because packages not in requirements are updated. Defaults to True
-        requirements (Union[list, str, Path], optional): If using `use_virutalenv` define what libraries will be installed by path to requirements.txt.
+        requirements (list | str | Path, optional): If using `use_virutalenv` define what libraries will be installed by path to requirements.txt.
            Can also be a list of more files e.g `["requirements.txt", "requirements_dev.txt"]`. If "infer", autodetected (all requirements). Defaults to "infer".
-        verbose (int, optional): Whether print detailes on errors or keep silent. If 0, no details, parameters `-q and `--tb=no` are added.
+        verbose (Literal[0, 1, 2], optional): Whether print detailes on errors or keep silent. If 0, no details, parameters `-q and `--tb=no` are added.
             if 1, some details are added --tb=short. If 2, more details are printed (default --tb=auto)
             Defaults to 1.
         extra_args (list, optional): List of args passed to pytest. Defaults to []
@@ -147,15 +149,13 @@ def run_tests(
         raise RuntimeError(mylogging.return_str("Pytest failed"))
 
 
-def add_readme_tests(
-    readme_path: Union[str, Path] = "infer", test_folder_path: Union[str, Path] = "infer"
-) -> None:
+def add_readme_tests(readme_path: str | Path = "infer", test_folder_path: str | Path = "infer") -> None:
     """Generate pytest tests script file from README.md and save it to tests folder. Can be called from conftest.
 
     Args:
-        readme_path (Union[str, Path], optional): If 'infer', autodetected (README.md, Readme.md or readme.md on root).
+        readme_path (str | Path, optional): If 'infer', autodetected (README.md, Readme.md or readme.md on root).
             Defaults to 'infer'.
-        test_folder_path (Union[str, Path], optional): If 'infer', autodetected (if ROOT_PATH / tests). Defaults to 'infer.
+        test_folder_path (str | Path, optional): If 'infer', autodetected (if ROOT_PATH / tests). Defaults to 'infer.
 
     Raises:
         FileNotFoundError: If Readme not found.

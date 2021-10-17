@@ -8,7 +8,7 @@ from __future__ import annotations
 import builtins
 import time
 import sys
-from typing import Callable, Union, Any
+from typing import Callable, Any
 from pathlib import Path
 
 import mylogging
@@ -17,14 +17,14 @@ import mylogging
 _JUPYTER = 1 if hasattr(builtins, "__IPYTHON__") else 0
 
 
-def validate(value, types=None, options: list = None, name: str = None) -> None:
+def validate(value, types: Any = None, options: list | None = None, name: str | None = None) -> None:
     """Validate type of variable and check if this variable is in defined options.
 
     Args:
         value (Any): Value that will be validated.
-        types (type, optional): For example int, str or list. It can be list of possible types. Defaults to None.
-        options (list, optional): List of possible options. If value is not in options, error will be raised. Defaults to None.
-        name (str, optional): If error raised, name will be printed. Defaults to None.
+        types (Any, optional): For example int, str or list. It can be list of possible types. Defaults to None.
+        options (list | None, optional): List of possible options. If value is not in options, error will be raised. Defaults to None.
+        name (str | None, optional): If error raised, name will be printed. Defaults to None.
 
     Raises:
         TypeError: Type does not fit.
@@ -144,11 +144,11 @@ def json_to_py(json: dict, replace_comma_decimal: bool = True, replace_true_fals
     return evaluated
 
 
-def watchdog(timeout: Union[int, float], function: Callable, *args, **kwargs) -> Any:
+def watchdog(timeout: int | float, function: Callable, *args, **kwargs) -> Any:
     """Time-limited execution for python function. TimeoutError raised if not finished during defined time.
 
     Args:
-        timeout (Union[int,float]): Max time execution in seconds.
+        timeout (int | float): Max time execution in seconds.
         function (Callable): Function that will be evaluated.
         *args: Args for the function.
         *kwargs: Kwargs for the function.
@@ -209,7 +209,7 @@ def watchdog(timeout: Union[int, float], function: Callable, *args, **kwargs) ->
     return result
 
 
-def get_console_str_with_quotes(string: Union[str, Path]):
+def get_console_str_with_quotes(string: str | Path):
     """In terminal if value or contain spaces, it's not taken as one param.
     This wraps it with quotes to be able to use paths and values as needed.
 

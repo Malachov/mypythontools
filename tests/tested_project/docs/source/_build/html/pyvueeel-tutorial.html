@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Py, Vue and eel &#8212; mypythontools 24-08-2021 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="https://malachov.github.io/mypythontools/content/sphinx-alabaster-css/custom.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="py-vue-and-eel">
+<h1>Py, Vue and eel<a class="headerlink" href="#py-vue-and-eel" title="Permalink to this headline">¶</a></h1>
+<p>How to develop application with these tools and how to use mypythontools functions in such an app.</p>
+<p>It’s recomended way to download <code class="docutils literal notranslate"><span class="pre">project-starter</span></code> where all the files for gui are already edited and ready to use.
+There are also working examples of calling from python to js and vice versa as well as example of alerting or plotting.</p>
+<p><a class="reference external" href="https://github.com/Malachov/mypythontools/tree/master/content">https://github.com/Malachov/mypythontools/tree/master/content</a></p>
+<p>If you want to build just what is necassaty from scratch, you can use this tutorial.
+Go in web documentation on readthedocs if reading from IDE</p>
+<div class="section" id="structure">
+<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">myproject</span>
+    <span class="o">-</span> <span class="n">gui</span>
+        <span class="o">-</span> <span class="n">generated</span> <span class="k">with</span> <span class="n">Vue</span> <span class="n">CLI</span>
+    <span class="o">-</span> <span class="n">app</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="app-py">
+<h2>app.py<a class="headerlink" href="#app-py" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mypythontools</span> <span class="kn">import</span> <span class="n">pyvueeel</span>
+<span class="kn">from</span> <span class="nn">mypythontools.pyvueeel</span> <span class="kn">import</span> <span class="n">expose</span>
+
+<span class="c1"># Expose python functions to Js with decorator</span>
+<span class="nd">@expose</span>
+<span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;Hello&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">pyvueeel</span><span class="o">.</span><span class="n">run_gui</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>You can return dict - will be object in js
+You can return list - will be an array in js</p>
+<p><strong>Call js function from Py</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pyvueeel</span><span class="o">.</span><span class="n">eel</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="gui">
+<h2>gui<a class="headerlink" href="#gui" title="Permalink to this headline">¶</a></h2>
+<p>Generate gui folder with Vue CLI</p>
+<blockquote>
+<div><p>npm install -g &#64;vue/cli
+vue create gui</p>
+</div></blockquote>
+<p>Goto folder and optionally:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vue</span> <span class="n">add</span> <span class="n">vuex</span>
+<span class="n">vue</span> <span class="n">add</span> <span class="n">vuetify</span>
+<span class="n">vue</span> <span class="n">add</span> <span class="n">router</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="main-js">
+<h2>main.js<a class="headerlink" href="#main-js" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">NODE_ENV</span> <span class="o">==</span> <span class="s1">&#39;development&#39;</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="k">try</span> <span class="p">{</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">eel</span><span class="o">.</span><span class="n">set_host</span><span class="p">(</span><span class="s2">&quot;ws://localhost:8686&quot;</span><span class="p">);</span>
+
+<span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">document</span><span class="o">.</span><span class="n">getElementById</span><span class="p">(</span><span class="s1">&#39;app&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">innerHTML</span> <span class="o">=</span> <span class="s1">&#39;Py side is not running. Start app.py with debugger.&#39;</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">Vue</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">productionTip</span> <span class="o">=</span> <span class="n">true</span>
+<span class="n">Vue</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">devtools</span> <span class="o">=</span> <span class="n">true</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<span class="n">Vue</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">productionTip</span> <span class="o">=</span> <span class="n">false</span>
+<span class="n">Vue</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">devtools</span> <span class="o">=</span> <span class="n">false</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can expose function to be callable from python. Import and then
+window.eel.expose(function_name, ‘function_name’)</p>
+</div>
+<div class="section" id="env">
+<h2>.env<a class="headerlink" href="#env" title="Permalink to this headline">¶</a></h2>
+<p>Create empty files .env.development and add <cite>VUE_APP_EEL=http://localhost:8686/eel.js</cite></p>
+<p>Create empty .env.production and add <cite>VUE_APP_EEL=eel.js</cite></p>
+</div>
+<div class="section" id="index-html">
+<h2>index.html<a class="headerlink" href="#index-html" title="Permalink to this headline">¶</a></h2>
+<p>In public folder add to index.html:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">script</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;text/javascript&quot;</span> <span class="n">src</span><span class="o">=</span><span class="s2">&quot;&lt;%= VUE_APP_EEL %&gt;&quot;</span><span class="o">&gt;&lt;/</span><span class="n">script</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="vue-config-js">
+<h2>vue.config.js<a class="headerlink" href="#vue-config-js" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">let</span> <span class="n">devtool_mode</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">NODE_ENV</span> <span class="o">===</span> <span class="s2">&quot;development&quot;</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">devtool_mode</span> <span class="o">=</span> <span class="s2">&quot;source-map&quot;</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+  <span class="n">devtool_mode</span> <span class="o">=</span> <span class="n">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">module</span><span class="o">.</span><span class="n">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="n">outputDir</span><span class="p">:</span> <span class="s2">&quot;web_builded&quot;</span><span class="p">,</span>
+  <span class="n">transpileDependencies</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vuetify&quot;</span><span class="p">],</span>
+  <span class="n">productionSourceMap</span><span class="p">:</span> <span class="n">process</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">NODE_ENV</span> <span class="o">!=</span> <span class="s2">&quot;production&quot;</span><span class="p">,</span>
+
+  <span class="n">configureWebpack</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">devtool</span><span class="p">:</span> <span class="n">devtool_mode</span><span class="p">,</span>
+  <span class="p">},</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="tips-trics">
+<h2>Tips, trics<a class="headerlink" href="#tips-trics" title="Permalink to this headline">¶</a></h2>
+<p><strong>VS Code plugins for developing</strong></p>
+<ul class="simple">
+<li><p>npm</p></li>
+<li><p>vetur</p></li>
+<li><p>Vue VSCode Snippets</p></li>
+<li><p>vuetify-vscode</p></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div id="logo">
+    <a href="/">
+        <img src="/page/_static/logo.png" alt="Logo">
+    </a>
+</div>
+
+<div class="section" id="table-of-contents">
+
+    <h1>Table of contents</h1>
+
+    <ul>
+        <li><a href="/#links">links</a></li>
+        <li><a href="/#installation">installation</a></li>
+    </ul>
+
+    <h2>Content</h2>
+
+    <ul>
+        <li><a href="/#project-starter">project-starter</a></li>
+        <li><a href="/#requirements">requirements</a></li>
+        <li><a href="/#sphinx-alabaster-css">sphinx-alabaster-css</a></li>
+        <li><a href="/#Tasks">Tasks</a></li>
+    </ul>
+
+    <h2>Submodules</h2>
+
+    <ul>
+        <li><a href="/page/mypythontools.build.html">build</a></li>
+        <li><a href="/page/mypythontools.config.html">config</a></li>
+        <li><a href="/page/mypythontools.deploy.html">deploy</a></li>
+        <li><a href="/page/mypythontools.misc.html">misc</a></li>
+        <li><a href="/page/mypythontools.paths.html">paths</a></li>
+        <li><a href="/page/mypythontools.plots.html">plots</a></li>
+        <li><a href="/page/mypythontools.property.html">property</a></li>
+        <li><a href="/page/mypythontools.pyvueeel.html">pyvueeel</a></li>
+        <li><a href="/page/mypythontools.tests.html">tests</a></li>
+        <li><a href="/page/mypythontools.utils.html">utils</a></li>
+    </ul>
+
+    <h2><a href="/genindex.html">Index</a></h2>
+
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Daniel Malachov.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/pyvueeel-tutorial.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/Malachov/mypythontools" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

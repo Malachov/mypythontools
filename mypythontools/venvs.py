@@ -4,7 +4,6 @@ from __future__ import annotations
 import platform
 import subprocess
 from pathlib import Path
-from typing import Union
 import shutil
 
 import mylogging
@@ -22,7 +21,7 @@ class MyVenv:
         >>> myvenv.sync_requirements()
     """
 
-    def __init__(self, venv_path: Union[Path, str]) -> None:
+    def __init__(self, venv_path: Path | str) -> None:
 
         self.venv_path = Path(venv_path)
         self.venv_path_console_str = misc.get_console_str_with_quotes(self.venv_path)
@@ -58,13 +57,11 @@ class MyVenv:
                 mylogging.traceback("Creation of venv failed. Check logged error.")
                 raise
 
-    def sync_requirements(
-        self, requirements: Union[Union[str, Path], list[Union[str, Path]]] = "infer"
-    ) -> None:
+    def sync_requirements(self, requirements: str | Path | list[str] | list[Path] = "infer") -> None:
         """Sync libraries based on requirements. Install missing, remove unnecessary.
 
         Args:
-            requirements (Union[Union[str, Path], list[Union[str, Path]]], optional): Define what libraries will be installed.
+            requirements (str | Path | list[str] | list[Path], optional): Define what libraries will be installed.
                 If "infer", autodetected. Can also be a list of more files
                 e.g `["requirements.txt", "requirements_dev.txt"]`. Defaults to "infer".
         """
