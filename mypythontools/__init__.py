@@ -8,6 +8,10 @@
     :target: https://badge.fury.io/py/mypythontools
     :alt: PyPI version
 
+.. image:: https://pepy.tech/badge/mypythontools
+    :target: https://pepy.tech/project/mypythontools
+    :alt: Downloads
+
 .. image:: https://img.shields.io/lgtm/grade/python/github/Malachov/mypythontools.svg
     :target: https://lgtm.com/projects/g/Malachov/mypythontools/context:python
     :alt: Language grade: Python

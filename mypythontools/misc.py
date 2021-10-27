@@ -5,10 +5,10 @@ str_to_infer_type that will convert string to correct type.
 """
 
 from __future__ import annotations
+from typing import Callable, Any, cast
 import builtins
 import time
 import sys
-from typing import Callable, Any
 from pathlib import Path
 
 import mylogging
@@ -171,6 +171,8 @@ def watchdog(timeout: int | float, function: Callable, *args, **kwargs) -> Any:
         TimeoutError: ...
     """
 
+    old_tracer = sys.gettrace()
+
     def tracer(frame, event, arg, start=time.time()):
         "Helper."
         now = time.time()
@@ -178,33 +180,30 @@ def watchdog(timeout: int | float, function: Callable, *args, **kwargs) -> Any:
             raise TimeoutError("Time exceeded")
         return tracer if event == "call" else None
 
-    old_tracer = sys.gettrace()
-
-    error = None
-
     try:
         sys.settrace(tracer)
         result = function(*args, **kwargs)
 
     except TimeoutError:
-        error = TimeoutError
-        error_message = mylogging.return_str(
-            "Timeout defined in watchdog exceeded.",
-            caption="TimeoutError",
-            level="ERROR",
+        sys.settrace(old_tracer)
+        raise TimeoutError(
+            mylogging.return_str(
+                "Timeout defined in watchdog exceeded.",
+                caption="TimeoutError",
+                level="ERROR",
+            )
         )
 
     except Exception:
-        error = RuntimeError
-        error_message = mylogging.return_str(
-            f"Watchdog with function {function.__name__}, args {args} and kwargs {kwargs} failed."
+        sys.settrace(old_tracer)
+        raise RuntimeError(
+            mylogging.return_str(
+                f"Watchdog with function {function.__name__}, args {args} and kwargs {kwargs} failed."
+            )
         )
 
     finally:
         sys.settrace(old_tracer)
-
-    if error:
-        raise error(error_message)
 
     return result
 

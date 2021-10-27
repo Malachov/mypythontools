@@ -18,6 +18,7 @@ from . import misc
 def setup_tests(
     generate_readme_tests: bool = True,
     matplotlib_test_backend: bool = False,
+    set_numpy_random_seed: int | None = 2,
 ) -> None:
     """Add paths to be able to import local version of library as well as other test files.
 
@@ -32,6 +33,9 @@ def setup_tests(
             Defaults to True.
         matplotlib_test_backend (bool, optional): If using matlplotlib, it need to be
             closed to continue tests. Change backend to agg. Defaults to False.
+        set_numpy_random_seed (int | None): If using numpy random numbers, it will be each time the same.
+            Defaults to 2.
+
     """
     mylogging.config.COLORIZE = False
 
@@ -52,6 +56,9 @@ def setup_tests(
 
     if generate_readme_tests:
         add_readme_tests()
+
+    if set_numpy_random_seed:
+        np.random.seed(2)
 
 
 def run_tests(
