@@ -308,13 +308,30 @@ class ConfigBase(metaclass=ConfigMeta):
                 )
             )
 
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            setattr(result, k, deepcopy(v, memo))
+        return result
+
     def __getattr__(self, name: str):
         try:
             # If structured config. Value may not be in this object, but in another related object.
             return getattr(self._base_config_map[name], name)
 
-        except Exception:
-            raise AttributeError(mylogging.return_str(f"Variable {name} not found in config."))
+        except KeyError:
+
+            if name not in [
+                "_pytestfixturefunction",
+                "__wrapped__",
+                "pytest_mock_example_attribute_that_shouldnt_exist",
+                "__bases__",
+                "__test__",
+            ]:
+
+                raise AttributeError(mylogging.return_str(f"Variable {name} not found in config."))
 
     def __setattr__(self, name: str, value: Any) -> None:
         setter_name = name[1:] if name.startswith("_") else name

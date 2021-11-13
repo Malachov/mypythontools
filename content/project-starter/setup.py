@@ -2,6 +2,7 @@
 ### settings
 #############
 
+# Template suppose you have README.md and requirements.txt in the same folder and version is defined via __version__ in __init__.py
 
 import SET_YOUR_NAME
 
@@ -11,8 +12,10 @@ name = "SET_YOUR_NAME"
 url = ("GITHUB_URL",)
 short_description = "EDIT_SHORT_DESCRIPTION"
 version = SET_YOUR_NAME.__version__  # Edit only app name and keep __version__
+keywords = []
 
-# Template suppose you have README.md and requirements.txt in the same folder and version is defined via __version__ in __init__.py
+# Check if classifiers OK. Reference here: https://gist.github.com/nazrulworld/3800c84e28dc464b2b30cec8bc1287fc
+development_status = "3 - Alpha"
 
 
 #####################
@@ -39,16 +42,16 @@ setup(
     author=author,
     author_email=author_email,
     install_requires=myreqs,
-    description="Some tools/functions/snippets used across projects.ions.",
+    description=short_description,
     long_description_content_type="text/markdown",
     long_description=readme,
     packages=find_packages(exclude=("tests",)),
     include_package_data=True,
     platforms="any",
+    keywords=keywords,
     classifiers=[
         "Programming Language :: Python",
-        "Development Status :: 3 - Alpha",
-        "Programming Language :: Python :: 3.6",
+        f"Development Status :: {development_status}",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",

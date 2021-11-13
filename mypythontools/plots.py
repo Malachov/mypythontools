@@ -3,6 +3,7 @@
 from __future__ import annotations
 from typing import cast
 from pathlib import Path
+from dataclasses import dataclass
 
 from typing_extensions import Literal
 
@@ -19,11 +20,52 @@ from . import paths
 # from IPython import get_ipython
 
 
+@dataclass
+class _GetLayouts:
+    """Plotly layouts. Use `fig.layout.update(get_layout.categorical_scatter(title="My title"))'"""
+
+    def general(self, title):
+        return {
+            "title": {
+                "text": title,
+                "x": 0.5,
+                "xanchor": "center",
+                "yanchor": "top",
+                "y": 0.9 if misc._JUPYTER else 0.95,
+            },
+            "titlefont": {"size": 28},
+            "font": {"size": 17},
+        }
+
+    def categorical_scatter(self, title):
+        return {
+            **self.general(title),
+            "margin": {"l": 320, "r": 150, "b": 180, "t": 130},
+            "titlefont": {"size": 34},
+            "font": {"size": 22},
+            "yaxis": {"tickfont": {"size": 18}, "ticksuffix": " ", "title": {"standoff": 20}},
+        }
+
+    def time_series(self, title, showlegend, yaxis="Values"):
+        return {
+            **self.general(title),
+            "yaxis": {"title": yaxis},
+            "showlegend": showlegend,
+            "legend_orientation": "h",
+            "hoverlabel": {"namelength": -1},
+            "margin": {"l": 160, "r": 130, "b": 160, "t": 110},
+        }
+
+
+get_layout = _GetLayouts()
+
+
 def plot(
     complete_dataframe,
     plot_library: Literal["plotly", "matplotlib"] = "plotly",
-    plot_name: str = "Plot",
+    title: str = "Plot",
     legend: bool = True,
+    y_axis_name="Values",
     highlighted_column="",
     surrounded_column="",
     grey_area: None | list[str] = None,
@@ -193,27 +235,7 @@ def plot(
                     )
                 )
 
-        fig.layout.update(
-            yaxis=dict(title="Values"),
-            title={
-                "text": plot_name,
-                "x": 0.5,
-                "xanchor": "center",
-                "yanchor": "top",
-                "y": 0.9 if misc._JUPYTER else 0.95,
-            },
-            titlefont={"size": 28},
-            showlegend=True if legend else False,
-            legend_orientation="h",
-            hoverlabel={"namelength": -1},
-            font={"size": 17},
-            margin={
-                "l": 160,
-                "r": 130,
-                "b": 160,
-                "t": 110,
-            },
-        )
+        fig.layout.update(get_layout.time_series(title, legend, y_axis_name))
 
         if show:
             fig.show()

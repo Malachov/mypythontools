@@ -8,6 +8,8 @@ import sys
 import warnings
 
 from typing_extensions import Literal
+import numpy as np
+
 import mylogging
 
 from .paths import PROJECT_PATHS, validate_path
