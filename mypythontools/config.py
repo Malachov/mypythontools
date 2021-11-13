@@ -5,49 +5,60 @@ What
 
 1) Simple and short syntax.
 2) Ability to have docstrings on variables (not dynamically, so visible in IDE) and good for sphinx docs.
-3) Type checking, one-of-options checking.
+3) Type checking and Literal checking via MyProperty.
 4) Also function evaluation from other config values (not only static value stored).
 5) Options hierarchy (nested options).
-
-How
-===
-
-Boosted property with simplified implementation. To be able to provide docstrings in IDE, first function is created.
 
 Examples:
 =========
 
->>> class SimpleConfig(ConfigBase):
-...     @MyProperty(int)  # Use tuple like (str, int, bool) if more classes.
-...     def var() -> int:  # This is for type hints in IDE.
-...         '''
-...         Type:
-...             int
-...
-...         Default:
-...             123
-...
-...         This is docstrings (also visible in IDE, because not defined dynamically).'''
-...
-...         return 123  # This is initial value that can be edited.
-...
-...     @MyProperty()  # Even if you don't need any params, use empty brackets
-...     def evaluated(self) -> int:
-...         return self.var + 1
-...
->>> config = SimpleConfig()
->>> config.var
-123
->>> config.var = 665
->>> config.var
-665
->>> config['var']  # You can also access params as in a dictionary
-665
->>> config.evaluated
-666
->>> config.var = "String is problem"
-Traceback (most recent call last):
-TypeError: ...
+    >>> from typing_extensions import Literal
+    ...
+    >>> class SimpleConfig(ConfigBase):
+    ...     @MyProperty
+    ...     def var() -> int:  # Type hints are validated.
+    ...         '''
+    ...         Type:
+    ...             int
+    ...
+    ...         Default:
+    ...             123
+    ...
+    ...         This is docstrings (also visible in IDE, because not defined dynamically).
+    ...         Also visible in Sphinx documentation.'''
+    ...
+    ...         return 123  # This is initial value that can be edited.
+    ...
+    ...     @MyProperty
+    ...     def var_literal(self) -> Literal[1, 2, 3]:  # Literal options are also validated
+    ...         return 2
+    ...
+    ...     @MyProperty
+    ...     def evaluated(self) -> int:  # If other defined value is change, computed property is also updated
+    ...         return self.var + 1
+    ...
+    >>> config = SimpleConfig()
+    >>> config.var
+    123
+    >>> config.var = 665
+    >>> config.var
+    665
+    >>> config['var']  # You can also access params as in a dictionary
+    665
+    >>> config.var = "String is problem"
+    Traceback (most recent call last):
+    TypeError: ...
+    ...
+    >>> config.var_literal = 4
+    Traceback (most recent call last):
+    KeyError: ...
+    ...
+    >>> config.evaluated
+    666
+    
+    You can still setup a function (or lambda expression) as a new value
+    and returned value still will be validated
+    >>> config.var = lambda self: self.var_literal + 1
 
 This is how help looks like in VS Code
 
@@ -56,41 +67,6 @@ This is how help looks like in VS Code
     :alt: tasks
     :align: center
 
-You can also use options checker validation.
-
->>> class SimpleConfig(ConfigBase):
-...     @MyProperty(options=[1, 2, 3])
-...     def var(self) -> int:
-...         return 2
-...
->>> config = SimpleConfig()
->>> config.var = 4
-Traceback (most recent call last):
-KeyError: ...
-
-You can also edit getter or setter. You can use lambda function (if more logic,
-it's better to use normal property and add type checking manually).
-
-Use setattr and name with underscore as prefix or self.private_name self means property, not config object.
-
->>> class SimpleConfig(ConfigBase):
-...     @MyProperty(
-...         int,
-...         fset=lambda self, object, new: (
-...             print("I'm listener, i can call any function on change."),
-...             setattr(object, self.private_name, new + 1),
-...         ),
-...     )
-...     def with_setter() -> int:
-...         return 1
-...
->>> config = SimpleConfig()
->>> config.with_setter
-1
->>> config.with_setter = 665
-I'm listener, i can call any function on change.
->>> config.with_setter
-666
 
 Hierarchical config
 -------------------
@@ -110,25 +86,25 @@ Note:
 ...             self.subsubconfig = self.SubSubConfiguration()
 ...
 ...         class SubSubConfiguration(ConfigBase):
-...             @MyProperty(options=[0, 1, 2, 3])
-...             def value1() -> int:
+...             @MyProperty
+...             def value1() -> Literal[0, 1, 2, 3]:
 ...                 '''Documentation here
 ...
 ...                 Options: [0, 1, 2, 3]
 ...                 '''
 ...                 return 3
 ...
-...             @MyProperty()
+...             @MyProperty
 ...             def value2(self):
 ...                 return self.value1 + 1
 ...
 ...     class SubConfiguration2(ConfigBase):
-...         @MyProperty()
+...         @MyProperty
 ...         def other_val(self):
 ...             return self.value2 + 1
 ...
 ...     # Also subconfig category can contain values itself
-...     @MyProperty(options=[0, 1, 2, 3])
+...     @MyProperty
 ...     def value3() -> int:
 ...         return 3
 ...
@@ -207,7 +183,7 @@ from typing import Any, TypeVar
 import mylogging
 from copy import deepcopy
 
-from mypythontools.property import MyProperty
+from mypythontools.property import MyProperty, init_my_properties
 
 
 ConfigType = TypeVar("ConfigType", bound="ConfigBase")
@@ -245,15 +221,9 @@ class ConfigMeta(type):
                 # Call user defined init
                 cls._original__init__(self, *a, **kw)
 
-                # Init all MyProperty values
+                init_my_properties(self)
+
                 for i, j in vars(type(self)).items():
-                    if type(j) is MyProperty:
-                        self.myproperties_list.append(j.public_name)
-                        setattr(
-                            self,
-                            j.private_name,
-                            j.init_function,
-                        )
                     if type(j) is property:
                         self.properties_list.append(i)
 
