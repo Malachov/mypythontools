@@ -62,44 +62,46 @@ Examples:
 """
 
 from __future__ import annotations
-from typing import get_type_hints, Union
+from typing import Generic, get_type_hints, Union, TypeVar
 
 from typing_extensions import Literal
 
 from .misc import validate
 
+T = TypeVar("T")
 
-class MyProperty:
+
+class MyPropertyClass(Generic[T]):
     """Python property on steroids. Check module docstrings for more info."""
 
     def __init__(self, fget=None, fset=None, fdel=None, doc=None):
 
-        # Validation
-        return_type_str = fget.__annotations__.get("return")
+        if fget:
+            # Validation
+            return_type_str = fget.__annotations__.get("return")
 
-        # If Union operator | defined with string - Postponed Evaluation, separate and create normal Union
-        # Because get_type_hints() result in TypeError if for example int | str
-        if return_type_str and "|" in return_type_str:
-            all_union_types = [eval(i) for i in return_type_str.split("|")]
-            self.types = Union[all_union_types[0], all_union_types[1]]
+            # If Union operator | defined with string - Postponed Evaluation, separate and create normal Union
+            # Because get_type_hints() result in TypeError if for example int | str
+            if return_type_str and "|" in return_type_str:
+                self.types = [eval(i) for i in return_type_str.split("|")]
 
-            if len(all_union_types) > 2:
-                for i in all_union_types[2:]:
-                    self.types = Union[self.types, i]
+            else:
+                self.types = get_type_hints(fget).get("return")
 
-        else:
-            self.types = get_type_hints(fget).get("return")
+            # If Union get types for verification
+            if hasattr(self.types, "__origin__") and getattr(self.types, "__origin__") == Union:
+                self.types = list(self.types.__args__)
 
-        # If Literal - parse options
-        if hasattr(self.types, "__origin__") and getattr(self.types, "__origin__") == Literal:
-            self.options = getattr(self.types, "__args__")
-            self.types = None
-        else:
-            self.options = None
-        self.init_function = fget
+            # If Literal - parse options
+            elif hasattr(self.types, "__origin__") and getattr(self.types, "__origin__") == Literal:
+                self.options = getattr(self.types, "__args__")
+                self.types = None
+            else:
+                self.options = None
+            self.init_function = fget
 
-        if fget.__doc__:
-            self.__doc__ = self.__doc__
+            if fget.__doc__:
+                self.__doc__ = self.__doc__
 
     def default_fset(self, object, content) -> None:
         setattr(object, self.private_name, content)
@@ -109,7 +111,7 @@ class MyProperty:
         self.private_name = "_" + name
 
     def __get__(self, object, objtype=None):
-        # If getting MyProperty class, not object, return MyProperty itself
+        # If getting MyPropertyClass, not object, return MyPropertyClass itself
         if not object:
             return self
 
@@ -152,7 +154,7 @@ def init_my_properties(self):
         setattr(self, "myproperties_list", [])
 
     for i, j in vars(type(self)).items():
-        if type(j) is MyProperty:
+        if type(j) is MyPropertyClass:
             self.myproperties_list.append(j.public_name)
             setattr(
                 self,
@@ -161,48 +163,8 @@ def init_my_properties(self):
             )
 
 
-from typing_extensions import Literal
-
-
-if __name__ == "__main__":
-
-    class Example:
-        def __init__(self) -> None:
-            init_my_properties(self)
-
-        @MyProperty
-        def var() -> int:  # Type hints are validated.
-            """
-            Type:
-                int
-
-            Default:
-                123
-
-            This is docstrings (also visible in IDE, because not defined dynamically).
-            Also visible in Sphinx documentation."""
-
-            return 123  # This is initial value that can be edited.
-
-        @MyProperty
-        def var_literal(self) -> Literal[1, 2, 3]:  # Literal options are also validated
-            return 2
-
-        @MyProperty
-        def evaluated(self) -> int:  # If other defined value is change, computed property is also updated
-            return self.var + 1
-
-    config = Example()
-    config.var
-
-    def aj(self):
-        return
-
-    config.var = lambda self: self.var_literal + 1
-    config.var
-
-    config.var = "String is problem"
-
-    config.var_literal = 4
-
-    config.evaluated
+def MyProperty(self):
+    """The reason for function workaraund is that it's more clear in IDE help, that
+    used attribute is not value, but is result of descriptor __get__ and __set__ functions
+    as type in help is not just MyProperty, but () -> USED_TYPE."""
+    return MyPropertyClass(self)
