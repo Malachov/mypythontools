@@ -44,13 +44,13 @@ Examples:
     >>> config.var = 665
     >>> config.var
     665
-    >>> config.var = "String is problem"
+    >>> config.var = "String is problem"  # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     TypeError: ...
     ...
-    >>> config.var_literal = 4
+    >>> config.var_literal = 4  # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
-    KeyError: ...
+    TypeError: ...
     ...
     >>> config.evaluated
     666
@@ -60,13 +60,15 @@ Examples:
     >>> config.var = lambda self: self.var_literal + 1
 
 """
-
 from __future__ import annotations
-from typing import Generic, get_type_hints, Union, TypeVar
 
+from typing import Generic, TypeVar, Callable
+
+from typeguard import check_type
 from typing_extensions import Literal
 
-from .misc import validate
+from . import type_hints
+
 
 T = TypeVar("T")
 
@@ -74,30 +76,11 @@ T = TypeVar("T")
 class MyPropertyClass(Generic[T]):
     """Python property on steroids. Check module docstrings for more info."""
 
-    def __init__(self, fget=None, fset=None, fdel=None, doc=None):
+    def __init__(self, fget: Callable[..., T] = None, fset: Callable = None, fdel=None, doc=None):
 
         if fget:
-            # Validation
-            return_type_str = fget.__annotations__.get("return")
+            self.allowed_types = type_hints.get_return_type_hints(fget)
 
-            # If Union operator | defined with string - Postponed Evaluation, separate and create normal Union
-            # Because get_type_hints() result in TypeError if for example int | str
-            if return_type_str and "|" in return_type_str:
-                self.types = [eval(i) for i in return_type_str.split("|")]
-
-            else:
-                self.types = get_type_hints(fget).get("return")
-
-            # If Union get types for verification
-            if hasattr(self.types, "__origin__") and getattr(self.types, "__origin__") == Union:
-                self.types = list(self.types.__args__)
-
-            # If Literal - parse options
-            elif hasattr(self.types, "__origin__") and getattr(self.types, "__origin__") == Literal:
-                self.options = getattr(self.types, "__args__")
-                self.types = None
-            else:
-                self.options = None
             self.init_function = fget
 
             if fget.__doc__:
@@ -110,8 +93,9 @@ class MyPropertyClass(Generic[T]):
         self.public_name = name
         self.private_name = "_" + name
 
-    def __get__(self, object, objtype=None):
+    def __get__(self, object, objtype=None) -> T:
         # If getting MyPropertyClass, not object, return MyPropertyClass itself
+        # TODO add @overload with correct types
         if not object:
             return self
 
@@ -127,7 +111,7 @@ class MyPropertyClass(Generic[T]):
 
         return value
 
-    def __set__(self, object, content):
+    def __set__(self, object, content: T | Callable[..., T]):
 
         # You can setup value or function, that return that value
         if callable(content):
@@ -135,18 +119,9 @@ class MyPropertyClass(Generic[T]):
         else:
             result = content
 
-        validate(
-            result,
-            self.types,
-            self.options,
-            self.public_name,
-        )
+        check_type(expected_type=self.allowed_types, value=result, argname=self.public_name)
 
-        # Method defined can be pass as static method
-        try:
-            self.default_fset(object, content)
-        except TypeError:
-            self.default_fset(self, object, content)
+        self.default_fset(object, result)
 
 
 def init_my_properties(self):
@@ -163,8 +138,32 @@ def init_my_properties(self):
             )
 
 
-def MyProperty(self):
+def MyProperty(f: Callable[..., T]) -> MyPropertyClass[T]:
     """The reason for function workaraund is that it's more clear in IDE help, that
     used attribute is not value, but is result of descriptor __get__ and __set__ functions
     as type in help is not just MyProperty, but () -> USED_TYPE."""
-    return MyPropertyClass(self)
+    return MyPropertyClass[T](f)
+
+
+# class Example:
+#     def __init__(self) -> None:
+#         init_my_properties(self)
+
+#     @MyProperty
+#     def var_literal(self) -> Literal["asd", "rbrb"]:  # Literal options are also validated
+#         return "asd"
+
+# example = Example()
+
+# a = example.var_literal  # In VS Code help str instead of Literal
+
+# example.var_literal = "asd"  # Correct
+# example.var_literal = "asdasd"  # This should not work
+# example.var_literal = 1  # If int, it's correct
+
+
+# def withf() -> Literal["efe"]:
+#     return "efe"
+
+
+# example.var_literal = withf  # This is the same ... () -> str instead of str () -> Literal[]

@@ -5,64 +5,121 @@ str_to_infer_type that will convert string to correct type.
 """
 
 from __future__ import annotations
-from typing import Callable, Any, cast
+from typing import Callable, Any, Union
 import builtins
 import time
 import sys
 from pathlib import Path
 
+from typeguard import check_type
+from typing_extensions import Literal, get_origin, get_args
 import mylogging
 
 
 _JUPYTER = 1 if hasattr(builtins, "__IPYTHON__") else 0
 
 
-def validate(value, types: Any = None, options: list | None = None, name: str | None = None) -> None:
-    """Validate type of variable and check if this variable is in defined options.
+class ValidationError(TypeError):
+    pass
+
+
+def validate(value, allowed_type: Any, name: str) -> None:
+    """Type validation. It also works for Union and validate Literal values.
+
+    Instead of typeguard validation, it define just subset of types, but is simplier
+    and needs no extra import, therefore can be faster.
 
     Args:
         value (Any): Value that will be validated.
-        types (Any, optional): For example int, str or list. It can be list of possible types. Defaults to None.
-        options (list | None, optional): List of possible options. If value is not in options, error will be raised. Defaults to None.
+        allowed_type (Any, optional): For example int, str or list. It can be also Union
+            or Literal. If Literal, validated value has to be one of Literal values.
+            Defaults to None.
+        name (str | None, optional): If error raised, name will be printed. Defaults to None.
+
+    Raises:
+        ValidationError: Type does not fit.
+
+    # Examples:
+    #     >>> from typing_extension import Literal
+    #     ...
+    #     >>> validate(1, int)
+    #     >>> validate(None, Union[list, None])
+    #     >>> validate("two", Literal["one", "two"])
+    #     >>> validate("three", Literal["one", "two"])
+    #     Traceback (most recent call last):
+    #     ValidationError: ...
+    """
+    try:
+        check_type(value=value, expected_type=allowed_type, argname=name)
+    except TypeError:
+
+        # TODO Wrap error with colors and remove stack only to configuration line...
+        # ValidationError(mylogging.return_str("validateio"))
+
+        raise
+
+
+def small_validate(value, allowed_type: Any = None, name: str | None = None) -> None:
+    """Type validation. It also works for Union and validate Literal values.
+
+    Instead of typeguard validation, it define just subset of types, but is simplier
+    and needs no extra import, therefore can be faster.
+
+    Args:
+        value (Any): Value that will be validated.
+        allowed_type (Any, optional): For example int, str or list. It can be also Union
+            or Literal. If Literal, validated value has to be one of Literal values.
+            Defaults to None.
         name (str | None, optional): If error raised, name will be printed. Defaults to None.
 
     Raises:
         TypeError: Type does not fit.
-        KeyError: Value not in defined options.
 
     Examples:
-        >>> validate(["one"], types=[list, tuple])
-        >>> validate("two", options=["one", "two"])
-        >>> validate("three", options=["one", "two"])
+        >>> from typing_extensions import Literal
+        ...
+        >>> small_validate(1, int)
+        >>> small_validate(None, Union[list, None])
+        >>> small_validate("two", Literal["one", "two"])
+        >>> small_validate("three", Literal["one", "two"])  # doctest: +IGNORE_EXCEPTION_DETAIL
         Traceback (most recent call last):
-        KeyError: ...
+        ValidationError: ...
     """
-    if types:
+    if type:
 
-        # To be able to use None in types instead of type(None)
-        if isinstance(types, (list, tuple)) and None in types:
-            types = list(types)
+        # If Union
+        if get_origin(allowed_type) == Union:
 
-            for i, j in enumerate(types):
-                if j is None:
-                    types[i] = type(None)
-
-        if isinstance(types, list):
-            types = tuple(types)
-
-        if not isinstance(value, types):
-            raise TypeError(
-                mylogging.return_str(
-                    f"Allowed types for variable < {name} > are {types}, but you try to set an {type(value)}"
+            if type(value) in get_args(allowed_type):
+                return
+            else:
+                raise ValidationError(
+                    mylogging.return_str(
+                        f"Allowed type for variable < {name} > are {allowed_type}, but you try to set an {type(value)}"
+                    )
                 )
-            )
 
-    if options and value not in options:
-        raise KeyError(
-            mylogging.return_str(
-                f"New value < {value} > for variable < {name} > is not in allowed options {options}."
-            )
-        )
+        # If Literal - parse options
+        elif get_origin(allowed_type) == Literal:
+            options = getattr(allowed_type, "__args__")
+            if value in options:
+                return
+            else:
+                raise ValidationError(
+                    mylogging.return_str(
+                        f"New value < {value} > for variable < {name} > is not in allowed options {options}."
+                    )
+                )
+
+        else:
+            if isinstance(value, allowed_type):
+                return
+            else:
+                raise ValidationError(
+                    mylogging.return_str(
+                        f"Allowed allowed_type for variable < {name} > is {allowed_type}, but you try to set an {type(value)}"
+                    )
+                )
 
 
 def str_to_infer_type(string_var: str) -> Any:

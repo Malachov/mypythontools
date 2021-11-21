@@ -12,6 +12,7 @@ pytest-cov
 setuptools
 sphinx
 twine
+typeguard
 wheel
 nbmake
 black
