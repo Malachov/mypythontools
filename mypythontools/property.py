@@ -125,7 +125,8 @@ class MyPropertyClass(Generic[T]):
         else:
             result = content
 
-        check_type(expected_type=self.allowed_types, value=result, argname=self.public_name)
+        if self.allowed_types:
+            check_type(expected_type=self.allowed_types, value=result, argname=self.public_name)
 
         self.default_fset(object, result)
 

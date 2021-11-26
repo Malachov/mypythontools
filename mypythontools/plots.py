@@ -20,8 +20,7 @@ from . import paths
 # from IPython import get_ipython
 
 
-@dataclass
-class _GetPlotlyLayouts:
+class GetPlotlyLayouts:
     """Plotly layouts. Use `fig.layout.update(get_plotly_layout.categorical_scatter(title="My title"))'"""
 
     def general(self, title):
@@ -57,7 +56,7 @@ class _GetPlotlyLayouts:
         }
 
 
-get_plotly_layout = _GetPlotlyLayouts()
+get_plotly_layout = GetPlotlyLayouts()
 
 
 def plot(
