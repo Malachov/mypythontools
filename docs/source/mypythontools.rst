@@ -16,6 +16,7 @@ Submodules
    mypythontools.property
    mypythontools.pyvueeel
    mypythontools.tests
+   mypythontools.type_hints
    mypythontools.utils
    mypythontools.venvs
 

@@ -129,7 +129,7 @@ Install used python libraries via `pip install -r requirements.txt` and install 
 
 To run an app in develop mode, you have to run both frontend and python. Run frontend with debugging
 app.py (do not run, just debug). Then run frontend with `npm run serve` in gui folder (or use Task explorer if
-using VS Code). Open your favourite browser and open
+using VS Code). Open your favorite browser and open
 
 http://localhost:8080
 
@@ -252,7 +252,7 @@ if sys.version_info.major < 3 or (sys.version_info.major == 3 and sys.version_in
 
 from . import build, config, deploy, misc, paths, plots, property, pyvueeel, tests, utils, venvs
 
-__version__ = "0.0.81"
+__version__ = "0.0.82"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

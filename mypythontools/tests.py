@@ -86,7 +86,7 @@ def run_tests(
         remove_venv (bool, optional): Whether remove created venv. It's usually not necessary, because packages not in requirements are updated. Defaults to True
         requirements (list | str | Path, optional): If using `use_virutalenv` define what libraries will be installed by path to requirements.txt.
            Can also be a list of more files e.g `["requirements.txt", "requirements_dev.txt"]`. If "infer", autodetected (all requirements). Defaults to "infer".
-        verbose (Literal[0, 1, 2], optional): Whether print detailes on errors or keep silent. If 0, no details, parameters `-q and `--tb=no` are added.
+        verbose (Literal[0, 1, 2], optional): Whether print details on errors or keep silent. If 0, no details, parameters `-q and `--tb=no` are added.
             if 1, some details are added --tb=short. If 2, more details are printed (default --tb=auto)
             Defaults to 1.
         extra_args (list, optional): List of args passed to pytest. Defaults to []
@@ -99,7 +99,7 @@ def run_tests(
         it's further analyzed in some other tool in IDE.
 
     Example:
-        >>> run_tests()
+        >>> run_tests(verbose=2)
     """
     tested_path = PROJECT_PATHS.ROOT_PATH if tested_path == "infer" else validate_path(tested_path)
     tests_path = PROJECT_PATHS.TEST_PATH if tests_path == "infer" else validate_path(tests_path)
@@ -226,7 +226,7 @@ def add_readme_tests(readme_path: str | Path = "infer", test_folder_path: str | 
 
 
 def deactivate_test_settings() -> None:
-    """Sometimes you want to run test just in normal mode (enable plots etc.). Usually at the end of test file in `if __name__ = "__main__":` block."""
+    """Sometimess you want to run test just in normal mode (enable plots etc.). Usually at the end of test file in `if __name__ = "__main__":` block."""
     mylogging.config.COLORIZE = True
 
     if "matplotlib" in sys.modules:

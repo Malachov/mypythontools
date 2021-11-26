@@ -62,15 +62,15 @@ Examples:
 """
 from __future__ import annotations
 
-from typing import Generic, TypeVar, Callable
+from typing import Generic, TypeVar, Callable, Type, overload, Any
 
 from typeguard import check_type
-from typing_extensions import Literal
 
 from . import type_hints
 
 
 T = TypeVar("T")
+U = TypeVar("U")
 
 
 class MyPropertyClass(Generic[T]):
@@ -93,9 +93,15 @@ class MyPropertyClass(Generic[T]):
         self.public_name = name
         self.private_name = "_" + name
 
-    def __get__(self, object, objtype=None) -> T:
-        # If getting MyPropertyClass, not object, return MyPropertyClass itself
-        # TODO add @overload with correct types
+    @overload
+    def __get__(self, object: None, objtype: Any = None) -> MyPropertyClass[T]:
+        ...
+
+    @overload
+    def __get__(self, object: U, objtype: Type[U] = None) -> T:
+        ...
+
+    def __get__(self, object, objtype=None):
         if not object:
             return self
 
@@ -145,25 +151,31 @@ def MyProperty(f: Callable[..., T]) -> MyPropertyClass[T]:
     return MyPropertyClass[T](f)
 
 
-# class Example:
-#     def __init__(self) -> None:
-#         init_my_properties(self)
+# TODO - Use PEP 614 and define type just in class decorator
+# Python 3.9 necessary
 
-#     @MyProperty
-#     def var_literal(self) -> Literal["asd", "rbrb"]:  # Literal options are also validated
-#         return "asd"
+# if __name__ == "__main__":
 
-# example = Example()
+#     from typing_extensions import Literal
 
-# a = example.var_literal  # In VS Code help str instead of Literal
+#     class Example:
+#         def __init__(self) -> None:
+#             init_my_properties(self)
 
-# example.var_literal = "asd"  # Correct
-# example.var_literal = "asdasd"  # This should not work
-# example.var_literal = 1  # If int, it's correct
+#         @MyProperty
+#         def var_literal(self) -> Literal["asd", "rbrb"]:  # Literal options are also validated
+#             return "asd"
 
+#     a = Example.var_literal
+#     example = Example()
 
-# def withf() -> Literal["efe"]:
-#     return "efe"
+#     a = example.var_literal  # In VS Code help str instead of Literal
 
+#     example.var_literal = "asd"  # Correct
+#     example.var_literal = "asdasd"  # This should not work
+#     example.var_literal = 1  # If int, it's correct
 
-# example.var_literal = withf  # This is the same ... () -> str instead of str () -> Literal[]
+#     def withf() -> Literal["efe"]:
+#         return "efe"
+
+#     example.var_literal = withf  # This is the same ... () -> str instead of str () -> Literal[]

@@ -21,8 +21,8 @@ from . import paths
 
 
 @dataclass
-class _GetLayouts:
-    """Plotly layouts. Use `fig.layout.update(get_layout.categorical_scatter(title="My title"))'"""
+class _GetPlotlyLayouts:
+    """Plotly layouts. Use `fig.layout.update(get_plotly_layout.categorical_scatter(title="My title"))'"""
 
     def general(self, title):
         return {
@@ -57,7 +57,7 @@ class _GetLayouts:
         }
 
 
-get_layout = _GetLayouts()
+get_plotly_layout = _GetPlotlyLayouts()
 
 
 def plot(
@@ -235,7 +235,7 @@ def plot(
                     )
                 )
 
-        fig.layout.update(get_layout.time_series(title, legend, y_axis_name))
+        fig.layout.update(get_plotly_layout.time_series(title, legend, y_axis_name))
 
         if show:
             fig.show()

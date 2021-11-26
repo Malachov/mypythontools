@@ -45,13 +45,13 @@ Examples:
     665
     >>> config['var']  # You can also access params as in a dictionary
     665
-    >>> config.var = "String is problem"
+    >>> config.var = "String is problem"  # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     TypeError: ...
     ...
-    >>> config.var_literal = 4
+    >>> config.var_literal = 4  # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
-    KeyError: ...
+    TypeError: ...
     ...
     >>> config.evaluated
     666
@@ -183,7 +183,7 @@ from typing import Any, TypeVar
 import mylogging
 from copy import deepcopy
 
-from mypythontools.property import MyProperty, init_my_properties
+from .property import MyProperty, init_my_properties
 
 
 ConfigType = TypeVar("ConfigType", bound="ConfigBase")
@@ -194,7 +194,7 @@ class ConfigMeta(type):
     still has functionality from parent __init__ that is necessary. With this meta, there is no need
     to use super().__init__ by user.
 
-    As user, you probably will not need it. It's used internaly if inheriting from ConfigStructured."""
+    As user, you probably will not need it. It's used internally if inheriting from ConfigStructured."""
 
     def __init__(cls, name, bases, dct) -> None:
 
@@ -263,7 +263,7 @@ class ConfigBase(metaclass=ConfigMeta):
     _base_config_map = {}
 
     def __init__(self, *args, **kwargs) -> None:
-        """Init is wrapped in metaclass so __init__ can be overriden by user
+        """Init is wrapped in metaclass so __init__ can be overridden by user
 
         Note:
             You don't need to use parameters from wrapper in your init (but you can use it on instance).
@@ -274,7 +274,7 @@ class ConfigBase(metaclass=ConfigMeta):
         if not self.is_inherited:
             raise TypeError(
                 mylogging.return_str(
-                    "Class is not suppesed to be called. Just inherit it to create custom config class."
+                    "Class is not supposed to be called. Just inherit it to create custom config class."
                 )
             )
 
@@ -342,7 +342,7 @@ class ConfigBase(metaclass=ConfigMeta):
     def __call__(self, *args: Any, **kwds) -> None:
         raise TypeError(
             mylogging.return_str(
-                "Class is not suppesed to be called. Just inherit it to create custom config."
+                "Class is not supposed to be called. Just inherit it to create custom config."
             )
         )
 
@@ -394,7 +394,7 @@ class ConfigStructured(ConfigBase):
     """Class for creating config. Read why and how in config module docstrings."""
 
     def __init__(self, dict_values=None, frozen=None) -> None:
-        """Init is redefined in metaclass so __init__ can be overriden by user
+        """Init is redefined in metaclass so __init__ can be overridden by user
 
         Args:
             dict_values (dict, optional): Values that will updated after init. Defaults to None.
