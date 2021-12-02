@@ -4,6 +4,7 @@ mypythontools
 
 alabaster
 autopep8
+black
 cufflinks
 eel
 flake8
