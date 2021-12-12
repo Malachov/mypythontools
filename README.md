@@ -8,7 +8,7 @@ Some tools/functions/snippets/files used across projects.
 It's called mypythontools, but it's also made for you...
 
 Can be used as python library. Things like building the application with pyinstaller, incrementing version,
-generating rst files for sphinx docs, pushing to GitHub or deploying to Pypi or other CI/CD functionality,
+generating rst files for sphinx docs, pushing to GitHub or deploying to PyPi or other CI/CD functionality,
 creating config module or plot data is matter of calling one function or clicking one button (e.g. Vs code task).
 
 Many projects - one codebase.
@@ -30,7 +30,7 @@ Official repo - [github](https://github.com/Malachov/mypythontools)
 It's called mypythontools, but it's also made for you...
 
 Usually used from IDE. Used paths are inferred and things like sphinx rst docs generation, building
-application with pyinstaller or deploying to Pypi is matter of calling one function,
+application with pyinstaller or deploying to PyPi is matter of calling one function,
 or clicking one button (e.g. Vs code task).
 
 Many projects - one codebase.
@@ -82,7 +82,7 @@ And start developing.
 
 In your IDE do bulk renaming across files and replace `SET_YOUR_NAME` with name of your app / library.
 
-This starter is for vue-eel applications (desktop as well as web) but also for python libraries that will be stored on Pypi.
+This starter is for vue-eel applications (desktop as well as web) but also for python libraries that will be stored on PyPi.
 
 **Used as a python library**
 

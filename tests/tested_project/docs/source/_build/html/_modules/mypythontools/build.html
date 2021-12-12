@@ -157,7 +157,7 @@
         <span class="n">main_file_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">find_path</span><span class="p">(</span><span class="n">main_file_path</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;node_modules&quot;</span><span class="p">,</span> <span class="s2">&quot;build&quot;</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">main_file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Main file not found, not infered and must be configured in params...&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Main file not found, not inferred and must be configured in params...&quot;</span><span class="p">)</span>
 
     <span class="n">main_file_path</span> <span class="o">=</span> <span class="n">main_file_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
@@ -175,7 +175,7 @@
             <span class="n">icon_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">find_path</span><span class="p">(</span><span class="n">icon_path</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;node_modules&quot;</span><span class="p">,</span> <span class="s2">&quot;build&quot;</span><span class="p">])</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">icon_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Icon not found, not infered check path or name...&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Icon not found, not inferred check path or name...&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">icon_path</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -206,7 +206,7 @@
             <span class="n">web_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">web_path</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">web_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Build web assets not found, not infered and must be configured in params...&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Build web assets not found, not inferred and must be configured in params...&quot;</span><span class="p">)</span>
 
         <span class="n">datas</span> <span class="o">=</span> <span class="p">(</span>
             <span class="o">*</span><span class="n">datas</span><span class="p">,</span>

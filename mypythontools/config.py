@@ -205,11 +205,7 @@ class ConfigMeta(type):
         ]:
 
             def add_parent__init__(
-                self,
-                dict_values=None,
-                frozen=None,
-                *a,
-                **kw,
+                self, dict_values=None, frozen=None, *a, **kw,
             ):
                 is_structured = True if ConfigStructured in bases else False
 
@@ -309,20 +305,13 @@ class ConfigBase(metaclass=ConfigMeta):
         if (
             not self.frozen
             or name == "frozen"
-            or name
-            in [
-                *self.myproperties_list,
-                *self.properties_list,
-                *vars(self),
-            ]
+            or name in [*self.myproperties_list, *self.properties_list, *vars(self),]
         ):
             object.__setattr__(self, name, value)
 
         elif setter_name in self._base_config_map.keys():
             setattr(
-                self._base_config_map[setter_name],
-                name,
-                value,
+                self._base_config_map[setter_name], name, value,
             )
 
         else:

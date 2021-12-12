@@ -1,4 +1,5 @@
 - [ ] In configuration use type annotation for type verification. Implement Literal as options.
+- [ ] In tests support multiple python versions
 - [ ] Check if coverage from doctest included
 - [ ] Update venv outside tests and use it in pyinstaller build
 - [ ] Add tests to plot from predictit

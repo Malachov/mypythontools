@@ -33,6 +33,7 @@ import subprocess
 import shutil
 from pathlib import Path
 import mylogging
+import sys
 
 from typing_extensions import Literal
 
@@ -64,44 +65,47 @@ def build_app(
 ) -> None:
     """One script to build .exe app from source code.
 
-    This script automatically generate .spec file, build node web files and add environment variables during build.
+        This script automatically generate .spec file, build node web files and add environment variables during build.
 
-    This script suppose some structure of the app (may have way different though). You can use project-starter from the same repository,
-    if you start with application.
+        This script suppose some structure of the app (may have way different though). You can use project-starter from the same repository,
+        if you start with application.
 
-    Args:
-        root_path (str | Path, optional): Path of root folder where build and dist folders will be placed. Defaults to "infer".
-        main_file (str, optional): Main file path or name with extension. Main file is found automatically
-            and don't have to be in root. Defaults to 'app.py'.
-        preset (Literal['eel', None], optional): Edit other params for specific use cases (append to hidden_imports, datas etc.).
-            Defaults to None.
-        web_path (str | Path | None, optional): Folder with index.html. Defaults to 'infer'.
-        build_web (bool | str, optional): If application contain package.json build node application. If 'preset' build automatically
-            depending on preset. Defaults to 'preset'.
-        use_virutalenv (bool, optional): Whether run new virtualenv and install all libraries from requirements.txt. Defaults to True.
-        remove_last_build (bool, optional): If some problems, it is possible to delete build and dist folders. Defaults to False.
-        console (bool, optional): Before app run terminal window appears (good for debugging). Defaults to False.
-        debug (bool, optional): If no console, then dialog window with traceback appears. Defaults to False.
-        icon (str | Path | None, optional): Path or name with extension to .ico file (!no png!). Defaults to None.
-        hidden_imports (list, optional): If app is not working, it can be because some library was not builded. Add such
-            libraries into this list. Defaults to [].
-        ignored_packages (list, optional): Libraries take space even if not necessary. Defaults to [].
-        datas (tuple[tuple[str, str], ...], optional): Add static files to build. Example: [('my_source_path, 'destination_path')]. Defaults to [].
-        name (str, optional): If name of app is different than main py file. Defaults to None.
-        env_vars (dict, optional): Add some env vars during build. Mostly to tell main script that it's production (ne development) mode.
-            Defaults to {}.
-        cleanit (bool, optional): Remove spec file and var env py hook. Defaults to True.
+        Args:
+            root_path (str | Path, optional): Path of root folder where build and dist folders will be placed. Defaults to "infer".
+            main_file (str, optional): Main file path or name with extension. Main file is found automatically
+                and don't have to be in root. Defaults to 'app.py'.
+            preset (Literal['eel', None], optional): Edit other params for specific use cases (append to hidden_imports, datas etc.).
+                Defaults to None.
+            web_path (str | Path | None, optional): Folder with index.html. Defaults to 'infer'.
+            build_web (bool | str, optional): If application contain package.json build node application. If 'preset' build automatically
+                depending on preset. Defaults to 'preset'.
+            use_virutalenv (bool, optional): Whether run new virtualenv and install all libraries from requirements.txt. Defaults to True.
+            remove_last_build (bool, optional): If some problems, it is possible to delete build and dist folders. Defaults to False.
+            console (bool, optional): Before app run terminal window appears (good for debugging). Defaults to False.
+            debug (bool, optional): If no console, then dialog window with traceback appears. Defaults to False.
+            icon (str | Path | None, optional): Path or name with extension to .ico file (!no png!). Defaults to None.
+            hidden_imports (list, optional): If app is not working, it can be because some library was not builded. Add such
+                libraries into this list. Defaults to [].
+            ignored_packages (list, optional): Libraries take space even if not necessary. Defaults to [].
+            datas (tuple[tuple[str, str], ...], optional): Add static files to build. Example: [('my_source_path, 'destination_path')]. Defaults to [].
+            name (str, optional): If name of app is different than main py file. Defaults to None.
+            env_vars (dict, optional): Add some env vars during build. Mostly to tell main script that it's production (ne development) mode.
+                Defaults to {}.
+            cleanit (bool, optional): Remove spec file and var env py hook. Defaults to True.
 
-    Note:
-        Build pyinstaller bootloader on your pc, otherwise antivirus can check the
-        file for a while on first run and even alert false positive.
+        Note:
+            Build pyinstaller bootloader on your pc, otherwise antivirus can check the
+            file for a while on first run and even alert false positive.
 
-        Download from github, cd to bootloader and::
+            Download from github, cd to bootloader and::
+    +
+                python ./waf all
 
-            python ./waf all
-
-        Back to pyinstaller folder and python `setup.py`
+            Back to pyinstaller folder and python `setup.py`
     """
+
+    if sys.version_info.major == 3 and sys.version_info.minor >= 10:
+        raise RuntimeError(mylogging.return_str("Python version >=3.10 not supported yet."))
 
     root_path = PROJECT_PATHS.ROOT_PATH if root_path == "infer" else paths.validate_path(root_path)
 
@@ -131,12 +135,10 @@ def build_app(
     if not main_file_path.exists():
 
         # Iter paths and find the one
-        main_file_path = paths.find_path(
-            main_file_path.name,
-        )
+        main_file_path = paths.find_path(main_file_path.name,)
 
         if not main_file_path.exists():
-            raise KeyError("Main file not found, not infered and must be configured in params...")
+            raise KeyError("Main file not found, not inferred and must be configured in params...")
 
     main_file_path = main_file_path.resolve()
 
@@ -151,13 +153,10 @@ def build_app(
         if not icon_path.exists():
 
             # Iter paths and find the one
-            icon_path = paths.find_path(
-                icon_path.name,
-                exclude_names=["node_modules", "build"],
-            )
+            icon_path = paths.find_path(icon_path.name, exclude_names=["node_modules", "build"],)
 
             if not icon_path.exists():
-                raise KeyError("Icon not found, not infered check path or name...")
+                raise KeyError("Icon not found, not inferred check path or name...")
     else:
         icon_path = None
 
@@ -190,19 +189,14 @@ def build_app(
     if build_web or preset == "eel":
         if web_path == "infer":
             web_path = paths.find_path(
-                "index.html",
-                exclude_names=[
-                    "public",
-                    "node_modules",
-                    "build",
-                ],
+                "index.html", exclude_names=["public", "node_modules", "build",],
             ).parent
 
         else:
             web_path = Path(web_path)
 
         if not web_path.exists():
-            raise KeyError("Build web assets not found, not infered and must be configured in params...")
+            raise KeyError("Build web assets not found, not inferred and must be configured in params...")
 
         datas = (
             *datas,
@@ -220,10 +214,7 @@ def build_app(
         ]
         datas = (
             *datas,
-            (
-                EelForkExcludeFiles._eel_js_file,
-                "EelForkExcludeFiles",
-            ),
+            (EelForkExcludeFiles._eel_js_file, "EelForkExcludeFiles",),
         )
         env_vars = {
             **env_vars,
@@ -312,7 +303,7 @@ coll = COLLECT(exe,
     except (Exception,):
         mylogging.traceback(
             "Build with pyinstaller failed. First, check if `pyinstaller` is installed. Check it with pip list in used python interpreter. "
-            f" Try (if windows, use cmd) \n\n{' '.join(command_list)}\n\n in folder `{PROJECT_PATHS.ROOT_PATH.as_posix()}`.\n\n"
+            f" Try (if windows, use cmd) \n\n\t{' '.join(command_list)}\n\n in folder `{PROJECT_PATHS.ROOT_PATH.as_posix()}`.\n\n"
             "Troubleshooting: If there are still errors, try to install newset pyinstaller locally with `python setup.py install`, "
             "update setuptools, delete `build` and `dist` folder and try again."
         )

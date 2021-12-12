@@ -1,3 +1,5 @@
+from typing_extensions import Literal
+
 ##############
 ### settings
 #############
@@ -8,21 +10,21 @@ import SET_YOUR_NAME
 
 author = "Daniel Malachov"  # Change it to your values
 author_email = "malachovd@seznam.cz"  # Change it to your values
-name = "SET_YOUR_NAME"
-url = ("GITHUB_URL",)
-short_description = "EDIT_SHORT_DESCRIPTION"
-version = SET_YOUR_NAME.__version__  # Edit only app name and keep __version__
+development_status: Literal["3 - Alpha", "4 - Beta", "5 - Production/Stable"]
+documentation_url = "https://readthedocs.org/projects/yourproject"
+home_url = "https://github.com/user/project"
 keywords = []
-
-# Check if classifiers OK. Reference here: https://gist.github.com/nazrulworld/3800c84e28dc464b2b30cec8bc1287fc
-development_status = "3 - Alpha"
+name = "SET_YOUR_NAME"
+short_description = "EDIT_SHORT_DESCRIPTION"
+url = "GITHUB_URL"
+version = SET_YOUR_NAME.__version__  # Edit only app name and keep __version__
 
 
 #####################
 ### End of settings
 ####################
 
-# No need of editting further
+# Usually no need of editting further
 
 
 from setuptools import setup, find_packages
@@ -32,37 +34,38 @@ with open("README.md") as readme_file:
     readme = readme_file.read()
 
 with open("requirements.txt") as f:
-    myreqs = [str(requirement) for requirement in pkg_resources.parse_requirements(f)]
+    my_requirements = [str(requirement) for requirement in pkg_resources.parse_requirements(f)]
 
 setup(
-    name=name,
-    version=version,
-    url=url,
-    license="mit",
-    author=author,
     author_email=author_email,
-    install_requires=myreqs,
+    author=author,
     description=short_description,
+    extras_require={},
+    include_package_data=True,
+    install_requires=my_requirements,
+    keywords=keywords,
+    license="mit",
     long_description_content_type="text/markdown",
     long_description=readme,
+    name=name,
     packages=find_packages(exclude=("tests",)),
-    include_package_data=True,
     platforms="any",
-    keywords=keywords,
+    project_urls={"Documentation": documentation_url, "Home": home_url,},
+    url=url,
+    version=version,
     classifiers=[
-        "Programming Language :: Python",
-        f"Development Status :: {development_status}",
+        f"Development Status :: development_status",
+        "Environment :: Other Environment",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "Natural Language :: English",
-        "Environment :: Other Environment",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Application Frameworks",
-        "Intended Audience :: Developers",
-        "Intended Audience :: Education",
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    extras_require={},
 )

@@ -10,13 +10,74 @@ import builtins
 import time
 import sys
 from pathlib import Path
+import os
 
 from typeguard import check_type
 from typing_extensions import Literal, get_origin, get_args
+
+import pandas as pd
+from tabulate import tabulate
+
 import mylogging
 
 
-_JUPYTER = 1 if hasattr(builtins, "__IPYTHON__") else 0
+class Global_vars:
+    @property
+    def JUPYTER(self):
+        return True if hasattr(builtins, "__IPYTHON__") else False
+
+    @property
+    def IS_TESTED(self):
+        return True if "PYTEST_CURRENT_TEST" in os.environ else False
+
+
+GLOBAL_VARS = Global_vars()
+
+JUPYTER = 1 if hasattr(builtins, "__IPYTHON__") else 0
+
+
+DEFAULT_TABLE_FORMAT = {
+    "tablefmt": "grid",
+    "floatfmt": ".3f",
+    "numalign": "center",
+    "stralign": "center",
+}
+
+
+class TimeTable:
+    """Class that create printable table with spent time on various phases that runs sequentionally.
+    Add entry when current phase end (not when it starts).
+    Example:
+        >>> import time
+        ...
+        >>> time_table = TimeTable()
+        >>> time.sleep(0.01)
+        >>> time_table.add_entry("First phase")
+        >>> time.sleep(0.02)
+        >>> time_table.add_entry("Second phase")
+        >>> time_table.add_entry("Third phase")
+        >>> time_table.finish_table()
+        ...
+        >>> print(time_table.time_table)
+        +--------------+--------------+
+        |     Time     |  Phase name  |
+        +==============+==============+
+        | First phase  |    0...
+    """
+
+    def __init__(self) -> None:
+        self.times: list[tuple[str, float]] = []
+        self.last_time: float = time.time()
+
+    def add_entry(self, phase_name: str) -> None:
+        self.times.append((phase_name, round((time.time() - self.last_time), 3)))
+
+    def finish_table(self, table_format: dict = DEFAULT_TABLE_FORMAT) -> None:
+        self.add_entry("Completed")
+        self.time_df: pd.DataFrame = pd.DataFrame(self.times, columns=["Time", "Phase name"])
+        self.time_table: str = tabulate(
+            self.time_df.values, headers=list(self.time_df.columns), **table_format
+        )
 
 
 class ValidationError(TypeError):
@@ -43,7 +104,7 @@ def validate(value, allowed_type: Any, name: str) -> None:
     #     >>> from typing_extension import Literal
     #     ...
     #     >>> validate(1, int)
-    #     >>> validate(None, Union[list, None])
+    #     >>> validate(None, list | None)
     #     >>> validate("two", Literal["one", "two"])
     #     >>> validate("three", Literal["one", "two"])
     #     Traceback (most recent call last):
@@ -54,7 +115,7 @@ def validate(value, allowed_type: Any, name: str) -> None:
     except TypeError:
 
         # TODO Wrap error with colors and remove stack only to configuration line...
-        # ValidationError(mylogging.return_str("validateio"))
+        # ValidationError(mylogging.return_str("validate"))
 
         raise
 
@@ -129,7 +190,7 @@ def str_to_infer_type(string_var: str) -> Any:
         string_var (str): String that should be converted.
 
     Returns:
-        Any: New infered type.
+        Any: New inferred type.
 
     Examples:
         >>> type(str_to_infer_type("1"))
@@ -201,6 +262,54 @@ def json_to_py(json: dict, replace_comma_decimal: bool = True, replace_true_fals
     return evaluated
 
 
+def str_to_bool(bool_str):
+    """Convert string to bool. Usually used from argparse. Raise error if don't know what value.
+
+    Possible values for True: 'yes', 'true', 't', 'y', '1'
+    Possible values for False: 'no', 'false', 'f', 'n', '0'
+
+    Args:
+        bool_str (str):
+
+    Raises:
+        TypeError: If not one of bool values inferred, error is raised.
+
+    Returns:
+        bool: True or False
+
+    Example:
+        >>> str_to_bool("y")
+        True
+
+    Argparse example::
+
+        parser = argparse.ArgumentParser()
+
+        parser.add_argument(
+            "--test",
+            choices=(True, False),
+            type=str_to_bool,
+            nargs="?",
+        )
+    """
+
+    if isinstance(bool_str, bool):
+        return bool_str
+    if bool_str.lower() in ("yes", "true", "t", "y", "1"):
+        return True
+    elif bool_str.lower() in ("no", "false", "f", "n", "0"):
+        return False
+    else:
+        raise TypeError("Boolean value expected.")
+
+
+def check_library_is_available(name):
+    if not importlib.util.find_spec(""):
+        raise ModuleNotFoundError(
+            mylogging.return_str("Library  is necessary and not installed. Use \n\n\t`pip install `")
+        )
+
+
 def watchdog(timeout: int | float, function: Callable, *args, **kwargs) -> Any:
     """Time-limited execution for python function. TimeoutError raised if not finished during defined time.
 
@@ -245,9 +354,7 @@ def watchdog(timeout: int | float, function: Callable, *args, **kwargs) -> Any:
         sys.settrace(old_tracer)
         raise TimeoutError(
             mylogging.return_str(
-                "Timeout defined in watchdog exceeded.",
-                caption="TimeoutError",
-                level="ERROR",
+                "Timeout defined in watchdog exceeded.", caption="TimeoutError", level="ERROR",
             )
         )
 

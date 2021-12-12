@@ -8,36 +8,43 @@ with open("README.md") as readme_file:
     readme = readme_file.read()
 
 with open("requirements.txt") as f:
-    myreqs = [str(requirement) for requirement in pkg_resources.parse_requirements(f)]
+    my_requirements = [str(requirement) for requirement in pkg_resources.parse_requirements(f)]
 
 setup(
-    name="mypythontools",
-    version=version,
-    url="https://github.com/Malachov/mypythontools",
-    license="mit",
-    author="Daniel Malachov",
     author_email="malachovd@seznam.cz",
-    install_requires=myreqs,
+    author="Daniel Malachov",
     description="Some tools/functions/snippets used across projects.ions.",
+    include_package_data=True,
+    install_requires=my_requirements,
+    license="mit",
     long_description_content_type="text/markdown",
     long_description=readme,
+    name="mypythontools",
     packages=find_packages(exclude=("tests",)),
-    include_package_data=True,
     platforms="any",
+    project_urls={
+        "Documentation": "https://mypythontools.readthedocs.io/",
+        "Home": "https://github.com/Malachov/mypythontools",
+    },
+    python_requires=">=3.7",
+    url="https://github.com/Malachov/mypythontools",
+    version=version,
     classifiers=[
-        "Programming Language :: Python",
         "Development Status :: 3 - Alpha",
+        # "Development Status :: 4 - Beta
+        # "Development Status :: 5 - Production/Stable",
+        "Environment :: Other Environment",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "Natural Language :: English",
-        "Environment :: Other Environment",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Application Frameworks",
-        "Intended Audience :: Developers",
-        "Intended Audience :: Education",
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     extras_require={},
 )

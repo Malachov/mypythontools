@@ -42,9 +42,7 @@ class MyVenv:
             )
         # self.deactivate_command = "TODO"
 
-    def create(
-        self,
-    ) -> None:
+    def create(self,) -> None:
         """Create virtual environment. If it already exists, it will be skipped and nothing happens."""
 
         if not self.exists:

@@ -139,9 +139,7 @@ def init_my_properties(self):
         if type(j) is MyPropertyClass:
             self.myproperties_list.append(j.public_name)
             setattr(
-                self,
-                j.private_name,
-                j.init_function,
+                self, j.private_name, j.init_function,
             )
 
 

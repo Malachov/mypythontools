@@ -34,7 +34,7 @@ Some tools/functions/snippets/files used across projects.
 It's called mypythontools, but it's also made for you...
 
 Can be used as python library. Things like building the application with pyinstaller, incrementing version,
-generating rst files for sphinx docs, pushing to GitHub or deploying to Pypi or other CI/CD functionality,
+generating rst files for sphinx docs, pushing to GitHub or deploying to PyPi or other CI/CD functionality,
 creating config module or plot data is matter of calling one function or clicking one button (e.g. Vs code task).
 
 Many projects - one codebase.
@@ -115,7 +115,7 @@ And start developing.
 In your IDE do bulk renaming across files and replace `SET_YOUR_NAME` with name of your app / library.
 
 This starter is for vue-eel applications (desktop as well as web) but also for python libraries that will be
-stored on Pypi.
+stored on PyPi.
 
 
 If it's python library, delete `gui` folder.
@@ -252,7 +252,7 @@ if sys.version_info.major < 3 or (sys.version_info.major == 3 and sys.version_in
 
 from . import build, config, deploy, misc, paths, plots, property, pyvueeel, tests, utils, venvs
 
-__version__ = "0.0.83"
+__version__ = "0.0.84"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

@@ -7,6 +7,8 @@ norecursedirs = [
     "dist",
     "build",
 ]
+doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER ELLIPSIS"
+
 
 [tool.black]
 line-length = 110

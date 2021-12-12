@@ -30,7 +30,7 @@ class GetPlotlyLayouts:
                 "x": 0.5,
                 "xanchor": "center",
                 "yanchor": "top",
-                "y": 0.9 if misc._JUPYTER else 0.95,
+                "y": 0.9 if misc.JUPYTER else 0.95,
             },
             "titlefont": {"size": 28},
             "font": {"size": 17},
@@ -109,7 +109,7 @@ def plot(
         save = paths.get_desktop_path() / "plot.html"
 
     if plot_library == "matplotlib":
-        if misc._JUPYTER:
+        if misc.JUPYTER:
             from IPython import get_ipython
 
             get_ipython().run_line_magic("matplotlib", "inline")
@@ -121,11 +121,7 @@ def plot(
         complete_dataframe.plot()
         if legend:
             plt.legend(
-                loc="upper center",
-                bbox_to_anchor=(0.5, 1.05),
-                ncol=3,
-                fancybox=True,
-                shadow=True,
+                loc="upper center", bbox_to_anchor=(0.5, 1.05), ncol=3, fancybox=True, shadow=True,
             )
 
         if save:
@@ -138,7 +134,7 @@ def plot(
 
         import plotly as pl
 
-        pl.io.renderers.default = "notebook_connected" if misc._JUPYTER else "browser"
+        pl.io.renderers.default = "notebook_connected" if misc.JUPYTER else "browser"
 
         used_columns = list(complete_dataframe.columns)
 
@@ -167,10 +163,7 @@ def plot(
                     name=surrounded_column,
                     x=complete_dataframe.index,
                     y=complete_dataframe[surrounded_column],
-                    line={
-                        "color": "rgb(51, 19, 10)",
-                        "width": 5,
-                    },
+                    line={"color": "rgb(51, 19, 10)", "width": 5,},
                     fillcolor="rgba(68, 68, 68, 0.3)",
                     fill="tonexty" if grey_area else None,
                 )
@@ -206,10 +199,7 @@ def plot(
                     name=str(highlighted_column),
                     x=complete_dataframe.index,
                     y=complete_dataframe[highlighted_column],
-                    line={
-                        "color": "rgb(31, 119, 180)",
-                        "width": 2,
-                    },
+                    line={"color": "rgb(31, 119, 180)", "width": 2,},
                 )
 
                 used_columns.remove(highlighted_column)
@@ -227,11 +217,7 @@ def plot(
         for i in complete_dataframe.columns:
             if i in used_columns:
                 fig.add_trace(
-                    pl.graph_objs.Scatter(
-                        x=complete_dataframe.index,
-                        y=complete_dataframe[i],
-                        name=i,
-                    )
+                    pl.graph_objs.Scatter(x=complete_dataframe.index, y=complete_dataframe[i], name=i,)
                 )
 
         fig.layout.update(get_plotly_layout.time_series(title, legend, y_axis_name))
@@ -245,14 +231,7 @@ def plot(
         if return_div:
 
             fig.layout.update(
-                title=None,
-                height=290,
-                paper_bgcolor="#d9f0e8",
-                margin={"b": 35, "t": 35, "pad": 4},
+                title=None, height=290, paper_bgcolor="#d9f0e8", margin={"b": 35, "t": 35, "pad": 4},
             )
 
-            return pl.offline.plot(
-                fig,
-                include_plotlyjs=False,
-                output_type="div",
-            )
+            return pl.offline.plot(fig, include_plotlyjs=False, output_type="div",)

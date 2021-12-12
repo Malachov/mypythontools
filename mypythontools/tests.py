@@ -99,7 +99,10 @@ def run_tests(
         it's further analyzed in some other tool in IDE.
 
     Example:
-        >>> run_tests(verbose=2)
+
+        ::
+
+            run_tests(verbose=2)
     """
     tested_path = PROJECT_PATHS.ROOT_PATH if tested_path == "infer" else validate_path(tested_path)
     tests_path = PROJECT_PATHS.TEST_PATH if tests_path == "infer" else validate_path(tests_path)

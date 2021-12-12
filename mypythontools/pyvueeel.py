@@ -90,9 +90,7 @@ def run_gui(
 
     with warnings.catch_warnings():
         warnings.filterwarnings(
-            "ignore",
-            module="EelForkExcludeFiles",
-            category=ResourceWarning,
+            "ignore", module="EelForkExcludeFiles", category=ResourceWarning,
         )
 
         import EelForkExcludeFiles as eel_library
@@ -119,25 +117,14 @@ def run_gui(
             gui_path = Path(sys._MEIPASS) / "gui"
         else:
             if devel:
-                gui_path = (
-                    paths.find_path(
-                        "index.html",
-                    ).parents[1]
-                    / "src"
-                )
+                gui_path = paths.find_path("index.html",).parents[1] / "src"
             else:
                 if build_gui_path:
                     gui_path = Path(build_gui_path)
 
                 else:
                     gui_path = paths.find_path(
-                        "index.html",
-                        exclude_names=[
-                            "public",
-                            "node_modules",
-                            "build",
-                            "dist",
-                        ],
+                        "index.html", exclude_names=["public", "node_modules", "build", "dist",],
                     ).parent
 
         if not gui_path.exists():
@@ -164,9 +151,7 @@ def run_gui(
             init_files = [".js", ".html"]
 
         eel.init(
-            directory.as_posix(),
-            init_files,
-            exlcude_patterns=["chunk-vendors"],
+            directory.as_posix(), init_files, exlcude_patterns=["chunk-vendors"],
         )
 
         if is_multiprocessing:
@@ -188,12 +173,7 @@ def run_gui(
 
     except OSError:
         eel.start(
-            page,
-            mode="edge",
-            host="localhost",
-            close_callback=close_callback,
-            port=port,
-            disable_cache=True,
+            page, mode="edge", host="localhost", close_callback=close_callback, port=port, disable_cache=True,
         ),
 
     except Exception:
@@ -211,9 +191,7 @@ def expose(callback_function: Callable) -> None:
 
     with warnings.catch_warnings():
         warnings.filterwarnings(
-            "ignore",
-            module="EelForkExcludeFiles",
-            category=ResourceWarning,
+            "ignore", module="EelForkExcludeFiles", category=ResourceWarning,
         )
 
         import EelForkExcludeFiles as eel
@@ -285,7 +263,7 @@ def to_vue_plotly(data: "np.ndarray" | "pd.DataFrame", names: list = None) -> di
     for i, j in enumerate(values_list):
         values_list[i] = [k if not np.isnan(k) else None for k in j]
 
-    # TODO use typed dict
+    # TODO use typed dict? May not work in VUE
     return {
         "x_axis": numeric_data.index.to_list(),
         "y_axis": values_list,

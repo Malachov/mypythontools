@@ -74,4 +74,4 @@ if __name__ == "__main__":
     os.chdir(test_project_path)
     mypythontools.paths.PROJECT_PATHS = mypythontools.paths._ProjectPaths()
 
-    # test_it()
+    test_paths()

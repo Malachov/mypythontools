@@ -96,13 +96,7 @@ class _ProjectPaths:
                 except Exception:
                     pass
 
-            self._init_path = validate_path(
-                find_path(
-                    "__init__.py",
-                    self.ROOT_PATH,
-                    exclude_paths=exclude,
-                )
-            )
+            self._init_path = validate_path(find_path("__init__.py", self.ROOT_PATH, exclude_paths=exclude,))
         else:
             self._init_path = validate_path(new_path)
 
@@ -218,12 +212,7 @@ class _ProjectPaths:
             elif (self.ROOT_PATH / "readme.md").exists():
                 new_readme_path = self.ROOT_PATH / "readme.md"
             else:
-                new_readme_path = validate_path(
-                    find_path(
-                        "readme.md",
-                        self.ROOT_PATH,
-                    )
-                )
+                new_readme_path = validate_path(find_path("readme.md", self.ROOT_PATH,))
 
         else:
             new_readme_path = new_path

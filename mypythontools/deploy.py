@@ -22,8 +22,8 @@ import mylogging
 from . import paths
 
 
-def deploy_to_pypi(setup_path: str | Path = "infer") -> "infer":
-    """Publish python library to Pypi. Username and password are set
+def deploy_to_pypi(setup_path: str | Path = "infer") -> None:
+    """Publish python library to PyPi. Username and password are set
     with env vars `TWINE_USERNAME` and `TWINE_PASSWORD`.
 
     Note:
@@ -70,9 +70,7 @@ def deploy_to_pypi(setup_path: str | Path = "infer") -> "infer":
 
     try:
         subprocess.run(
-            build_command.split(),
-            cwd=setup_dir_path.as_posix(),
-            check=True,
+            build_command.split(), cwd=setup_dir_path.as_posix(), check=True,
         )
     except Exception:
         mylogging.traceback(
@@ -92,13 +90,11 @@ def deploy_to_pypi(setup_path: str | Path = "infer") -> "infer":
 
     try:
         subprocess.run(
-            command_list,
-            cwd=setup_dir_path.as_posix(),
-            check=True,
+            command_list, cwd=setup_dir_path.as_posix(), check=True,
         )
     except Exception:
         mylogging.traceback(
-            f"Build with pyinstaller failed. Try \n\n{' '.join(command_list)}\n\n in folder {setup_dir_path}."
+            f"Deploying on PyPi failed. Try \n\n\t{' '.join(command_list)}\n\n in folder {setup_dir_path}."
         )
         raise
 

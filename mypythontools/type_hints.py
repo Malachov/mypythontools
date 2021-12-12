@@ -25,7 +25,7 @@ def get_return_type_hints(func: Callable) -> Any:
         >>> get_return_type_hints(union_return)
         typing.Union[int, float]
         >>> get_return_type_hints(literal_return)
-        typing.Literal[1, 2, 3]
+        typing_extensions.Literal[1, 2, 3]
 
     get_return_type_hints(union_return)
     """

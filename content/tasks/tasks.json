@@ -36,7 +36,7 @@
     {
       "type": "promptString",
       "id": "version",
-      "description": "Version in __init__.py will be overwiten. Version has to be in format like '1.0.3' three digits and two dots. If None, nothing will happen. If 'increment', than it will be updated by 0.0.1.",
+      "description": "Version in __init__.py will be overwritten. Version has to be in format like '1.0.3' three digits and two dots. If None, nothing will happen. If 'increment', than it will be updated by 0.0.1.",
       "default": "increment"
     },
     {
