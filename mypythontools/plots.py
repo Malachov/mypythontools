@@ -216,8 +216,12 @@ def plot(
 
         for i in complete_dataframe.columns:
             if i in used_columns:
+
+                # Can be multiindex
+                name = " - ".join([str(j) for j in i]) if isinstance(i, tuple) else i
+
                 fig.add_trace(
-                    pl.graph_objs.Scatter(x=complete_dataframe.index, y=complete_dataframe[i], name=i,)
+                    pl.graph_objs.Scatter(x=complete_dataframe.index, y=complete_dataframe[i], name=name)
                 )
 
         fig.layout.update(get_plotly_layout.time_series(title, legend, y_axis_name))

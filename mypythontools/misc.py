@@ -11,6 +11,7 @@ import time
 import sys
 from pathlib import Path
 import os
+import importlib.util
 
 from typeguard import check_type
 from typing_extensions import Literal, get_origin, get_args
@@ -304,9 +305,11 @@ def str_to_bool(bool_str):
 
 
 def check_library_is_available(name):
-    if not importlib.util.find_spec(""):
+    if not importlib.util.find_spec(name):
         raise ModuleNotFoundError(
-            mylogging.return_str("Library  is necessary and not installed. Use \n\n\t`pip install `")
+            mylogging.return_str(
+                f"Library {name} is necessary and not available. Use \n\n\t`pip install {name}`\n\n"
+            )
         )
 
 
