@@ -30,7 +30,7 @@ class GetPlotlyLayouts:
                 "x": 0.5,
                 "xanchor": "center",
                 "yanchor": "top",
-                "y": 0.9 if misc.JUPYTER else 0.95,
+                "y": 0.9 if misc.GLOBAL_VARS.JUPYTER else 0.95,
             },
             "titlefont": {"size": 28},
             "font": {"size": 17},
@@ -109,7 +109,7 @@ def plot(
         save = paths.get_desktop_path() / "plot.html"
 
     if plot_library == "matplotlib":
-        if misc.JUPYTER:
+        if misc.GLOBAL_VARS.JUPYTER:
             from IPython import get_ipython
 
             get_ipython().run_line_magic("matplotlib", "inline")
@@ -134,7 +134,7 @@ def plot(
 
         import plotly as pl
 
-        pl.io.renderers.default = "notebook_connected" if misc.JUPYTER else "browser"
+        pl.io.renderers.default = "notebook_connected" if misc.GLOBAL_VARS.JUPYTER else "browser"
 
         used_columns = list(complete_dataframe.columns)
 

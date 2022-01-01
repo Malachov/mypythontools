@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 import os
 import importlib.util
+import ast
 
 from typeguard import check_type
 from typing_extensions import Literal, get_origin, get_args
@@ -33,9 +34,6 @@ class Global_vars:
 
 
 GLOBAL_VARS = Global_vars()
-
-JUPYTER = 1 if hasattr(builtins, "__IPYTHON__") else 0
-
 
 DEFAULT_TABLE_FORMAT = {
     "tablefmt": "grid",
@@ -203,14 +201,8 @@ def str_to_infer_type(string_var: str) -> Any:
         >>> type(str_to_infer_type("{'one': 1}"))
         <class 'dict'>
     """
-    import ast
 
-    evaluated = string_var
-    try:
-        evaluated = ast.literal_eval(evaluated)
-    except Exception:
-        pass
-    return evaluated
+    return ast.literal_eval(string_var)
 
 
 def json_to_py(json: dict, replace_comma_decimal: bool = True, replace_true_false: bool = True) -> Any:
@@ -304,13 +296,30 @@ def str_to_bool(bool_str):
         raise TypeError("Boolean value expected.")
 
 
-def check_library_is_available(name):
-    if not importlib.util.find_spec(name):
-        raise ModuleNotFoundError(
-            mylogging.return_str(
-                f"Library {name} is necessary and not available. Use \n\n\t`pip install {name}`\n\n"
-            )
+def check_library_is_available(name, message="default"):
+    """Make one-liner for checking whether some library is installed.
+
+    Args:
+        name (str): Name of the library.
+        message (str, optional): Message that will be printed when library not installed. Defaults to "default".
+
+    Raises:
+        ModuleNotFoundError: If module is installed, error is raised.
+
+    Example:
+        >>> check_library_is_available("typing_extensions")
+        >>> check_library_is_available("not_installed_lib")
+        Traceback (most recent call last):
+        ModuleNotFoundError: ...
+    """
+    if message == "default":
+        message = (
+            f"Library {name} is necessary and not available. Some libraries are used in just for small"
+            "part of module, so not installed by default. Use \n\n\t`pip install {name}`\n\n"
         )
+
+    if not importlib.util.find_spec(name):
+        raise ModuleNotFoundError(mylogging.return_str(message))
 
 
 def watchdog(timeout: int | float, function: Callable, *args, **kwargs) -> Any:

@@ -138,6 +138,9 @@ Sometimes you want to update many values with flat dictionary.
 >>> config.update({'value3': 2, 'value1': 0})
 >>> config.value3
 2
+>>> config.update({"not_existing": "Should fail"})
+Traceback (most recent call last):
+AttributeError: ...
 
 Get flat dictionary
 -------------------
@@ -155,6 +158,27 @@ You can reset to default values
 >>> config.reset()
 >>> config.value1
 3
+
+CLI
+---
+CLI is provided by argparse. When using `with_argparse` method, it will
+
+1) Create parser and add all arguments with help
+2) Parse users' sys args and update config
+
+::
+
+    config.with_argparse()
+
+Now you can use in terminal like.
+
+::
+
+    python my_file.py --value1 12
+
+
+Only basic types like int, float, str, list, dict, set are possible as eval for using type like numpy
+array or pandas dataframe could be security leak.
 
 Sphinx docs
 ===========
@@ -180,10 +204,17 @@ Here is example
 
 from __future__ import annotations
 from typing import Any, TypeVar
-import mylogging
 from copy import deepcopy
+import argparse
+import sys
+
+import mylogging
 
 from .property import MyProperty, init_my_properties
+from . import misc
+
+
+# TODO - check if some arg name not more times - would be overwritten
 
 
 ConfigType = TypeVar("ConfigType", bound="ConfigBase")
@@ -207,12 +238,11 @@ class ConfigMeta(type):
             def add_parent__init__(
                 self, dict_values=None, frozen=None, *a, **kw,
             ):
-                is_structured = True if ConfigStructured in bases else False
 
                 self._base_config_map = {}
                 self.myproperties_list = []
                 self.properties_list = []
-                self.is_inherited = True
+                self._is_inherited = True
 
                 # Call user defined init
                 cls._original__init__(self, *a, **kw)
@@ -224,7 +254,7 @@ class ConfigMeta(type):
                         self.properties_list.append(i)
 
                 # If structured config, add proxies to subconfigs
-                if is_structured:
+                if self._is_structured:
                     self._propagate_base_config_map()
 
                 # Update values from dict param in init
@@ -240,6 +270,9 @@ class ConfigMeta(type):
             cls._original__init__ = cls.__init__
             cls.__init__ = add_parent__init__
 
+    def __getitem__(self, key):
+        return getattr(self, key)
+
 
 class ConfigBase(metaclass=ConfigMeta):
     """Main config class. If need nested config, use ConfigStructured instead.
@@ -250,7 +283,8 @@ class ConfigBase(metaclass=ConfigMeta):
     # to enable creating new instances.
     frozen = False
 
-    is_inherited = False
+    _is_inherited = False
+    _is_structured = False
 
     # _base_config_map is used only if using structured config. You can access attribute from subconfig as
     # well as from main config object, there is proxy mapping config dict (same for base and subconfig) if
@@ -267,7 +301,7 @@ class ConfigBase(metaclass=ConfigMeta):
             dict_values (dict, optional): Values that will updated after init. Defaults to None.
             frozen (bool, optional): If frozen, it's not possible to add new attributes. Defaults to None.
         """
-        if not self.is_inherited:
+        if not self._is_inherited:
             raise TypeError(
                 mylogging.return_str(
                     "Class is not supposed to be called. Just inherit it to create custom config class."
@@ -336,13 +370,30 @@ class ConfigBase(metaclass=ConfigMeta):
         )
 
     def copy(self: ConfigType) -> ConfigType:
+        """Create deep copy of config and all it's attributes.
+
+        Returns:
+            ConfigType: Deep copy.
+        """
         return deepcopy(self)
 
     def update(self, dict: dict) -> None:
+        """Bulk update with dict values.
+
+        Args:
+            dict (dict): E.g {"arg_1": "value"}
+
+        Raises:
+            AttributeError: If some arg not found in config.
+        """
         for i, j in dict.items():
-            setattr(self, i, j)
+            if hasattr(self, i):
+                setattr(self, i, j)
+            else:
+                raise AttributeError(mylogging.return_str(f"Config has no attribute {i}"))
 
     def reset(self) -> None:
+        """Reset config to it's default values."""
         copy = type(self)()
 
         for i in vars(copy).keys():
@@ -355,6 +406,11 @@ class ConfigBase(metaclass=ConfigMeta):
             setattr(self, i, copy[i])
 
     def get_dict(self) -> dict:
+        """Get flat dictionary with it's values"
+
+        Returns:
+            dict: Flat config dict.
+        """
         normal_vars = {
             key: value
             for key, value in vars(self).items()
@@ -362,7 +418,7 @@ class ConfigBase(metaclass=ConfigMeta):
             and not callable(value)
             and not hasattr(value, "myproperties_list")
             and key
-            not in ["myproperties_list", "properties_list", "frozen", "_base_config_map", "is_inherited"]
+            not in ["myproperties_list", "properties_list", "frozen", "_base_config_map", "_is_inherited"]
         }
 
         property_vars = {
@@ -378,9 +434,74 @@ class ConfigBase(metaclass=ConfigMeta):
 
         return {**normal_vars, **property_vars}
 
+    def with_argparse(self, about: str | None = None) -> None:
+        """
+        For using with CLI. When using `with_argparse` method, it will
+
+        1) Create parser and add all arguments with help
+        2) Parse users' sys args and update config
+
+        ::
+
+            config.with_argparse()
+
+        Now you can use in terminal like.
+
+        ::
+
+            python my_file.py --config_arg config_value
+
+        Only basic types like int, float, str, list, dict, set are possible as eval for using type like numpy
+        array or pandas dataframe could be security leak."""
+        if len(sys.argv) > 1 and not misc.GLOBAL_VARS.JUPYTER:
+
+            # Add settings from command line if used
+            parser = argparse.ArgumentParser(usage=about)
+
+            config_dict = self.get_dict()
+
+            for i in config_dict.keys():
+                try:
+                    help = type(self)[i].__doc__
+                except AttributeError:
+                    help = type(self._base_config_map[i])[i].__doc__
+
+                parser.add_argument(f"--{i}", help=help)
+
+            parsed_args = parser.parse_known_args()
+
+            if parsed_args[1]:
+                raise RuntimeError(
+                    mylogging.return_str(f"Sys arg parse failed on unknown args: {parsed_args[1]}")
+                )
+
+            # Non empty command line args
+            parser_args_dict = {}
+
+            # All variables are parsed as strings
+            # If it should not be string, infer type
+            for i, j in parsed_args[0].__dict__.items():
+
+                if j is None:
+                    continue
+
+                if self._is_structured:
+                    used_type = type(self._base_config_map[i])[i].allowed_types
+                else:
+                    used_type = type(self)[i].allowed_types
+
+                if used_type is not str:
+                    parser_args_dict[i] = misc.str_to_infer_type(j)
+                else:
+                    parser_args_dict[i] = j
+
+            self.update(parser_args_dict)
+
 
 class ConfigStructured(ConfigBase):
     """Class for creating config. Read why and how in config module docstrings."""
+
+    _is_structured = True
 
     def __init__(self, dict_values=None, frozen=None) -> None:
         """Init is redefined in metaclass so __init__ can be overridden by user

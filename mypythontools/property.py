@@ -84,7 +84,9 @@ class MyPropertyClass(Generic[T]):
             self.init_function = fget
 
             if fget.__doc__:
-                self.__doc__ = self.__doc__
+                self.__doc__ = fget.__doc__
+            else:
+                self.__doc__ = None
 
     def default_fset(self, object, content) -> None:
         setattr(object, self.private_name, content)

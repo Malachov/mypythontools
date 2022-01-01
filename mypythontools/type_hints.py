@@ -29,22 +29,22 @@ def get_return_type_hints(func: Callable) -> Any:
 
     get_return_type_hints(union_return)
     """
-    return_type_str = func.__annotations__.get("return")
+    try:
+        types = get_type_hints(func).get("return")
+    except Exception:
+        types = func.__annotations__.get("return")
 
-    if return_type_str and "Union" in return_type_str:
-        types = eval(return_type_str, func.__globals__)
+    if isinstance(types, str) and "Union" in types:
+        types = eval(types, func.__globals__)
 
     # If Union operator |, e.g. int | str - get_type_hints() result in TypeError
     # Convert it to Union
-    elif return_type_str and "|" in return_type_str:
-        evaluated_types = [eval(i, func.__globals__) for i in return_type_str.split("|")]
+    elif isinstance(types, str) and "|" in types:
+        evaluated_types = [eval(i, func.__globals__) for i in types.split("|")]
         types = Union[evaluated_types[0], evaluated_types[1]]
 
         if len(evaluated_types) > 2:
             for i in evaluated_types[2:]:
                 types = Union[types, i]
-
-    else:
-        types = get_type_hints(func).get("return")
 
     return types

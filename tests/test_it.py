@@ -4,7 +4,8 @@ from pathlib import Path
 import sys
 import os
 
-sys.path.insert(0, Path(__file__).parents[1].as_posix())
+root_path = Path(__file__).parents[1].as_posix()
+sys.path.insert(0, root_path)
 
 import mypythontools
 
@@ -66,6 +67,45 @@ def test_build():
     shutil.rmtree(test_project_path / "dist")
 
 
+def test_config_argparse():
+    """Doctest not tested in config. If changing test, change docs as well."""
+
+    import subprocess
+
+    int_arg = subprocess.check_output(
+        "python tests/test_argparse.py --int_arg 666", cwd=root_path, text=True
+    ).strip()
+    float_arg = subprocess.check_output(
+        "python tests/test_argparse.py --float_arg 666", cwd=root_path, text=True
+    ).strip()
+    str_arg = subprocess.check_output(
+        "python tests/test_argparse.py --str_arg 666", cwd=root_path, text=True
+    ).strip()
+    list_arg = subprocess.check_output(
+        "python tests/test_argparse.py --list_arg [666]", cwd=root_path, text=True
+    ).strip()
+    dict_arg = subprocess.check_output(
+        """python tests/test_argparse.py --dict_arg "{'key': 666}" """, cwd=root_path, text=True
+    ).strip()
+
+    get_help = subprocess.check_output(
+        "python tests/test_argparse.py --help", cwd=root_path, text=True
+    ).strip()
+
+    for i in ["int_arg", "666", "int"]:
+        assert i in int_arg
+    for i in ["float_arg", "666", "float"]:
+        assert i in float_arg
+    for i in ["str_arg", "666", "str"]:
+        assert i in str_arg
+    for i in ["list_arg", "666", "list"]:
+        assert i in list_arg
+    for i in ["dict_arg", "666", "dict"]:
+        assert i in dict_arg
+
+    assert "This should be in CLI help" in get_help and "How it works." in get_help
+
+
 if __name__ == "__main__":
     # Find paths and add to sys.path to be able to import local modules
     mypythontools.tests.setup_tests()
@@ -74,4 +114,6 @@ if __name__ == "__main__":
     os.chdir(test_project_path)
     mypythontools.paths.PROJECT_PATHS = mypythontools.paths._ProjectPaths()
 
-    test_paths()
+    # test_paths()
+
+    test_config_argparse()
