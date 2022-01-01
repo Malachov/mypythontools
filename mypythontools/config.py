@@ -491,7 +491,11 @@ class ConfigBase(metaclass=ConfigMeta):
                     used_type = type(self)[i].allowed_types
 
                 if used_type is not str:
-                    parser_args_dict[i] = misc.str_to_infer_type(j)
+                    try:
+                        # May fail if for example Litera["string1", "string2"]
+                        parser_args_dict[i] = misc.str_to_infer_type(j)
+                    except Exception:
+                        parser_args_dict[i] = j
                 else:
                     parser_args_dict[i] = j
 
