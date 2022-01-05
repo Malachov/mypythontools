@@ -73,7 +73,7 @@ T = TypeVar("T")
 U = TypeVar("U")
 
 
-class MyPropertyClass(Generic[T]):
+class MyPropertyClass(Generic[T], property):
     """Python property on steroids. Check module docstrings for more info."""
 
     def __init__(self, fget: Callable[..., T] = None, fset: Callable = None, fdel=None, doc=None):
@@ -141,7 +141,9 @@ def init_my_properties(self):
         if type(j) is MyPropertyClass:
             self.myproperties_list.append(j.public_name)
             setattr(
-                self, j.private_name, j.init_function,
+                self,
+                j.private_name,
+                j.init_function,
             )
 
 
@@ -152,7 +154,7 @@ def MyProperty(f: Callable[..., T]) -> MyPropertyClass[T]:
     return MyPropertyClass[T](f)
 
 
-# TODO - Use PEP 614 and define type just in class decorator
+# TODO - Use PEP 614 and define type just i n class decorator
 # Python 3.9 necessary
 
 # if __name__ == "__main__":

@@ -236,13 +236,16 @@ class ConfigMeta(type):
         ]:
 
             def add_parent__init__(
-                self, dict_values=None, frozen=None, *a, **kw,
+                self,
+                dict_values=None,
+                frozen=None,
+                *a,
+                **kw,
             ):
 
                 self._base_config_map = {}
                 self.myproperties_list = []
                 self.properties_list = []
-                self._is_inherited = True
 
                 # Call user defined init
                 cls._original__init__(self, *a, **kw)
@@ -283,7 +286,6 @@ class ConfigBase(metaclass=ConfigMeta):
     # to enable creating new instances.
     frozen = False
 
-    _is_inherited = False
     _is_structured = False
 
     # _base_config_map is used only if using structured config. You can access attribute from subconfig as
@@ -292,21 +294,13 @@ class ConfigBase(metaclass=ConfigMeta):
     # key and config object where it's stored. It's poppulated automatically in metaclass during init
     _base_config_map = {}
 
-    def __init__(self, *args, **kwargs) -> None:
-        """Init is wrapped in metaclass so __init__ can be overridden by user
-
-        Note:
-            You don't need to use parameters from wrapper in your init (but you can use it on instance).
-        Args in wrapper:
-            dict_values (dict, optional): Values that will updated after init. Defaults to None.
-            frozen (bool, optional): If frozen, it's not possible to add new attributes. Defaults to None.
-        """
-        if not self._is_inherited:
+    # Just controll that class is subclassed and not instantiated
+    def __new__(cls, *args, **kwargs):
+        if cls is ConfigBase or cls is ConfigStructured:
             raise TypeError(
-                mylogging.return_str(
-                    "Class is not supposed to be called. Just inherit it to create custom config class."
-                )
+                "ConfigBase and ConfigStructured are not supposed to be instantiated" "only to be subclassed."
             )
+        return object.__new__(cls, *args, **kwargs)
 
     def __deepcopy__(self, memo):
         cls = self.__class__
@@ -339,13 +333,20 @@ class ConfigBase(metaclass=ConfigMeta):
         if (
             not self.frozen
             or name == "frozen"
-            or name in [*self.myproperties_list, *self.properties_list, *vars(self),]
+            or name
+            in [
+                *self.myproperties_list,
+                *self.properties_list,
+                *vars(self),
+            ]
         ):
             object.__setattr__(self, name, value)
 
         elif setter_name in self._base_config_map.keys():
             setattr(
-                self._base_config_map[setter_name], name, value,
+                self._base_config_map[setter_name],
+                name,
+                value,
             )
 
         else:
@@ -417,8 +418,7 @@ class ConfigBase(metaclass=ConfigMeta):
             if not key.startswith("__")
             and not callable(value)
             and not hasattr(value, "myproperties_list")
-            and key
-            not in ["myproperties_list", "properties_list", "frozen", "_base_config_map", "_is_inherited"]
+            and key not in ["myproperties_list", "properties_list", "frozen", "_base_config_map"]
         }
 
         property_vars = {
@@ -544,3 +544,45 @@ class ConfigStructured(ConfigBase):
 
             if ConfigStructured in type(i).mro():
                 i._propagate_base_config_map()
+
+
+from typing_extensions import Literal
+
+
+class SimpleConfig(ConfigBase):
+    def __init__(self) -> None:
+        self.var.__doc__ = "asdvervf erf rf ewrf"
+
+    @MyProperty
+    def var() -> int:  # Type hints are validated.
+        """
+        Type:
+            int
+
+        Default:
+            123
+
+        This is docstrings (also visible in IDE, because not defined dynamically).
+        Also visible in Sphinx documentation."""
+
+        return 123  # This is initial value that can be edited.
+
+    @MyProperty
+    def var_literal(self) -> Literal[1, 2, 3]:  # Literal options are also validated
+        return 2
+
+    @MyProperty
+    def evaluated(self) -> int:  # If other defined value is change, computed property is also updated
+        return self.var + 1
+
+
+config = SimpleConfig()
+
+# config.var
+
+# config.var = 665
+
+print(config.var)
+
+
+a = 8
