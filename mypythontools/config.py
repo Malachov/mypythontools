@@ -1,3 +1,8 @@
+# TODO - check if some arg name not more times - would be overwritten
+# TODO - add frozen and dict_values in __init__
+# TODO - Remove one loop over vars (from _propagate_base_config_map and do the logic in meta loop)
+# TODO - Redefine _base_config_map and properties list on class, not in objects in meta
+
 """This is not module that configure library mypythontools, but module that help create config for your project.
 
 What
@@ -34,7 +39,7 @@ Examples:
     ...         return 2
     ...
     ...     @MyProperty
-    ...     def evaluated(self) -> int:  # If other defined value is change, computed property is also updated
+    ...     def evaluated(self) -> int | float:  # If other defined value is change, computed property is also updated
     ...         return self.var + 1
     ...
     >>> config = SimpleConfig()
@@ -203,7 +208,7 @@ Here is example
 """
 
 from __future__ import annotations
-from typing import Any, TypeVar
+from typing import Any, Literal, TypeVar
 from copy import deepcopy
 import argparse
 import sys
@@ -212,9 +217,6 @@ import mylogging
 
 from .property import MyProperty, init_my_properties
 from . import misc
-
-
-# TODO - check if some arg name not more times - would be overwritten
 
 
 ConfigType = TypeVar("ConfigType", bound="ConfigBase")
@@ -549,40 +551,34 @@ class ConfigStructured(ConfigBase):
 from typing_extensions import Literal
 
 
-class SimpleConfig(ConfigBase):
+class Config(ConfigStructured):
     def __init__(self) -> None:
-        self.var.__doc__ = "asdvervf erf rf ewrf"
+        self.subconfig1 = self.SubConfiguration1()
+        self.subconfig2 = self.SubConfiguration2()
 
-    @MyProperty
-    def var() -> int:  # Type hints are validated.
-        """
-        Type:
-            int
+    class SubConfiguration1(ConfigStructured):
+        def __init__(self) -> None:
+            self.subsubconfig = self.SubSubConfiguration()
 
-        Default:
-            123
+        class SubSubConfiguration(ConfigBase):
+            @MyProperty
+            def value1() -> Literal[0, 1, 2, 3]:
+                """Documentation here
 
-        This is docstrings (also visible in IDE, because not defined dynamically).
-        Also visible in Sphinx documentation."""
+                Options: [0, 1, 2, 3]
+                """
+                return 3
 
-        return 123  # This is initial value that can be edited.
+            @MyProperty
+            def value2(self):
+                return self.value1 + 1
 
-    @MyProperty
-    def var_literal(self) -> Literal[1, 2, 3]:  # Literal options are also validated
-        return 2
-
-    @MyProperty
-    def evaluated(self) -> int:  # If other defined value is change, computed property is also updated
-        return self.var + 1
-
-
-config = SimpleConfig()
-
-# config.var
-
-# config.var = 665
-
-print(config.var)
+    class SubConfiguration2(ConfigBase):
+        @MyProperty
+        def other_val(self):
+            return self.value2 + 1
 
 
-a = 8
+a = Config()
+
+a.subconfig1.subsubconfig.value1 = 2

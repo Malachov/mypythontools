@@ -73,7 +73,7 @@ T = TypeVar("T")
 U = TypeVar("U")
 
 
-class MyPropertyClass(Generic[T], property):
+class MyProperty(property, Generic[T]):
     """Python property on steroids. Check module docstrings for more info."""
 
     def __init__(self, fget: Callable[..., T] = None, fset: Callable = None, fdel=None, doc=None):
@@ -138,20 +138,18 @@ def init_my_properties(self):
         setattr(self, "myproperties_list", [])
 
     for i, j in vars(type(self)).items():
-        if type(j) is MyPropertyClass:
+        if type(j) is MyProperty:
             self.myproperties_list.append(j.public_name)
             setattr(
-                self,
-                j.private_name,
-                j.init_function,
+                self, j.private_name, j.init_function,
             )
 
 
-def MyProperty(f: Callable[..., T]) -> MyPropertyClass[T]:
-    """The reason for function workaraund is that it's more clear in IDE help, that
-    used attribute is not value, but is result of descriptor __get__ and __set__ functions
-    as type in help is not just MyProperty, but () -> USED_TYPE."""
-    return MyPropertyClass[T](f)
+# def MyProperty(f: Callable[..., T]) -> MyPropertyClass[T]:
+#     """The reason for function workaraund is that it's more clear in IDE help, that
+#     used attribute is not value, but is result of descriptor __get__ and __set__ functions
+#     as type in help is not just MyProperty, but () -> USED_TYPE."""
+#     return MyPropertyClass[T](f)
 
 
 # TODO - Use PEP 614 and define type just i n class decorator
