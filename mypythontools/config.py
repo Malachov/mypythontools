@@ -208,7 +208,7 @@ Here is example
 """
 
 from __future__ import annotations
-from typing import Any, Literal, TypeVar
+from typing import Any, TypeVar
 from copy import deepcopy
 import argparse
 import sys
@@ -238,11 +238,7 @@ class ConfigMeta(type):
         ]:
 
             def add_parent__init__(
-                self,
-                dict_values=None,
-                frozen=None,
-                *a,
-                **kw,
+                self, dict_values=None, frozen=None, *a, **kw,
             ):
 
                 self._base_config_map = {}
@@ -335,20 +331,13 @@ class ConfigBase(metaclass=ConfigMeta):
         if (
             not self.frozen
             or name == "frozen"
-            or name
-            in [
-                *self.myproperties_list,
-                *self.properties_list,
-                *vars(self),
-            ]
+            or name in [*self.myproperties_list, *self.properties_list, *vars(self),]
         ):
             object.__setattr__(self, name, value)
 
         elif setter_name in self._base_config_map.keys():
             setattr(
-                self._base_config_map[setter_name],
-                name,
-                value,
+                self._base_config_map[setter_name], name, value,
             )
 
         else:
@@ -551,34 +540,32 @@ class ConfigStructured(ConfigBase):
 from typing_extensions import Literal
 
 
-class Config(ConfigStructured):
-    def __init__(self) -> None:
-        self.subconfig1 = self.SubConfiguration1()
-        self.subconfig2 = self.SubConfiguration2()
+class SimpleConfig(ConfigBase):
+    @MyProperty
+    def var() -> int:  # Type hints are validated.
+        """
+        Type:
+            int
 
-    class SubConfiguration1(ConfigStructured):
-        def __init__(self) -> None:
-            self.subsubconfig = self.SubSubConfiguration()
+        Default:
+            123
 
-        class SubSubConfiguration(ConfigBase):
-            @MyProperty
-            def value1() -> Literal[0, 1, 2, 3]:
-                """Documentation here
+        This is docstrings (also visible in IDE, because not defined dynamically).
+        Also visible in Sphinx documentation."""
 
-                Options: [0, 1, 2, 3]
-                """
-                return 3
+        return 123  # This is initial value that can be edited.
 
-            @MyProperty
-            def value2(self):
-                return self.value1 + 1
+    @MyProperty
+    def var_literal(self) -> Literal[1, 2, 3]:  # Literal options are also validated
+        return 2
 
-    class SubConfiguration2(ConfigBase):
-        @MyProperty
-        def other_val(self):
-            return self.value2 + 1
+    @MyProperty
+    def evaluated(self) -> int | float:  # If other defined value is change, computed property is also updated
+        return self.var + 1
 
 
-a = Config()
+config = SimpleConfig()
+config.var
 
-a.subconfig1.subsubconfig.value1 = 2
+config.var = 665
+config.var
