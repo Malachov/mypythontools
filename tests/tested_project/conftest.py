@@ -1,7 +1,3 @@
-import os
-from pathlib import Path
-import pytest
+from mypythontools import cicd
 
-import mypythontools
-
-mypythontools.tests.setup_tests(generate_readme_tests=False)
+cicd.tests.setup_tests(generate_readme_tests=False)

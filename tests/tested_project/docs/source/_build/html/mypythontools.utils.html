@@ -41,10 +41,10 @@
                         <p>This module can be used for example in running deploy pipelines or githooks
                             (some code automatically executed before commit). This module can run the tests,
                             edit library version, generate rst files for docs, push to git or deploy app to pypi.</p>
-                        <p>All of that can be done with one function call - with <cite>push_pipeline</cite> function
+                        <p>All of that can be done with one function call - with <cite>project_utils_pipeline</cite> function
                             that
                             run other functions, or you can use functions separately. If you are using other
-                            function than <cite>push_pipeline</cite>, you need to call
+                            function than <cite>project_utils_pipeline</cite>, you need to call
                             <cite>mypythontools.paths.set_paths()</cite> first.
                         </p>
                         <div class="section" id="examples">
@@ -67,7 +67,7 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="c1"># Params that are always the same define here. Params that are changing define in IDE when run action.</span>
 <span class="gp">... </span>    <span class="c1"># For example in tasks (command line arguments and argparse will be used).</span>
-<span class="gp">... </span>    <span class="n">mypythontools</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">push_pipeline</span><span class="p">(</span><span class="n">deploy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">mypythontools</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">project_utils_pipeline</span><span class="p">(</span><span class="n">deploy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre>
                                         </div>
                                     </div>
@@ -215,7 +215,7 @@
                                             class="pre">mypythontools.utils.</span></span><span
                                         class="sig-name descname"><span class="pre">get_version</span></span><span
                                         class="sig-paren">(</span><em class="sig-param"><span class="n"><span
-                                                class="pre">INIT_PATH</span></span><span class="o"><span
+                                                class="pre">init</span></span><span class="o"><span
                                                 class="pre">=</span></span><span class="default_value"><span
                                                 class="pre">None</span></span></em><span class="sig-paren">)</span><a
                                         class="reference internal"
@@ -229,7 +229,7 @@
                                     <dl class="field-list simple">
                                         <dt class="field-odd">Parameters</dt>
                                         <dd class="field-odd">
-                                            <p><strong>INIT_PATH</strong> (<em>(</em><em>str</em><em>,
+                                            <p><strong>init</strong> (<em>(</em><em>str</em><em>,
                                                 </em><em>Path</em><em>)</em><em>, </em><em>optional</em>) – Path to
                                                 __init__.py file. If None, it’s taken from paths module
                                                 if used paths.set_paths() before. Defaults to None.</p>
@@ -245,7 +245,7 @@
                                         <dt class="field-even">Raises</dt>
                                         <dd class="field-even">
                                             <p><strong>ValueError</strong> – If no __version__ is find. Try set
-                                                INIT_PATH…</p>
+                                                init…</p>
                                         </dd>
                                     </dl>
                                 </dd>
@@ -302,10 +302,10 @@
                             </dl>
 
                             <dl class="py function">
-                                <dt class="sig sig-object py" id="mypythontools.utils.push_pipeline">
+                                <dt class="sig sig-object py" id="mypythontools.utils.project_utils_pipeline">
                                     <span class="sig-prename descclassname"><span
                                             class="pre">mypythontools.utils.</span></span><span
-                                        class="sig-name descname"><span class="pre">push_pipeline</span></span><span
+                                        class="sig-name descname"><span class="pre">project_utils_pipeline</span></span><span
                                         class="sig-paren">(</span><em class="sig-param"><span class="n"><span
                                                 class="pre">test</span></span><span class="o"><span
                                                 class="pre">=</span></span><span class="default_value"><span
@@ -336,9 +336,9 @@
                                             class="o"><span class="pre">=</span></span><span class="default_value"><span
                                                 class="pre">False</span></span></em><span class="sig-paren">)</span><a
                                         class="reference internal"
-                                        href="_modules/mypythontools/utils.html#push_pipeline"><span
+                                        href="_modules/mypythontools/utils.html#project_utils_pipeline"><span
                                             class="viewcode-link"><span class="pre">[source]</span></span></a><a
-                                        class="headerlink" href="#mypythontools.utils.push_pipeline"
+                                        class="headerlink" href="#mypythontools.utils.project_utils_pipeline"
                                         title="Permalink to this definition">¶</a>
                                 </dt>
                                 <dd>
@@ -424,7 +424,7 @@
                                             <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">mypythontools</span>
 <span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="n">mypythontools</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">push_pipeline</span><span class="p">(</span><span class="n">deploy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># All the params that change everytime configure for example in VS Code tasks.</span>
+<span class="gp">... </span>    <span class="n">mypythontools</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">project_utils_pipeline</span><span class="p">(</span><span class="n">deploy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># All the params that change everytime configure for example in VS Code tasks.</span>
 </pre>
                                         </div>
                                     </div>
@@ -458,7 +458,7 @@
                                         <dt class="field-even">Raises</dt>
                                         <dd class="field-even">
                                             <p><strong>ValueError</strong> – If no __version__ is find. Try set
-                                                INIT_PATH via paths.set_paths…</p>
+                                                init via paths.set_paths…</p>
                                         </dd>
                                     </dl>
                                 </dd>

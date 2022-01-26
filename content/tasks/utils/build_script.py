@@ -7,7 +7,7 @@ if __name__ == "__main__":
         console=False,
         debug=False,
         build_web=True,
-        cleanit=False,
+        clean=False,
         icon="logo.ico",
         datas=[],  # Example: [(file1, "file1")]
         ignored_packages=[

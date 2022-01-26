@@ -1,24 +1,15 @@
 mypythontools package
 =====================
 
-Submodules
-----------
+Subpackages
+-----------
 
 .. toctree::
    :maxdepth: 4
 
-   mypythontools.build
-   mypythontools.config
-   mypythontools.deploy
-   mypythontools.misc
-   mypythontools.paths
-   mypythontools.plots
-   mypythontools.property
+   mypythontools.cicd
+   mypythontools.helpers
    mypythontools.pyvueeel
-   mypythontools.tests
-   mypythontools.type_hints
-   mypythontools.utils
-   mypythontools.venvs
 
 Module contents
 ---------------

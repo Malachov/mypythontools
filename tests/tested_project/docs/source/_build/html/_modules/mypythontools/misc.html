@@ -73,14 +73,14 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span>
+                <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Allowed types for variable &lt; </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> &gt; are </span><span class="si">{</span><span class="n">types</span><span class="si">}</span><span class="s2">, but you try to set an </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">options</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-            <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span>
+            <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;New value &lt; </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> &gt; for variable &lt; </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> &gt; is not in allowed options </span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="p">)</span></div>

@@ -50,7 +50,10 @@ setup(
     name=name,
     packages=find_packages(exclude=("tests",)),
     platforms="any",
-    project_urls={"Documentation": documentation_url, "Home": home_url,},
+    project_urls={
+        "Documentation": documentation_url,
+        "Home": home_url,
+    },
     url=url,
     version=version,
     classifiers=[

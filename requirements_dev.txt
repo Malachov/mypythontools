@@ -1,3 +1,4 @@
-flake8
+bandit
+pylint
 line_profiler
 memory_profiler

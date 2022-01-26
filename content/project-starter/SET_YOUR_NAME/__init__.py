@@ -39,7 +39,7 @@ Installation
 
 Python >=3.6 (Python 2 is not supported).
 
-Install just with::
+Install with::
 
     pip install SET_YOUR_NAME
 

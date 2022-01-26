@@ -24,10 +24,10 @@ import datetime
 
 # Folders to sys path to be able to import
 script_dir = pathlib.Path(__file__).resolve()
-ROOT_PATH = script_dir.parents[2]
-lib_path = ROOT_PATH / project
+root = script_dir.parents[2]
+lib_path = root / project
 
-for i in [script_dir, ROOT_PATH, lib_path]:
+for i in [script_dir, root, lib_path]:
     if i.as_posix() not in sys.path:
         sys.path.insert(0, i.as_posix())
 

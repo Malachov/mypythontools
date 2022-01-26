@@ -46,7 +46,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>test_path</strong> (<em>(</em><em>str</em><em>, </em><em>pathlib.Path</em><em>)</em><em>, </em><em>optional</em>) – If None, ROOT_PATH is used. ROOT_PATH is necessary if using doctests
+<li><p><strong>test_path</strong> (<em>(</em><em>str</em><em>, </em><em>pathlib.Path</em><em>)</em><em>, </em><em>optional</em>) – If None, root is used. root is necessary if using doctests
 ‘Tests’ folder not works for doctests in modules. Defaults to None.</p></li>
 <li><p><strong>test_coverage</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether run test coverage plugin. If True, pytest-cov must be installed. Defaults to True</p></li>
 <li><p><strong>stop_on_first_error</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether stop on first error. Defaults to True</p></li>
@@ -64,7 +64,7 @@ Defaults to False.</p></li>
 </dl>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If not using with utils.push_pipeline, paths.set_paths().</p>
+<p>If not using with utils.project_utils_pipeline, paths.set_paths().</p>
 <p>By default args to quiet mode and no traceback are passed. Usually this just runs automatic tests. If some of them fail,
 it’s further analyzed in some other tool in IDE.</p>
 </div>
@@ -96,7 +96,7 @@ closed to continue tests. Change backend to agg. Defaults to False.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>readme_path</strong> (<em>(</em><em>str</em><em>, </em><em>pathlib.Path</em><em>)</em><em>, </em><em>optional</em>) – If None, autodetected (README.md or readme.md on root). Defaults to None.</p></li>
-<li><p><strong>test_folder_path</strong> (<em>(</em><em>str</em><em>, </em><em>pathlib.Path</em><em>)</em><em>, </em><em>optional</em>) – If None, autodetected (if ROOT_PATH / tests). Defaults to None.</p></li>
+<li><p><strong>test_folder_path</strong> (<em>(</em><em>str</em><em>, </em><em>pathlib.Path</em><em>)</em><em>, </em><em>optional</em>) – If None, autodetected (if root / tests). Defaults to None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>

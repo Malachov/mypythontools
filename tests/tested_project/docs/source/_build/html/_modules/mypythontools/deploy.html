@@ -38,7 +38,7 @@
 
 <span class="sd">Check `deploy_to_pypi` function docs for how to use it.</span>
 
-<span class="sd">Usually this function is not called manually, but it&#39;s a part of `push_pipeline` from utils.</span>
+<span class="sd">Usually this function is not called manually, but it&#39;s a part of `project_utils_pipeline` from utils.</span>
 
 <span class="sd">Check utils docs where is described, how to use VS Code Task to be able to optionally test, push and deploy</span>
 <span class="sd">with tasks (one button click).</span>
@@ -71,10 +71,10 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">usr</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">pas</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-            <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span><span class="s2">&quot;Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.&quot;</span><span class="p">)</span>
+            <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span><span class="s2">&quot;Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.&quot;</span><span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="n">setup_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">ROOT_PATH</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_path</span> <span class="k">else</span> <span class="n">setup_path</span>
+    <span class="n">setup_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">root</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_path</span> <span class="k">else</span> <span class="n">setup_path</span>
 
     <span class="n">setup_py_path</span> <span class="o">=</span> <span class="n">setup_path</span> <span class="o">/</span> <span class="s2">&quot;setup.py&quot;</span>
 
@@ -84,7 +84,7 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">setup_path</span> <span class="o">/</span> <span class="s2">&quot;setup.py&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-                <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span><span class="s2">&quot;Setup.py file not found. Setup `setup_path` param.&quot;</span><span class="p">)</span>
+                <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span><span class="s2">&quot;Setup.py file not found. Setup `setup_path` param.&quot;</span><span class="p">)</span>
             <span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>

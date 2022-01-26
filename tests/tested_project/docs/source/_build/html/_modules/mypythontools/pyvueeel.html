@@ -290,7 +290,7 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-            <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span>
+            <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span>
                 <span class="s2">&quot;Only dataframe is allowed in to_table function. If you have Series, &quot;</span>
                 <span class="s2">&quot;convert it to dataframe. You can use shape (1, x) for one row or use &quot;</span>
                 <span class="s2">&quot;df.T and shape (x, 1) for one column.&quot;</span>

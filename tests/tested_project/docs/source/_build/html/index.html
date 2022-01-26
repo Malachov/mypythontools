@@ -87,7 +87,7 @@
                             <h2>Installation<a class="headerlink" href="#installation"
                                     title="Permalink to this headline">¶</a></h2>
                             <p>Python &gt;=3.6 (Python 2 is not supported).</p>
-                            <p>Install just with:</p>
+                            <p>Install with:</p>
                             <div class="highlight-default notranslate">
                                 <div class="highlight">
                                     <pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">mypythontools</span>
@@ -573,7 +573,7 @@
                                     Possible destinations: PYPI.</p>
                                 <p>Check <cite>deploy_to_pypi</cite> function docs for how to use it.</p>
                                 <p>Usually this function is not called manually, but it’s a part of
-                                    <cite>push_pipeline</cite> from utils.
+                                    <cite>project_utils_pipeline</cite> from utils.
                                 </p>
                                 <p>Check utils docs where is described, how to use VS Code Task to be able to optionally
                                     test, push and deploy
@@ -680,10 +680,10 @@
                                     (some code automatically executed before commit). This module can run the tests,
                                     edit library version, generate rst files for docs, push to git or deploy app to
                                     pypi.</p>
-                                <p>All of that can be done with one function call - with <cite>push_pipeline</cite>
+                                <p>All of that can be done with one function call - with <cite>project_utils_pipeline</cite>
                                     function that
                                     run other functions, or you can use functions separately. If you are using other
-                                    function than <cite>push_pipeline</cite>, you need to call
+                                    function than <cite>project_utils_pipeline</cite>, you need to call
                                     <cite>mypythontools.paths.set_paths()</cite> first.
                                 </p>
                                 <div class="section" id="id12">
@@ -708,7 +708,7 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="c1"># Params that are always the same define here. Params that are changing define in IDE when run action.</span>
 <span class="gp">... </span>    <span class="c1"># For example in tasks (command line arguments and argparse will be used).</span>
-<span class="gp">... </span>    <span class="n">mypythontools</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">push_pipeline</span><span class="p">(</span><span class="n">deploy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">mypythontools</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">project_utils_pipeline</span><span class="p">(</span><span class="n">deploy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre>
                                                 </div>
                                             </div>

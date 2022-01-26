@@ -160,7 +160,7 @@
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-                    <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span>
+                    <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span>
                         <span class="sa">r</span><span class="s2">&quot;surrounded_column - </span><span class="si">{surrounded_column}</span><span class="s2"> not found in data columns. Possible columns are: </span><span class="si">{complete_dataframe.columns}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
@@ -194,7 +194,7 @@
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-                    <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span>
+                    <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span>
                         <span class="sa">r</span><span class="s2">&quot;highlighted_column - </span><span class="si">{highlighted_column}</span><span class="s2"> not found in data columns. Possible columns are: </span><span class="si">{complete_dataframe.columns}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
                 <span class="p">)</span>

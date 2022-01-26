@@ -89,7 +89,7 @@
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">types</span><span class="p">,</span> <span class="n">types_lib</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span>
-                <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span><span class="s2">&quot;@MyProperty decorator has to be called (parentheses at the end).&quot;</span><span class="p">)</span>
+                <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span><span class="s2">&quot;@MyProperty decorator has to be called (parentheses at the end).&quot;</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fget_new</span> <span class="o">=</span> <span class="n">fget</span> <span class="k">if</span> <span class="n">fget</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_fget</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fset_new</span> <span class="o">=</span> <span class="n">fset</span> <span class="k">if</span> <span class="n">fset</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_fset</span>

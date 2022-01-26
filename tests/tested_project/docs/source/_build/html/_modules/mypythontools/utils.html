@@ -42,9 +42,9 @@
 <span class="sd">(some code automatically executed before commit). This module can run the tests,</span>
 <span class="sd">edit library version, generate rst files for docs, push to git or deploy app to pypi.</span>
 
-<span class="sd">All of that can be done with one function call - with `push_pipeline` function that</span>
+<span class="sd">All of that can be done with one function call - with `project_utils_pipeline` function that</span>
 <span class="sd">run other functions, or you can use functions separately. If you are using other</span>
-<span class="sd">function than `push_pipeline`, you need to call `mypythontools.paths.set_paths()` first.</span>
+<span class="sd">function than `project_utils_pipeline`, you need to call `mypythontools.paths.set_paths()` first.</span>
 
 
 <span class="sd">Examples:</span>
@@ -64,7 +64,7 @@
 <span class="sd">    &gt;&gt;&gt; if __name__ == &quot;__main__&quot;:</span>
 <span class="sd">    ...     # Params that are always the same define here. Params that are changing define in IDE when run action.</span>
 <span class="sd">    ...     # For example in tasks (command line arguments and argparse will be used).</span>
-<span class="sd">    ...     mypythontools.utils.push_pipeline(deploy=True)</span>
+<span class="sd">    ...     mypythontools.utils.project_utils_pipeline(deploy=True)</span>
 
 <span class="sd">    Then just add this task to global tasks.json::</span>
 
@@ -171,7 +171,7 @@
 <span class="c1"># from git import Repo</span>
 
 
-<div class="viewcode-block" id="push_pipeline"><a class="viewcode-back" href="../../mypythontools.utils.html#mypythontools.utils.push_pipeline">[docs]</a><span class="k">def</span> <span class="nf">push_pipeline</span><span class="p">(</span>
+<div class="viewcode-block" id="project_utils_pipeline"><a class="viewcode-back" href="../../mypythontools.utils.html#mypythontools.utils.project_utils_pipeline">[docs]</a><span class="k">def</span> <span class="nf">project_utils_pipeline</span><span class="p">(</span>
     <span class="n">test</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">test_options</span><span class="o">=</span><span class="p">{},</span>
     <span class="n">version</span><span class="o">=</span><span class="s2">&quot;increment&quot;</span><span class="p">,</span>
@@ -213,7 +213,7 @@
 <span class="sd">        &gt;&gt;&gt; import mypythontools</span>
 <span class="sd">        ...</span>
 <span class="sd">        &gt;&gt;&gt; if __name__ == &quot;__main__&quot;:</span>
-<span class="sd">        ...     mypythontools.utils.push_pipeline(deploy=True)  # All the params that change everytime configure for example in VS Code tasks.</span>
+<span class="sd">        ...     mypythontools.utils.project_utils_pipeline(deploy=True)  # All the params that change everytime configure for example in VS Code tasks.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
@@ -228,7 +228,7 @@
         <span class="s2">&quot;deploy&quot;</span><span class="p">:</span> <span class="n">deploy</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">paths</span><span class="o">.</span><span class="n">ROOT_PATH</span><span class="p">,</span> <span class="n">paths</span><span class="o">.</span><span class="n">APP_PATH</span><span class="p">,</span> <span class="n">paths</span><span class="o">.</span><span class="n">INIT_PATH</span><span class="p">]):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">paths</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">paths</span><span class="o">.</span><span class="n">app</span><span class="p">,</span> <span class="n">paths</span><span class="o">.</span><span class="n">init</span><span class="p">]):</span>
         <span class="n">paths</span><span class="o">.</span><span class="n">set_paths</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -296,13 +296,13 @@
 
     <span class="n">git_add_command</span> <span class="o">=</span> <span class="s2">&quot;git add . &quot;</span>
 
-    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">git_add_command</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">ROOT_PATH</span><span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">git_add_command</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
 
     <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
         <span class="p">[</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;commit&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">commit_message</span><span class="p">],</span>
         <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">cwd</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">ROOT_PATH</span><span class="p">,</span>
+        <span class="n">cwd</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">root</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">tag_message</span><span class="p">:</span>
@@ -314,10 +314,10 @@
     <span class="n">git_push_command</span> <span class="o">=</span> <span class="s2">&quot;git push&quot;</span>
 
     <span class="k">if</span> <span class="n">tag</span><span class="p">:</span>
-        <span class="n">Repo</span><span class="p">(</span><span class="n">paths</span><span class="o">.</span><span class="n">ROOT_PATH</span><span class="p">)</span><span class="o">.</span><span class="n">create_tag</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">tag_message</span><span class="p">)</span>
+        <span class="n">Repo</span><span class="p">(</span><span class="n">paths</span><span class="o">.</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">create_tag</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">tag_message</span><span class="p">)</span>
         <span class="n">git_push_command</span> <span class="o">+=</span> <span class="s2">&quot; --follow-tags&quot;</span>
 
-    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">git_push_command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">ROOT_PATH</span><span class="p">)</span></div>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">git_push_command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">root</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="set_version"><a class="viewcode-back" href="../../mypythontools.utils.html#mypythontools.utils.set_version">[docs]</a><span class="k">def</span> <span class="nf">set_version</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s2">&quot;increment&quot;</span><span class="p">):</span>
@@ -329,7 +329,7 @@
 <span class="sd">            in you __init__.py by 0.0.1. Defaults to &quot;increment&quot;.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: If no __version__ is find. Try set INIT_PATH via paths.set_paths...</span>
+<span class="sd">        ValueError: If no __version__ is find. Try set init via paths.set_paths...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;increment&quot;</span> <span class="ow">or</span> <span class="p">(</span>
@@ -340,12 +340,12 @@
         <span class="k">pass</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span>
+            <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Version not validated. Version has to be of form &#39;1.2.3&#39;. Three digits and two dots. You used </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">paths</span><span class="o">.</span><span class="n">INIT_PATH</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">init_file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">paths</span><span class="o">.</span><span class="n">init</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">init_file</span><span class="p">:</span>
 
         <span class="n">list_of_lines</span> <span class="o">=</span> <span class="n">init_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
@@ -370,32 +370,32 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span><span class="s2">&quot;__version__ variable not found in __init__.py. Try set INIT_PATH.&quot;</span><span class="p">)</span>
+                <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span><span class="s2">&quot;__version__ variable not found in __init__.py. Try set init.&quot;</span><span class="p">)</span>
             <span class="p">)</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">paths</span><span class="o">.</span><span class="n">INIT_PATH</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">init_file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">paths</span><span class="o">.</span><span class="n">init</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">init_file</span><span class="p">:</span>
 
         <span class="n">init_file</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">list_of_lines</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_version"><a class="viewcode-back" href="../../mypythontools.utils.html#mypythontools.utils.get_version">[docs]</a><span class="k">def</span> <span class="nf">get_version</span><span class="p">(</span><span class="n">INIT_PATH</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="get_version"><a class="viewcode-back" href="../../mypythontools.utils.html#mypythontools.utils.get_version">[docs]</a><span class="k">def</span> <span class="nf">get_version</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Get version info from __init__.py file.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        INIT_PATH ((str, Path), optional): Path to __init__.py file. If None, it&#39;s taken from paths module</span>
+<span class="sd">        init ((str, Path), optional): Path to __init__.py file. If None, it&#39;s taken from paths module</span>
 <span class="sd">            if used paths.set_paths() before. Defaults to None.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: String of version from __init__.py.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: If no __version__ is find. Try set INIT_PATH...</span>
+<span class="sd">        ValueError: If no __version__ is find. Try set init...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">INIT_PATH</span><span class="p">:</span>
-        <span class="n">INIT_PATH</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">INIT_PATH</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">init</span><span class="p">:</span>
+        <span class="n">init</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">init</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">INIT_PATH</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">init_file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">init_file</span><span class="p">:</span>
 
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">init_file</span><span class="p">:</span>
 
@@ -405,7 +405,7 @@
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span><span class="s2">&quot;__version__ variable not found in __init__.py. Try set INIT_PATH.&quot;</span><span class="p">)</span>
+                <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span><span class="s2">&quot;__version__ variable not found in __init__.py. Try set init.&quot;</span><span class="p">)</span>
             <span class="p">)</span></div>
 
 
@@ -446,23 +446,23 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s2">&quot;sphinx&quot;</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span>
+            <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span>
                 <span class="s2">&quot;Sphinx library is necessary for docs generation. Install via `pip install sphinx`&quot;</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">docs_path</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">paths</span><span class="o">.</span><span class="n">ROOT_PATH</span><span class="p">:</span>
-            <span class="n">docs_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">ROOT_PATH</span> <span class="o">/</span> <span class="s2">&quot;docs&quot;</span>
+        <span class="k">if</span> <span class="n">paths</span><span class="o">.</span><span class="n">root</span><span class="p">:</span>
+            <span class="n">docs_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;docs&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotADirectoryError</span><span class="p">(</span>
-                <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span>
+                <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span>
                     <span class="s2">&quot;`docs_path` not found. Setup it with parameter `docs_path` or use `paths.set_paths()` function.&quot;</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">paths</span><span class="o">.</span><span class="n">APP_PATH</span><span class="p">,</span> <span class="n">paths</span><span class="o">.</span><span class="n">ROOT_PATH</span><span class="p">]):</span>
-        <span class="n">mylogging</span><span class="o">.</span><span class="n">return_str</span><span class="p">(</span><span class="s2">&quot;Paths are not known. First run `paths.set_paths()`.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">paths</span><span class="o">.</span><span class="n">app</span><span class="p">,</span> <span class="n">paths</span><span class="o">.</span><span class="n">root</span><span class="p">]):</span>
+        <span class="n">mylogging</span><span class="o">.</span><span class="n">format_str</span><span class="p">(</span><span class="s2">&quot;Paths are not known. First run `paths.set_paths()`.&quot;</span><span class="p">)</span>
 
     <span class="n">docs_source_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">docs_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;source&quot;</span>
 
@@ -479,7 +479,7 @@
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="k">pass</span>
 
-    <span class="n">apidoc_command</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sphinx-apidoc -f -e -o source </span><span class="si">{</span><span class="n">paths</span><span class="o">.</span><span class="n">APP_PATH</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">apidoc_command</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sphinx-apidoc -f -e -o source </span><span class="si">{</span><span class="n">paths</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
         <span class="n">apidoc_command</span><span class="p">,</span>
         <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -495,7 +495,7 @@
         <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;make&quot;</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">],</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">docs_path</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">git_add</span><span class="p">:</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;docs&quot;</span><span class="p">],</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">ROOT_PATH</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;docs&quot;</span><span class="p">],</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="generate_readme_from_init"><a class="viewcode-back" href="../../mypythontools.utils.html#mypythontools.utils.generate_readme_from_init">[docs]</a><span class="k">def</span> <span class="nf">generate_readme_from_init</span><span class="p">(</span><span class="n">git_add</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -512,7 +512,7 @@
 <span class="sd">            for testing reasons. Defaults to True.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">paths</span><span class="o">.</span><span class="n">INIT_PATH</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">paths</span><span class="o">.</span><span class="n">init</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
         <span class="n">file_contents</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="n">module</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file_contents</span><span class="p">)</span>
     <span class="n">docstrings</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">get_docstring</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
@@ -520,11 +520,11 @@
     <span class="k">if</span> <span class="n">docstrings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">docstrings</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">paths</span><span class="o">.</span><span class="n">ROOT_PATH</span> <span class="o">/</span> <span class="s2">&quot;README.md&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">paths</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;README.md&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
         <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">docstrings</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">git_add</span><span class="p">:</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;README.md&quot;</span><span class="p">],</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">ROOT_PATH</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;README.md&quot;</span><span class="p">],</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 </pre>
                     </div>
 

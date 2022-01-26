@@ -3,10 +3,10 @@ from pathlib import Path
 import pandas as pd  # **DELETELINE
 import numpy as np  # **DELETELINE
 
-from mypythontools import pyvueeel
-from mypythontools.pyvueeel import expose
+from pyvueeel import pyvueeel
+from pyvueeel.pyvueeel import expose
 
-from misc import print_traceback
+from helpers.misc.misc import print_traceback
 import store
 
 
@@ -37,11 +37,16 @@ def test_function(params, arg1="default", arg2="default"):  # **DELETELINE
     #                                                                                                                               # **DELETELINE
     # Call js function from Py with this syntax                                                                                     # **DELETELINE
     pyvueeel.eel.create_alert(
-        "It works", "I am js function called from Py", None,
+        "It works",
+        "I am js function called from Py",
+        None,
     )  # **DELETELINE
     #                                                                                                                               # **DELETELINE
     # You are in function so variables are not global. Save it in store.py so you can use it again.                                 # **DELETELINE
-    store.data = pd.DataFrame(np.random.randn(100, 3), columns=["One", "Two", "Three"],)  # **DELETELINE
+    store.data = pd.DataFrame(
+        np.random.randn(100, 3),
+        columns=["One", "Two", "Three"],
+    )  # **DELETELINE
     #                                                                                                                               # **DELETELINE
     # You can return dict - will be object in js                                                                                    # **DELETELINE
     # You can return list - will be an array in js                                                                                  # **DELETELINE
