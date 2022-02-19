@@ -1,5 +1,4 @@
 """
-
 .. image:: https://img.shields.io/pypi/pyversions/mypythontools.svg
     :target: https://pypi.python.org/pypi/mypythontools/
     :alt: Python versions
@@ -35,19 +34,19 @@ It's called mypythontools, but it's also made for you...
 
 Can be used as python library. Things like building the application with pyinstaller, incrementing version,
 generating rst files for sphinx docs, pushing to GitHub or deploying to PyPi or other CI/CD functionality,
-creating config module or plot data is matter of calling one function or clicking one button (e.g. Vs code task).
+creating config module or plot data is the matter of calling one function or clicking one button (e.g. Vs Code
+task).
 
 Many projects - one codebase.
 
-If you are not sure whether structure of your app will work with this code, check `project-starter` on GitHub
-in content folder.
+If you are not sure whether the structure of your app will work with this code, check `project-starter` on
+GitHub in content folder.
 
-Paths are inferred, but if you have atypical structure or have more projects in cwd, setup necessary paths in paths
-module.
+Paths are inferred, but if you have atypical structure or have more projects in cwd, setup necessary paths in
+paths module.
 
-There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.),
-such a content is under the Content topic.
-
+There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.), such a
+content is under the Content topic.
 
 Links
 =====
@@ -61,27 +60,75 @@ Installation
 
 Python >=3.6 (Python 2 is not supported).
 
-Install just with::
+Install with::
 
     pip install mypythontools
 
 
-Modules
-=======
+Python library
+==============
+
+**subpackages**
+
+- cicd
+- helpers
+- pyvueeel
+
+Subpackages are loaded on demand so the import time is as smallest as possible.
+
+Import subpackage with this syntax
+
+>>> from mypythontools import helpers
+
+You will meet error if you use it like this::
+
+    import mypythontools
+    helpers = mypythontools.helpers
+
+
+Check modules help or readme docs with examples.
+
+cicd
+----
+
+Module with functionality around Continuous Integration and Continuous Delivery.
+
+Subpackages
 
 - build
-- config
 - deploy
+- project_utils
+- tests
+
+In project utils you can find many functions for CI/CD, but also pipelining functions that will call them
+in defined order.
+
+Why to use this and not Travis or Circle CI? It's local and it's fast. You can setup it as a task in IDE and
+if some phase fails, you know it soon and before pushing to repo.
+
+You can also import mypythontools in your CI/CD and use it there of course.
+
+helpers
+-------
+
+Module help with many various problems.
+
+Subpackages
+
+- config
 - misc
 - paths
 - plots
 - property
-- pyvueeel (for applications build with eel and vue)
-- tests
-- utils
-- venvs
+- type_hints
 
-Check modules help or readme docs with examples.
+Subpackages names are self describing and you can find documentation in subpackages docstrings.
+
+
+pyvueeel
+--------
+
+Library helper for applications made in python and Vue.js (frontend) connected with eel library.
 
 
 Content
@@ -196,7 +243,8 @@ https://github.com/Malachov/mypythontools/tree/master/content/requirements and i
 
 It's good for python libraries that other users with different versions of libraries will use. If not
 standalone application where freezing into virtual env is good idea - here is possible to use these
-requirements with using --upgrade from time to time to be sure that your library will be working for up-to-date version of dependencies.
+requirements with using --upgrade from time to time to be sure that your library will be working for
+up-to-date version of dependencies.
 
 sphinx-alabaster-css
 --------------------
@@ -211,7 +259,7 @@ at once.
 
 Just add this to sphinx conf.py::
 
-    >>> html_css_files = ["https://malachov.github.io/readthedocs-sphinx-alabaster-css/custom.css"]
+>>> html_css_files = ["https://malachov.github.io/readthedocs-sphinx-alabaster-css/custom.css"]
 
 Also, of course if you want you can download it and use locally from project if you need.
 
@@ -226,8 +274,8 @@ Tasks
 -----
 
 There are VS Code tasks examples in utils and build module, but here is small tutorial how to use it. Run
-command `Tasks: Open User Tasks`, add tasks from github/content/tasks or if you have no task yet, you can copy /
-paste all.
+command `Tasks: Open User Tasks`, add tasks from github/content/tasks or if you have no task yet, you can
+copy / paste all.
 
 Install extension **Task Explorer**
 
@@ -243,31 +291,8 @@ You are ready to go. You should see something like this
 You can do CI / CD pipeline or Build app with one click now.
 """
 
-import sys
-import mylogging
-
-if sys.version_info.major < 3 or (sys.version_info.major == 3 and sys.version_info.minor < 7):
-    raise RuntimeError(mylogging.return_str("Python version >=3.7 necessary."))
-
-
-from . import build, config, deploy, misc, paths, plots, property, pyvueeel, tests, utils, venvs
-
-__version__ = "0.0.88"
+__version__ = "0.1.1"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
 __email__ = "malachovd@seznam.cz"
-
-__all__ = [
-    "build",
-    "config",
-    "deploy",
-    "misc",
-    "paths",
-    "plots",
-    "property",
-    "pyvueeel",
-    "tests",
-    "utils",
-    "venvs",
-]

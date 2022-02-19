@@ -1,33 +1,19 @@
-import mypythontools
+"""Utils script helps to build an application."""
+
+from mypythontools.cicd import build
 
 
 if __name__ == "__main__":
 
-    mypythontools.build.build_app(
+    build.build_app(
         preset="eel",
         console=True,  # True if develop, False in prod
         debug=True,  # True if develop, False in prod
         build_web=True,
-        cleanit=False,
+        clean=False,
         icon=None,  # "logo.ico"
         datas=[],  # Example: [(file1, "file1")]
-        ignored_packages=[
-            # Can be dependencies of imported libraries
-            "tensorflow",
-            "pyarrow",
-            "keras",
-            "notebook",
-            "pytest",
-            "pyzmq",
-            "zmq",
-            "sqlalchemy",
-            "sphinx",
-            "PyQt5",
-            "qt5",
-            "PyQt5",
-            "qt4",
-            "pillow",
-        ],
+        ignored_packages=[],  # Can be dependencies of imported libraries
         hidden_imports=[
             # If app not working, set console to True, open in console and then add library that's missing
         ],

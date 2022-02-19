@@ -2,12 +2,12 @@
 addopts = "--doctest-modules -x"
 usefixtures = "setup_tests"
 norecursedirs = [
-    "tested_project",
+    "tested project",
     "content",
     "dist",
     "build",
 ]
-doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER ELLIPSIS"
+doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER ELLIPSIS IGNORE_EXCEPTION_DETAIL"
 
 
 [tool.black]

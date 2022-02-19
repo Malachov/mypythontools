@@ -1,12 +1,14 @@
-mylogging>=3.0.14
+mylogging>=4.0.0
 mydatapreprocessing>=2.0.9
 EelForkExcludeFiles
+black
+build
 GitPython
+nbmake
 pandas
 phmdoctest
 plotly
 pyinstaller
-pytest
 pytest
 pytest-cov
 setuptools
@@ -14,6 +16,5 @@ sphinx
 tabulate
 twine
 typeguard
+virtualenv
 wheel
-nbmake
-black

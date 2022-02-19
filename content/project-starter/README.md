@@ -8,7 +8,7 @@ Some tools/functions/snippets used across projects.
 
 Official documentation - [readthedocs](https://SET_YOUR_NAME.readthedocs.io/)
 
-Official repo - [github](https://github.com/Malachov/SET_YOUR_NAME)
+Official repo - [GitHub](https://github.com/Malachov/SET_YOUR_NAME)
 
 ## Modules
 
@@ -19,7 +19,7 @@ Official repo - [github](https://github.com/Malachov/SET_YOUR_NAME)
 
 Python >=3.6 (Python 2 is not supported).
 
-Install just with
+Install with
 
 ```console
 pip install SET_YOUR_NAME

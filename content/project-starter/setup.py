@@ -10,11 +10,11 @@ import SET_YOUR_NAME
 
 author = "Daniel Malachov"  # Change it to your values
 author_email = "malachovd@seznam.cz"  # Change it to your values
-development_status: Literal["3 - Alpha", "4 - Beta", "5 - Production/Stable"]
+development_status: Literal["3 - Alpha", "4 - Beta", "5 - Production/Stable"] = "4 - Beta"
 documentation_url = "https://readthedocs.org/projects/yourproject"
 home_url = "https://github.com/user/project"
-keywords = []
-name = "SET_YOUR_NAME"
+keywords: list = []
+name: str = "SET_YOUR_NAME"
 short_description = "EDIT_SHORT_DESCRIPTION"
 url = "GITHUB_URL"
 version = SET_YOUR_NAME.__version__  # Edit only app name and keep __version__
@@ -48,13 +48,16 @@ setup(
     long_description_content_type="text/markdown",
     long_description=readme,
     name=name,
-    packages=find_packages(exclude=("tests",)),
+    packages=[name],
     platforms="any",
-    project_urls={"Documentation": documentation_url, "Home": home_url,},
+    project_urls={
+        "Documentation": documentation_url,
+        "Home": home_url,
+    },
     url=url,
     version=version,
     classifiers=[
-        f"Development Status :: development_status",
+        f"Development Status :: {development_status}",
         "Environment :: Other Environment",
         "Intended Audience :: Developers",
         "Intended Audience :: Education",
@@ -64,6 +67,8 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Application Frameworks",
         "Topic :: Software Development :: Libraries :: Python Modules",

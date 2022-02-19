@@ -3,9 +3,9 @@
 #############
 
 
-project = "SET_YOUR_NAME"  # !!! Suppose that github repo has the same name as python folder with main files
-author = "Daniel Malachov"  # Change it to your values
-github_user = "Malachov"  # Change it to your values
+PROJECT = "SET_YOUR_NAME"  # !!! Suppose that github repo has the same name as python folder with main files
+AUTHOR = "Daniel Malachov"  # Change it to your values
+GITHUB_USER = "Malachov"  # Change it to your values
 
 # Template suppose separate build and source structure
 
@@ -24,28 +24,28 @@ import datetime
 
 # Folders to sys path to be able to import
 script_dir = pathlib.Path(__file__).resolve()
-ROOT_PATH = script_dir.parents[2]
-lib_path = ROOT_PATH / project
+root = script_dir.parents[2]
+lib_path = root / PROJECT
 
-for i in [script_dir, ROOT_PATH, lib_path]:
+for i in [script_dir, root, lib_path]:
     if i.as_posix() not in sys.path:
         sys.path.insert(0, i.as_posix())
 
 # -- Project information -----------------------------------------------------
 
-copyright = f"2020, {author}"
+copyright = f"2020, {AUTHOR}"  # pylint: disable=redefined-builtin
 
 # The full version, including alpha/beta/rc tags
 release = datetime.datetime.now().strftime("%d-%m-%Y")
 
-master_doc = "index"
+master_doc = "index"  # pylint: disable=invalid-name
 
 source_suffix = [".rst", ".md"]
 
 # -- General configuration ---------------------------------------------------
 html_theme_options = {
-    "github_user": github_user,
-    "github_repo": project,
+    "github_user": GITHUB_USER,
+    "github_repo": PROJECT,
     "github_banner": True,
 }
 
@@ -79,7 +79,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "alabaster"
+html_theme = "alabaster"  # pylint: disable=invalid-name
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -91,3 +91,12 @@ html_static_path = ["_static"]
 html_css_files = [
     "https://malachov.github.io/readthedocs-sphinx-alabaster-css/custom.css",
 ]
+
+# napoleon_custom_sections = [
+#     ("Types", "returns_style"),
+#     ("Type", "returns_style"),
+#     ("Options", "returns_style"),
+#     ("Default", "returns_style"),
+#     ("Example", "returns_style"),
+#     ("Examples", "returns_style"),
+# ]

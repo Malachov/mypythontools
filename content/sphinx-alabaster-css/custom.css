@@ -55,6 +55,11 @@ cite {
   margin-left: -25px;
 }
 
+div.document {
+  width: 86vw;
+  margin: 75px auto 0 auto;
+}
+
 div.body {
   width: 100%;
   box-sizing: border-box;
@@ -119,8 +124,7 @@ div.sphinxsidebar {
 }
 
 div.sphinxsidebar ul li {
-  list-style: disc;
-  list-style-position: inside;
+  list-style: None;
 }
 
 div.sphinxsidebar ul {
@@ -154,6 +158,10 @@ div.sphinxsidebar ul li.toctree-l1 > a {
   font-size: 110%;
 }
 
+dl.field-list > dt {
+  min-width: 80px;
+}
+
 /*
 ###################
 ### RESPONSIVE ###
@@ -164,11 +172,6 @@ div.sphinxsidebar ul li.toctree-l1 > a {
 @media only screen and (min-width: 1600px) {
   .sig {
     margin-right: -200px;
-  }
-
-  div.document {
-    width: 86vw;
-    margin: 75px auto 0 auto;
   }
 
   div.body {

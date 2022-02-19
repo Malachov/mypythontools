@@ -1,3 +1,5 @@
-flake8
+bandit
+pydocstyle
+pylint
 line_profiler
 memory_profiler

@@ -9,33 +9,35 @@ It's called mypythontools, but it's also made for you...
 
 Can be used as python library. Things like building the application with pyinstaller, incrementing version,
 generating rst files for sphinx docs, pushing to GitHub or deploying to PyPi or other CI/CD functionality,
-creating config module or plot data is matter of calling one function or clicking one button (e.g. Vs code task).
+creating config module or plot data is a matter of calling one function or clicking one button (e.g. Vs Code task).
 
 Many projects - one codebase.
 
-If you are not sure whether structure of your app will work with this code, check `project-starter` on GitHub
+If you are not sure whether the structure of your app will work with this code, check `project-starter` on GitHub
 in content folder.
 
-Paths are inferred, but if you have atypical structure or have more projects in cwd, setup necessary paths in paths module.
+Paths are inferred, but if you have atypical structure or have more projects in cwd, setup necessary paths in paths
+module.
 
-There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.), such a
-content is under the Content topic.
+There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.),
+such a content is under the Content topic.
+
 
 ## Links
 
 Official documentation - [readthedocs](https://mypythontools.readthedocs.io/)
 
-Official repo - [github](https://github.com/Malachov/mypythontools)
+Official repo - [GitHub](https://github.com/Malachov/mypythontools)
 
 It's called mypythontools, but it's also made for you...
 
 Usually used from IDE. Used paths are inferred and things like sphinx rst docs generation, building
-application with pyinstaller or deploying to PyPi is matter of calling one function,
-or clicking one button (e.g. Vs code task).
+application with pyinstaller or deploying to PyPi is the matter of calling one function,
+or clicking one button (e.g. Vs Code task).
 
 Many projects - one codebase.
 
-If you are not sure whether structure of your app will work with this code, check `project-starter` on GitHub in content folder.
+If you are not sure whether the structure of your app will work with this code, check `project-starter` on GitHub in content folder.
 
 Paths are inferred, but if you have atypical structure or have more projects in cwd, setup paths in paths module.
 
@@ -46,27 +48,81 @@ such a content is in folder Content.
 
 Python >=3.6 (Python 2 is not supported).
 
-Install just with
+Install with
 
 ```console
 pip install mypythontools
 ```
 
-## Modules
+Python library
+==============
+
+**subpackages**
+
+- cicd
+- helpers
+- pyvueeel
+
+Subpackages are loaded on demand, so the import time is as small as possible.
+
+Import subpackage with this syntax
+
+```python
+from mypythontools import helpers
+```
+
+You will meet error if you use it like this
+
+<!--phmdoctest-mark.skip-->
+```python
+import mypythontools
+helpers = mypythontools.helpers
+```
+
+Check modules help or readme docs with examples.
+
+cicd
+----
+
+Module with functionality around Continuous Integration and Continuous Delivery.
+
+Subpackages
 
 - build
-- config
 - deploy
+- project_utils
+- tests
+
+In project utils, you can find many functions for CI/CD, but also pipelining functions that will call them
+in defined order.
+
+Why to use this and not Travis or Circle CI? It's local and it's fast. You can set up it as a task in IDE and
+if some phase fails, you know it soon and before pushing to repo.
+
+You can also import mypythontools in your CI/CD and use it there.
+
+helpers
+-------
+
+Module help with many various problems.
+
+Subpackages
+
+- config
 - misc
 - paths
 - plots
 - property
-- pyvueeel (for applications build with eel and vue)
-- tests
-- utils
-- venvs
+- type_hints
 
-Check modules help or readme docs with examples.
+Subpackages names are self describing, and you can find documentation in subpackages docstrings.
+
+
+pyvueeel
+--------
+
+Library helper for applications made in python and Vue.js (frontend) connected with eel library.
+
 
 ## Content
 
@@ -102,27 +158,27 @@ To run an app in develop mode, you have to run both frontend and python. Run fro
 
 It's recommended to use Vue.js devtools extension where you can see what component is on cursor, edit props values or see list of all used mutations.
 
-In opened app, there is a little help button where there is simple overview about how to develop with these tools.
+In opened app, there is a little help button where there is a simple overview about how to develop with these tools.
 
-Delete is faster than write, so there is many working examples like for example plot, various formatting (flex row, flex column), settings panel, function call from python to js and vice versa or automatic alerting from python. If you want to see how some example is working, just use **ctrl + F** in IDE or check components for its props.
+Delete is faster than write, so there are many working examples like for example plot, various formatting (flex row, flex column), settings panel, function call from python to JS and vice versa or automatic alerting from python. If you want to see how some example is working, just use **ctrl + F** in IDE or check components for its props.
 
 This is how the example looks like
 
 <div align="center"><img src="docs/source/_static/project-starter-gui.png" width="620" alt="project-starter-gui"/></div>
 
-For a desktop version where user does not have python installed, you have to build it first. Use mypythontools `build` module (trigger with tasks button).
+For a desktop version where the user does not have python installed, you have to build it first. Use mypythontools `build` module (trigger with tasks button).
 
 **Docs**
 It includes docs structure for sphinx docs generations from docstrings. Edit first few lines in conf.py, index.rst, navi.html and if you want, add static files like logo to \_static.
 
-Usually used with [readthedocs](https://readthedocs.org/) free hosting that trigger deploys automatically after pushing to master. Because of correct relative redirecting in index.rst and navi.html use for readthedocs /path/ before relative link to other module.
+Usually used with [readthedocs](https://readthedocs.org/) free hosting that trigger deploys automatically after pushing to master. Because of correct relative redirecting in `index.rst` and `navi.html` use for readthedocs /path/ before relative link to other module.
 
 It's also necessary to generate other modules rst files for other pages. If you are using `push_script.py` as CI/CD (see below), it's generated automatically via `apidoc`.
 
 It's recommended to use with `sphinx-alabaster-css` (see below).
 
 **CI/CD**
-Project include `.travis.yml` for Travis CI, but it's not recommended using it. There is file `push_script.py` in folder `utils` which for my use case is better (faster) than travis and can do most of what you want from CI like run pipeline - running tests / generate docs / increment version / push to GitHub / push to pypi.
+Project include `.travis.yml` for Travis CI, but it's not recommended using it. There is file `push_script.py` in folder `utils` which for my use case is better (faster) than travis and can do most of what you want from CI like run pipeline - running tests / generate docs / increment version / push to GitHub / push to PyPi.
 
 You can delete `.travis.yml`. If you want to generate test coverage badge (usually from travis), you can use GitHub actions yml file for pushing codecov coverage file (without token).
 
@@ -144,7 +200,7 @@ It's good for python libraries that other users with different versions of libra
 
 ### sphinx-alabaster-css
 
-It's a good idea to generate documentation from code. If you are using sphinx and alabaster theme, you can use this css file for formatting.
+It's a good idea to generate documentation from code. If you are using sphinx and alabaster theme, you can use this CSS file for formatting.
 
 Tested on readthedocs hosting (recommended).
 
@@ -166,8 +222,9 @@ Result should look like this
 
 ### Tasks
 
-There are VS Code tasks examples in utils and build module, but here is small tutorial how to use it.
-Run command `Tasks: Open User Tasks`, add tasks from github/content/tasks or if you have no task yet, you can copy / paste all.
+There are VS Code tasks examples in utils and build module, but here is small tutorial how to use it. Run
+command `Tasks: Open User Tasks`, add tasks from github/content/tasks or if you have no task yet, you can
+copy / paste all.
 
 Install extension **Task Explorer**
 

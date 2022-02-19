@@ -1,7 +1,7 @@
-import mypythontools
+from mypythontools import tests
 
 # Find paths and add to sys.path to be able to import local modules
-mypythontools.tests.setup_tests()
+tests.setup_tests()
 
 from conftest import SET_YOUR_NAME
 

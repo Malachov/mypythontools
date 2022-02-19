@@ -1,17 +1,14 @@
-import mypythontools
+from mypythontools import cicd
 
 
 if __name__ == "__main__":
-    # All the parameters can be overwritten via CLI args
-    mypythontools.utils.push_pipeline(
-        tests=True,
-        version="increment",  # increment by 0.0.1
-        sphinx_docs=True,
-        git_params={
-            # If using VS Code task, set git_params there!
-            "commit_message": "New commit",
-            "tag": "__version__",  # __version__ take version from __init__.
-            "tag_mesage": "New version",
-        },
-        deploy=False,
+    # All the parameters usually overwritten via CLI args
+    cicd.project_utils.project_utils_pipeline(
+        # test=True,
+        # version="increment",  # increment by 0.0.1
+        # sphinx_docs=True,
+        # commit_and_push_git = True,
+        # commit_message = "New commit",
+        # tag="__version__",
+        # deploy=False,
     )
