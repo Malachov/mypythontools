@@ -35,7 +35,7 @@ copyright = f"2020, {AUTHOR}"  # pylint: disable=redefined-builtin
 # The full version, including alpha/beta/rc tags
 release = datetime.datetime.now().strftime("%d-%m-%Y")
 
-master_doc = "index"  # pylint: disable=invalid-name
+master_doc = PROJECT  # pylint: disable=invalid-name
 
 source_suffix = [".rst", ".md"]
 

@@ -10,9 +10,9 @@ import mylogging
 from .. import tests
 from .. import venvs
 from ...helpers.config import ConfigBase, MyProperty
-from ...helpers.misc._misc import GLOBAL_VARS
+from ...helpers.misc import GLOBAL_VARS
 from ...helpers.paths import PROJECT_PATHS, PathLike
-from ...helpers.type_hints import validate_sequence
+from ...helpers.types import validate_sequence
 from ..deploy import deploy_to_pypi
 from .project_utils_functions import (
     get_version,

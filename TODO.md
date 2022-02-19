@@ -1,4 +1,5 @@
-- [ ] Use global dev dependencies like pylint, pyinstaller, sphinx and verify that it works in venv
+- [ ] Add do-just option or add sys args to functions so single task can be executed simply
+- [ ] Remove project.rst as it is in index.rst via automodule
 - [ ] In configuration use type annotation for type verification. Implement Literal as options.
 - [ ] Check if coverage from doctest included
 - [ ] Add tests to plot from predictit

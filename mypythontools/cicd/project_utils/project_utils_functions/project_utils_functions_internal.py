@@ -7,9 +7,9 @@ import subprocess
 
 import mylogging
 
-from ....helpers.misc._misc import check_script_is_available, get_console_str_with_quotes, delete_files
+from ....helpers.misc import check_script_is_available, get_console_str_with_quotes, delete_files
 from ....helpers.paths import PROJECT_PATHS, validate_path, PathLike
-from ....helpers.type_hints import validate_sequence
+from ....helpers.types import validate_sequence
 
 # Lazy loaded
 # from git import Repo
@@ -197,11 +197,11 @@ def sphinx_docs_regenerate(
         "_templates",
         "content/**",
     ),
-    delete: Sequence[PathLike] = ("modules.rst",),
+    ignore: Sequence[PathLike] = ("modules.rst", "**/*internal.py"),
 ) -> None:
     """Generate all rst files necessary for sphinx documentation generation with sphinx-apidoc.
 
-    It automatically delete removed and renamed files.
+    It automatically delete rst files from removed or renamed files.
 
     Note:
         All the files except in 'keep' parametert ['conf.py', 'index.rst', '_static', '_templates', 'content']
@@ -222,9 +222,10 @@ def sphinx_docs_regenerate(
             deleted. Deletion is because if some file would be renamed or deleted, rst docs would still stay.
             Glob-style patterns can be used.
             Defaults to ("conf.py", "index.rst", "_static", "_templates", "content/**").
-        delete (Sequence[PathLike], optional): If delete some files from generated rst files. For example to
-            have no errors in sphinx build for unused modules, or for internal modules. Glob-style patterns
-            can be used. Defaults to ("**/**_internal**")
+        ignore (Sequence[PathLike], optional): Whether ignore some files from generated rst files. For example
+            It can be python modules that will be ignored or it can be rst files created, that will be
+            deleted. to have no errors in sphinx build for unused modules, or for internal modules. Glob-style
+            patterns can be used. Defaults to ("modules.rst", "**/*_.py")
 
     Note:
         Function suppose structure of docs like::
@@ -237,22 +238,29 @@ def sphinx_docs_regenerate(
     check_script_is_available("sphinx-apidoc", "sphinx")
 
     validate_sequence(keep, keep)
-    validate_sequence(delete, delete)
+    validate_sequence(ignore, ignore)
 
     docs_path = validate_path(docs_path) if docs_path else PROJECT_PATHS.docs
-
     docs_source_path = docs_path / "source"
+
+    source_path = PROJECT_PATHS.app
+    source_console_path = get_console_str_with_quotes(source_path)
+
+    ignore_list = [*ignore]
+
+    ignored = " "
+
+    for i in ignore_list:
+        for file in source_path.rglob(str(i)):
+            ignored = ignored + f"{get_console_str_with_quotes(file)} "
 
     for file in docs_source_path.iterdir():
         if not any((file.match(str(pattern)) for pattern in keep)):
             delete_files(file)
 
-    source_path = get_console_str_with_quotes(PROJECT_PATHS.app)
-
-    # if ve
-    # apidoc_path = sphinx-apidoc
-
-    apidoc_command = f"sphinx-apidoc --module-first --force --separate -o source {source_path}"
+    apidoc_command = (
+        f"sphinx-apidoc --module-first --force --separate -o source {source_console_path} {ignored}"
+    )
 
     result = subprocess.run(
         apidoc_command,
@@ -262,9 +270,9 @@ def sphinx_docs_regenerate(
     if result.returncode != 0:
         raise RuntimeError
 
-    if delete:
+    if ignore_list:
         for file in docs_source_path.iterdir():
-            if any((file.match(str(pattern)) for pattern in delete)):
+            if any((file.match(str(pattern)) for pattern in ignore_list)):
                 delete_files(file)
 
     if build_locally:

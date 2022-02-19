@@ -14,9 +14,9 @@ import sys
 
 import mylogging
 
-from ..property._property import init_my_properties, MyProperty  # pylint: disable=unused-import
+from ..property import init_my_properties, MyProperty  # pylint: disable=unused-import
 from .. import misc
-
+from .. import types
 
 ConfigType = TypeVar("ConfigType", bound="ConfigBase")
 
@@ -339,7 +339,7 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
             if used_type is not str:
                 try:
                     # May fail if for example Litera["string1", "string2"]
-                    parser_args_dict[i] = misc.str_to_infer_type(j)
+                    parser_args_dict[i] = types.str_to_infer_type(j)
                 except ValueError:
                     parser_args_dict[i] = j
             else:

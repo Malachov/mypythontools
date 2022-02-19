@@ -18,7 +18,7 @@ Image of such an app
     :align: center
 """
 
-from mypythontools.pyvueeel._pyvueeel import (
+from mypythontools.pyvueeel.pyvueeel_internal import (
     expose,
     eel,
     expose_error_callback,

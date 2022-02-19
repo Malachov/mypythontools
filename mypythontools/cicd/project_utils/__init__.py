@@ -131,7 +131,7 @@ Examples:
 
     Then just import any function from here and call with desired params. E.g.
 """
-from mypythontools.cicd.project_utils._project_utils_pipeline import project_utils_pipeline
-from mypythontools.cicd.project_utils.project_utils_functions import _project_utils_functions
+from mypythontools.cicd.project_utils.project_utils_pipeline_internal import project_utils_pipeline
+from mypythontools.cicd.project_utils import project_utils_functions
 
-__all__ = ["project_utils_pipeline", "_project_utils_functions"]
+__all__ = ["project_utils_pipeline", "project_utils_functions"]

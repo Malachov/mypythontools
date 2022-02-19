@@ -11,6 +11,6 @@ Usually this function is not called manually, but it's a part of `project_utils_
 docs where it is described, how to use VS Code Task to be able to optionally test, push and deploy with tasks
 (one button click).
 """
-from mypythontools.cicd.deploy._deploy import deploy_to_pypi
+from mypythontools.cicd.deploy.deploy_internal import deploy_to_pypi
 
 __all__ = ["deploy_to_pypi"]

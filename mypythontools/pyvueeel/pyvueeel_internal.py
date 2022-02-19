@@ -13,7 +13,7 @@ import EelForkExcludeFiles as eel
 import mylogging
 
 from ..helpers.paths import find_path, PathLike
-from ..helpers import misc
+from ..helpers import types
 
 # Lazy imports
 if TYPE_CHECKING:
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 expose_error_callback: None | Callable[..., None] = None
-json_to_py = misc.json_to_py
+json_to_py = types.json_to_py
 
 
 def run_gui(

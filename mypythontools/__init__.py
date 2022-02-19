@@ -88,8 +88,8 @@ You will meet error if you use it like this::
 
 Check modules help or readme docs with examples.
 
-cicd
-----
+:py:mod:`mypythontools.cicd`
+----------------------------
 
 Module with functionality around Continuous Integration and Continuous Delivery.
 
@@ -105,11 +105,11 @@ in defined order.
 
 Why to use this and not Travis or Circle CI? It's local and it's fast. You can setup it as a task in IDE and
 if some phase fails, you know it soon and before pushing to repo.
-
+ 
 You can also import mypythontools in your CI/CD and use it there of course.
 
-helpers
--------
+:py:mod:`mypythontools.helpers`
+-------------------------------
 
 Module help with many various problems.
 
@@ -125,14 +125,14 @@ Subpackages
 Subpackages names are self describing and you can find documentation in subpackages docstrings.
 
 
-pyvueeel
---------
+:py:mod:`mypythontools.pyvueeel`
+--------------------------------
 
 Library helper for applications made in python and Vue.js (frontend) connected with eel library.
 
 
-Content
-=======
+Tools
+=====
 
 There are a lot of stuff that's not in python library (installable via pip), but still on GitHub repository.
 

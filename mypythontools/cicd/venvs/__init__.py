@@ -1,6 +1,6 @@
 """Module that will help with virtual environments so it's possible to work with venv from python.
 You can create, delete or update dependencies."""
 
-from mypythontools.cicd.venvs._venvs import Venv, is_venv
+from mypythontools.cicd.venvs.venvs_internal import Venv, is_venv
 
 __all__ = ["Venv", "is_venv"]

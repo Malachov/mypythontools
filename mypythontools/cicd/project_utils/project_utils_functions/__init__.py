@@ -1,7 +1,7 @@
 """This module contains functions that are usually called in pipeline with 'project_utils_pipeline'
 from 'project_utils'. You can use functions separately of course."""
 
-from mypythontools.cicd.project_utils.project_utils_functions._project_utils_functions import (
+from mypythontools.cicd.project_utils.project_utils_functions.project_utils_functions_internal import (
     generate_readme_from_init,
     get_console_str_with_quotes,
     get_version,

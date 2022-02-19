@@ -6,7 +6,7 @@ from typing import Generic, TypeVar, Callable, Type, overload, Any
 
 from typeguard import check_type
 
-from .. import type_hints
+from .. import types
 
 
 T = TypeVar("T")
@@ -21,7 +21,7 @@ class MyPropertyClass(property, Generic[T]):
     def __init__(self, fget: Callable[..., T] = None, doc=None):  # pylint: disable=super-init-not-called
         """Init property."""
         if fget:
-            self.allowed_types = type_hints.get_return_type_hints(fget)
+            self.allowed_types = types.get_return_type_hints(fget)
 
             self.init_function = fget
 

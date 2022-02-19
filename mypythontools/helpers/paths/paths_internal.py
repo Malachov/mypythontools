@@ -9,7 +9,7 @@ import os
 
 import mylogging
 
-from ..type_hints import validate_sequence
+from ..types import validate_sequence
 
 PathLike = Union[Path, os.PathLike, str]  # Path is included in PathLike
 """Str pr pathlib Path. It can be also relative to current working directory."""

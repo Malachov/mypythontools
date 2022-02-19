@@ -226,7 +226,7 @@ You can enable it again after defining config.
 """
 from __future__ import annotations
 
-from mypythontools.helpers.config._config import ConfigBase, ConfigStructured
+from mypythontools.helpers.config.config_internal import ConfigBase, ConfigStructured
 from mypythontools.helpers.property import MyProperty
 
 __all__ = ["ConfigBase", "ConfigStructured", "MyProperty"]

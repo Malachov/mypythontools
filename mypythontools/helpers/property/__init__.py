@@ -61,6 +61,6 @@ Examples:
     >>> config.var = lambda self: self.var_literal + 1
 """
 
-from mypythontools.helpers.property._property import MyProperty, init_my_properties
+from mypythontools.helpers.property.property_internal import MyProperty, init_my_properties
 
 __all__ = ["MyProperty", "init_my_properties"]

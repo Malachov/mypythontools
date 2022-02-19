@@ -3,4 +3,4 @@ mypythontools
 *************
 
 .. automodule:: mypythontools
-    :noindex:
+   :noindex:

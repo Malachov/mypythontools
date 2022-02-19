@@ -35,20 +35,20 @@ def test_sphinx_docs_regenerate():
             not_deleted_file.write("I will not be deleted.")
             # missing_ok=True from python 3.8 on...
 
-    cicd.project_utils._project_utils_functions.sphinx_docs_regenerate(keep=["not_deleted.rst"])
+    cicd.project_utils.project_utils_functions.sphinx_docs_regenerate(keep=["not_deleted.rst"])
 
     assert rst_path.exists()
     assert not_deleted.exists()
 
 
 def test_reformat_with_black():
-    cicd.project_utils._project_utils_functions.reformat_with_black()
+    cicd.project_utils.project_utils_functions.reformat_with_black()
 
 
 def test_set_version():
-    cicd.project_utils._project_utils_functions.set_version("0.0.2")
-    assert cicd.project_utils._project_utils_functions.get_version() == "0.0.2"
-    cicd.project_utils._project_utils_functions.set_version("0.0.1")
+    cicd.project_utils.project_utils_functions.set_version("0.0.2")
+    assert cicd.project_utils.project_utils_functions.get_version() == "0.0.2"
+    cicd.project_utils.project_utils_functions.set_version("0.0.1")
 
 
 def test_build():
