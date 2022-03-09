@@ -3,11 +3,15 @@
 from __future__ import annotations
 from typing import Sequence
 import ast
-import subprocess
 
 import mylogging
 
-from ....helpers.misc import check_script_is_available, get_console_str_with_quotes, delete_files
+from ....helpers.misc import (
+    check_script_is_available,
+    get_console_str_with_quotes,
+    delete_files,
+    terminal_do_command,
+)
 from ....helpers.paths import PROJECT_PATHS, validate_path, PathLike
 from ....helpers.types import validate_sequence
 
@@ -16,8 +20,7 @@ from ....helpers.types import validate_sequence
 
 
 def reformat_with_black(
-    root_path: None | PathLike = None,
-    extra_args: Sequence[str] = ("--quiet",),
+    root_path: None | PathLike = None, extra_args: Sequence[str] = ("--quiet",), verbose: bool = False
 ) -> None:
     """Reformat code with black.
 
@@ -25,6 +28,8 @@ def reformat_with_black(
         root_path (None | PathLike, optional): Root path of project. If None, will be inferred.
             Defaults to None.
         extra_args (Sequence[str], optional): Some extra args for black. Defaults to ("--quiet,").
+        verbose (bool, optional): If True, result of terminal command will be printed to console.
+            Defaults to False.
 
     Example:
         >>> reformat_with_black()
@@ -34,18 +39,9 @@ def reformat_with_black(
 
     root_path = validate_path(root_path) if root_path else PROJECT_PATHS.root
 
-    command = f"black . {' '.join(extra_args)}"
-
-    try:
-        result = subprocess.run(command, check=True, cwd=root_path, shell=True)
-        if result.returncode != 0:
-            raise RuntimeError
-    except (Exception,):
-        mylogging.traceback(
-            "Reformatting with `black` failed. Check if it's installed, check logged error, "
-            "then try format manually with \n\nblack .\n\n"
-        )
-        raise
+    terminal_do_command(
+        f"black . {' '.join(extra_args)}", cwd=root_path, verbose=verbose, error_header="Formatting failed"
+    )
 
 
 def git_push(
@@ -55,7 +51,7 @@ def git_push(
 ) -> None:
     """Stage all changes, commit, add tag and push.
 
-    If tag = '__version__', than tag is inferred from __init__.py.
+    If tag is `__version__`, then tag is inferred from `__init__.py`.
 
     Args:
         commit_message (str): Commit message.
@@ -78,33 +74,30 @@ def git_push(
         git_command += " --follow-tags"
 
     try:
-        result = subprocess.run(git_command, check=True, cwd=PROJECT_PATHS.root.as_posix(), shell=True)
-        if result.returncode != 0:
-            raise RuntimeError
-    except (Exception,):
+        terminal_do_command(git_command, cwd=PROJECT_PATHS.root.as_posix(), shell=True)
+
+    except RuntimeError as err:
         git.repo.Repo(PROJECT_PATHS.root.as_posix()).delete_tag(tag)  # type: ignore
-        mylogging.traceback(
-            "Push to git failed. Version restored and created git tag deleted."
-            f"Try to run command \n\n{git_command}\n\n manually in your root {PROJECT_PATHS.root}."
-        )
-        raise
+        raise RuntimeError(
+            mylogging.format_str("Push to git failed. Version restored and created git tag deleted.")
+        ) from err
 
 
 def set_version(
     version: str = "increment",
     init_path: None | PathLike = None,
 ) -> None:
-    """Change your version in your __init__.py file.
+    """Change your version in your `__init__.py` file.
 
     Args:
-        version (str, optional): Form that is used in __init__, so for example "1.2.3". Do not use 'v'
-            appendix. If version is 'increment', it will increment your __version__ in you __init__.py by
+        version (str, optional): Form that is used in `__init__`, so for example "1.2.3". Do not use 'v'
+            appendix. If version is 'increment', it will increment your `__version__` in you `__init__.py` by
             0.0.1. Defaults to "increment".
-        init_path (None | PathLike, optional): Path of file where __version__ is defined.
-            Usually __init__.py. If None, will be inferred. Defaults to None.
+        init_path (None | PathLike, optional): Path of file where `__version__` is defined.
+            Usually `__init__.py`. If None, will be inferred. Defaults to None.
 
     Raises:
-        ValueError: If no __version__ is find.
+        ValueError: If no `__version__` is find.
     """
     init_path = validate_path(init_path) if init_path else PROJECT_PATHS.init
 
@@ -156,17 +149,17 @@ def set_version(
 
 
 def get_version(init_path: None | PathLike = None) -> str:
-    """Get version info from __init__.py file.
+    """Get version info from `__init__.py` file.
 
     Args:
-        init_path (None | PathLike, optional): Path to __init__.py file. If None, will be inferred.
+        init_path (None | PathLike, optional): Path to `__init__.py` file. If None, will be inferred.
             Defaults to None.
 
     Returns:
-        str: String of version from __init__.py.
+        str: String of version from `__init__.py`.
 
     Raises:
-        ValueError: If no __version__ is find. Try set init_path...
+        ValueError: If no `__version__` is find. Try set init_path...
 
     Example:
         >>> version = get_version()
@@ -186,9 +179,9 @@ def get_version(init_path: None | PathLike = None) -> str:
         raise ValueError(mylogging.format_str("__version__ variable not found in __init__.py."))
 
 
-def sphinx_docs_regenerate(
+def docs_regenerate(
     docs_path: None | PathLike = None,
-    build_locally: bool = False,
+    build_locally: bool = True,
     git_add: bool = True,
     keep: Sequence[PathLike] = (
         "conf.py",
@@ -198,16 +191,16 @@ def sphinx_docs_regenerate(
         "content/**",
     ),
     ignore: Sequence[PathLike] = ("modules.rst", "**/*internal.py"),
+    verbose: bool = False,
 ) -> None:
     """Generate all rst files necessary for sphinx documentation generation with sphinx-apidoc.
 
     It automatically delete rst files from removed or renamed files.
 
     Note:
-        All the files except in 'keep' parametert ['conf.py', 'index.rst', '_static', '_templates', 'content']
-        will be deleted!!! Because if some files would be deleted or renamed, rst would stay and html was
-        generated. If you have some extra files or folders in docs source - add it to content folder or to
-        `keep` parameter.
+        All the files except in 'keep' parameter will be deleted!!! Because if some files would be deleted or
+        renamed, rst would stay and html was generated. If you have some extra files or folders in docs
+        source, add it to content folder or to 'keep' parameter.
 
     Function suppose sphinx build and source in separate folders...
 
@@ -215,7 +208,7 @@ def sphinx_docs_regenerate(
         docs_path (None | PathLike, optional): Where source folder is. If None, will be inferred.
             Defaults to None.
         build_locally (bool, optional): If true, build folder with html files locally.
-            Defaults to False.
+            Defaults to True.
         git_add (bool, optional): Whether to add generated files to stage. False mostly for
             testing reasons. Defaults to True.
         keep (Sequence[PathLike], optional): List of files and folder names that will not be
@@ -226,6 +219,8 @@ def sphinx_docs_regenerate(
             It can be python modules that will be ignored or it can be rst files created, that will be
             deleted. to have no errors in sphinx build for unused modules, or for internal modules. Glob-style
             patterns can be used. Defaults to ("modules.rst", "**/*_.py")
+        verbose (bool, optional): If True, result of terminal command will be printed to console.
+            Defaults to False.
 
     Note:
         Function suppose structure of docs like::
@@ -262,13 +257,9 @@ def sphinx_docs_regenerate(
         f"sphinx-apidoc --module-first --force --separate -o source {source_console_path} {ignored}"
     )
 
-    result = subprocess.run(
-        apidoc_command,
-        cwd=docs_path,
-        check=True,
+    terminal_do_command(
+        apidoc_command, cwd=docs_path, verbose=verbose, error_header="Docs sphinx-apidoc failed."
     )
-    if result.returncode != 0:
-        raise RuntimeError
 
     if ignore_list:
         for file in docs_source_path.iterdir():
@@ -276,27 +267,21 @@ def sphinx_docs_regenerate(
                 delete_files(file)
 
     if build_locally:
-        result = subprocess.run("make html", cwd=docs_path, check=True)
-        if result.returncode != 0:
-            raise RuntimeError
+        terminal_do_command(
+            "make html", cwd=docs_path, verbose=verbose, error_header="Sphinx build failed.", shell=True
+        )
 
     if git_add:
-        result = subprocess.run(
-            "git add docs",
-            cwd=PROJECT_PATHS.root.as_posix(),
-            check=True,
-        )
-        if result.returncode != 0:
-            raise RuntimeError
+        terminal_do_command("git add docs", cwd=PROJECT_PATHS.root.as_posix(), verbose=verbose)
 
 
 def generate_readme_from_init(git_add: bool = True) -> None:
-    """Generate README file from __init__.py docstrings.
+    """Generate README file from `__init__.py` docstrings.
 
-    Because i had very similar things in main __init__.py and in readme. It was to maintain news
+    Because i had very similar things in main `__init__.py` and in readme. It was to maintain news
     in code. For better simplicity i prefer write docs once and then generate. One code, two use cases.
 
-    Why __init__? - Because in IDE on mouseover developers can see help.
+    Why `__init__`? - Because in IDE on mouseover developers can see help.
     Why README.md? - Good for github.com
 
     Args:
@@ -315,10 +300,4 @@ def generate_readme_from_init(git_add: bool = True) -> None:
         file.write(docstrings)
 
     if git_add:
-        result = subprocess.run(
-            f"git add {PROJECT_PATHS.readme}",
-            cwd=PROJECT_PATHS.root.as_posix(),
-            check=True,
-        )
-        if result.returncode != 0:
-            raise RuntimeError
+        terminal_do_command(f"git add {PROJECT_PATHS.readme}", cwd=PROJECT_PATHS.root.as_posix())

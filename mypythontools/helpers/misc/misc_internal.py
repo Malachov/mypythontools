@@ -8,17 +8,71 @@ import sys
 from pathlib import Path
 import os
 import importlib.util
-import ast
 import subprocess
+import platform
 
-from typeguard import check_type
-from typing_extensions import Literal, get_origin, get_args
 import pandas as pd
 from tabulate import tabulate
 
 import mylogging
 
 from ..paths import PathLike, validate_path
+
+PARTY = "\U0001F389"
+SHELL_AND = " && " if platform.system() == "Windows" else " ; "
+PYTHON = "python" if platform.system() == "Windows" else "python3"
+
+
+def terminal_do_command(
+    command: str,
+    shell: bool = False,
+    cwd: None | PathLike = None,
+    verbose: bool = True,
+    error_header: str = "",
+):
+    """Run command in terminall and process output.
+
+    Args:
+        command (str): Command to run.
+        shell (bool, optional): Same meaning as in ``subprocess.run()``. Defaults to False.
+        cwd (None | PathLike, optional): Same meaning as in ``subprocess.run()``. Defaults to None.
+        verbose (bool, optional): Whether print output to console. Defaults to True.
+        error_header (str, optional): If meet error, message at the beginning of message. Default to "".
+
+    Raises:
+        RuntimeError: When process fails to finish or return non zero return code.
+    """
+    error = None
+
+    try:
+        result = subprocess.run(command, check=True, shell=shell, cwd=cwd, capture_output=True)
+        if result.returncode == 0:
+            if verbose:
+                print(result.stdout)
+        else:
+            stderr = result.stderr.decode().strip("\r\n")
+            stdout = result.stdout.decode().strip("\r\n")
+            error = f"\n\nstderr:\n\n{stderr}\n\nstdout:\n\n{stdout}\n\n"
+
+    except Exception:  # pylint: disable=broad-except
+        error = "Suprocess command crashed internally in subprocess and did not finished."
+
+    if error:
+        header = f"{error_header}\n\n" if error_header else ""
+        cwd_str = "on your project root" if cwd is None else f"in '{cwd}' folder"
+
+        raise RuntimeError(
+            mylogging.format_str(
+                f"{header}"
+                f"Running command in terminal failed. Try command below in the terminal {cwd_str} "
+                f"\n\n{command}\n\n"
+                "On windows use cmd so script paths resolved correctly. Try it with administrator rights in\n"
+                "your project root folder. Permission error may be one of the typical issue or some\n"
+                "necessary library missing or installed elsewhere than in used venv.\n\n"
+                f"Captured error: {error}",
+                caption="Terminal command failed",
+            )
+        )
 
 
 class GlobalVars:
@@ -97,6 +151,8 @@ class TimeTable:
 def check_library_is_available(name, message="default"):
     """Make one-liner for checking whether some library is installed.
 
+    If running on venv, it checks only this venv, no global site packages.
+
     Args:
         name (str): Name of the library.
         message (str, optional): Message that will be printed when library not installed. Defaults to "default".
@@ -121,8 +177,9 @@ def check_library_is_available(name, message="default"):
 
 
 def check_script_is_available(name, install_library=None, message="default"):
-    """Check if python script is available. This doesn't need to be installed in current venv, but anywhere
-    on computer.
+    """Check if python script is available.
+
+    This doesn't need to be installed in current venv, but anywhere on computer.
 
     Args:
         name (str): Name of the script. E.g "black'.
@@ -141,10 +198,8 @@ def check_script_is_available(name, install_library=None, message="default"):
         RuntimeError: ...
     """
     if message == "default":
-        message = (
-            f"Python script {name} is necessary and not available. It doesn't need to be in current venv, "
-            "but anywhere else. "
-        )
+        message = f"Python script {name} is necessary and not available."
+
     if install_library:
         message = message + f"To get this executable available, do \n\n\tpip install {name}\n\n"
 
@@ -153,9 +208,15 @@ def check_script_is_available(name, install_library=None, message="default"):
     for i in ["--version", "--help", ""]:
         try:
 
-            subprocess.run(f"{name} {i}", check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            exists = True
+            result = subprocess.run(
+                f"{name} {i}", check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True
+            )
+
+            if result.returncode == 0:
+                exists = True
+
             break
+
         except Exception:
             pass
 
@@ -229,13 +290,18 @@ def watchdog(timeout: int | float, function: Callable, *args, **kwargs) -> Any:
 def get_console_str_with_quotes(string: PathLike):
     """In terminal if value or contain spaces, it's not taken as one param.
 
-    This wraps it with quotes to be able to use paths and values as needed.
+    This wraps it with quotes to be able to use paths and values as needed. Alternative to this function is to
+    use python shlex library, list of commands and 'shlex.join' to get the command string.
 
     Args:
         string (str, Path): String  to be edited.
 
     Returns:
         str: Wrapped string that can be used in terminal.
+
+    Example:
+        >>> get_console_str_with_quotes("/path to file/file")
+        '"/path to file/file"'
     """
     if isinstance(string, (Path)):
         string = string.as_posix()
@@ -256,3 +322,11 @@ def delete_files(paths: PathLike | Iterable[PathLike]):
             validate_path(i).unlink()
         except (FileNotFoundError, OSError):
             pass
+
+
+def print_progress(name: str, verbosity: bool):
+    """Print current step of some process.
+
+    Divide it with newlines so it's more readable."""
+    if verbosity:
+        print(f"\n{name}\n")

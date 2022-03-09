@@ -1,4 +1,5 @@
-"""
+"""Run cicd functions like formatting, testing or deploying.
+
 This module can be used for example in running deploy pipelines or githooks
 (some code automatically executed before commit). This module can run the tests,
 edit library version, generate rst files for docs, push to git or deploy app to pypi.
@@ -10,6 +11,23 @@ run other functions, or you can use functions separately.
 Examples:
 =========
 
+    **From python script**
+
+    Create folder utils, create `push_script.py` inside, add::
+
+        from mypythontools import cicd
+
+        if __name__ == "__main__":
+            cicd.project_utils.project_utils_pipeline(deploy=True)
+
+    **With terminal command**
+
+    Run code like this in terminal::
+
+        mypythontools.cicd --test True --deploy True
+
+    If you need to ensure that it will run from particular venv, prepend ``path_to_python/python.exe -m``
+
     **VS Code Task example**
 
     You can push changes with single click with all the hooks displaying results in
@@ -17,102 +35,22 @@ Examples:
     be configured on the beginning and therefore you don't need to wait for test finish.
     Default values can be also used, so in small starting projects, push is actually very fast.
 
-    Create folder utils, create `push_script.py` inside, add::
+    Here you can find all the tasks with with interactive version and git message config
 
-        from mypythontools import cicd
+    https://github.com/Malachov/Software-settings/blob/master/VS-Code/tasks.json
 
-        if __name__ == "__main__":
-            # Params that are always the same define here. Params that are changing define in IDE when run action.
-            # For example in tasks (command line arguments and argparse will be used).
-            cicd.project_utils.project_utils_pipeline(deploy=True)
-
-    Then just add this task to global tasks.json::
+    Add the tasks to global tasks.json. Here is example of one such a task ::
 
         {
           "version": "2.0.0",
           "tasks": [
             {
-              "label": "Build app",
-              "type": "shell",
-              "command": "python",
-              "args": ["${workspaceFolder}/utils/build_script.py"],
-              "presentation": {
-                "reveal": "always",
-                "panel": "new"
-              }
+                "label": "Push to PyPi",
+                "command": "${command:python.interpreterPath}",
+                "args": ["-m", "mypythontools.cicd", "--do_only", "deploy"]
             },
-            {
-              "label": "Push to PyPi",
-              "type": "shell",
-              "command": "python",
-                "args": [
-                  "${workspaceFolder}/utils/push_script.py",
-                  "--deploy",
-                  "True",
-                  "--test",
-                  "False",
-                  "--reformat",
-                  "False",
-                  "--version",
-                  "--commit_and_push_git",
-                  "False",
-                  "--sphinx_docs",
-                  "False"
-                ],
-                "presentation": {
-                  "reveal": "always",
-                  "panel": "new"
-              }
-            },
-            {
-              "label": "Hooks & push & deploy",
-              "type": "shell",
-              "command": "python",
-              "args": [
-                "${workspaceFolder}/utils/push_script.py",
-                "--version",
-                "${input:version}",
-                "--commit_message",
-                "${input:commit_message}",
-                "--tag",
-                "${input:tag}",
-                "--tag_mesage",
-                "${input:tag-message}"
-              ],
-              "presentation": {
-                "reveal": "always",
-                "panel": "new"
-              }
-            }
-          ],
-          "inputs": [
-            {
-              "type": "promptString",
-              "id": "version",
-              "description": "Version in __init__.py will be overwiten. Version has to be in format like '1.0.3' three digits and two dots. If None, nothing will happen. If 'increment', than it will be updated by 0.0.1.",
-              "default": "increment"
-            },
-            {
-              "type": "promptString",
-              "id": "commit_message",
-              "description": "Git message for commit.",
-              "default": "New commit"
-            },
-            {
-              "type": "promptString",
-              "id": "tag",
-              "description": "Git tag. If '__version__' is used, then tag from version in __init__.py will be derived. E.g. 'v1.0.1' from '1.0.1'",
-              "default": "__version__"
-            },
-            {
-              "type": "promptString",
-              "id": "tag-message",
-              "description": "Git tag message.",
-              "default": "New version"
-            }
           ]
         }
-
 
     **Git hooks example**
 
@@ -131,7 +69,10 @@ Examples:
 
     Then just import any function from here and call with desired params. E.g.
 """
-from mypythontools.cicd.project_utils.project_utils_pipeline_internal import project_utils_pipeline
+from mypythontools.cicd.project_utils.project_utils_pipeline_internal import (
+    PipelineConfig,
+    project_utils_pipeline,
+)
 from mypythontools.cicd.project_utils import project_utils_functions
 
-__all__ = ["project_utils_pipeline", "project_utils_functions"]
+__all__ = ["PipelineConfig", "project_utils_pipeline", "project_utils_functions"]

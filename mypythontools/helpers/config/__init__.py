@@ -18,6 +18,7 @@ Examples:
     ...
     >>> class SimpleConfig(ConfigBase):
     ...     @MyProperty
+    ...     @staticmethod
     ...     def var() -> int:  # Type hints are validated.
     ...         '''
     ...         Type:
@@ -65,6 +66,7 @@ Examples:
 
     You can still setup a function (or lambda expression) as a new value
     and returned value still will be validated
+
     >>> config.var = lambda self: self.var_literal + 1
 
 This is how help looks like in VS Code
@@ -111,7 +113,7 @@ Note:
 ...             return self.value2 + 1
 ...
 ...     # Also subconfig category can contain values itself
-...     @MyProperty
+...     @MyProperty  # Even if no defining @staticmethod, it will work, but may be confusing
 ...     def value3() -> int:
 ...         return 3
 ...
@@ -198,8 +200,7 @@ If you want to have documentation via sphinx, you can add this to conf.py::
         ("Type", "returns_style"),
         ("Options", "returns_style"),
         ("Default", "returns_style"),
-        ("Example", "returns_style"),
-        ("Examples", "returns_style"),
+        ("For example", "returns_style"),
     ]
 
 Here is example
@@ -208,21 +209,6 @@ Here is example
     :width: 620
     :alt: tasks
     :align: center
-
-Pylint error messages
-
-Config library can cope with static methods, but to remove pylint IDE warnings you can add staticmethod like::
-
-    @MyProperty
-    @staticmethod
-    def var():
-        ...
-
-Or add self parameter or use file ignore comment like::
-
-    ## pylint: disable=no-method-argument
-
-You can enable it again after defining config.
 """
 from __future__ import annotations
 

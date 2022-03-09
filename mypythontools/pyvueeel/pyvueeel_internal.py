@@ -62,7 +62,7 @@ def run_gui(
 
     If you want to understand this technology more into detail, check this tutorial
 
-    https://mypythontools.readthedocs.io/content/pyvueeel-tutorial.html
+    https://mypythontools.readthedocs.io/tools/pyvueeel-tutorial.html
     """
     with warnings.catch_warnings():
         warnings.filterwarnings(

@@ -45,6 +45,7 @@ def json_to_py(json: dict, replace_comma_decimal: bool = True, replace_true_fals
         dict: Python dictionary with correct types.
 
     Example:
+        >>> # Can be beneficial for example when communicating with JavaScript
         >>> json_to_py({'one_two': '1,2'})
         {'one_two': 1.2}
     """

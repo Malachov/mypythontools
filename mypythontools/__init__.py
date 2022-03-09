@@ -1,4 +1,5 @@
-"""
+"""Some tools/functions/snippets/files used across projects.
+
 .. image:: https://img.shields.io/pypi/pyversions/mypythontools.svg
     :target: https://pypi.python.org/pypi/mypythontools/
     :alt: Python versions
@@ -27,26 +28,23 @@
     :target: https://codecov.io/gh/Malachov/mypythontools
     :alt: Codecov
 
-
-Some tools/functions/snippets/files used across projects.
-
 It's called mypythontools, but it's also made for you...
 
 Can be used as python library. Things like building the application with pyinstaller, incrementing version,
 generating rst files for sphinx docs, pushing to GitHub or deploying to PyPi or other CI/CD functionality,
-creating config module or plot data is the matter of calling one function or clicking one button (e.g. Vs Code
+creating config module or plot data is the matter of calling one function or clicking one button (e.g. VS Code
 task).
 
 Many projects - one codebase.
 
 If you are not sure whether the structure of your app will work with this code, check `project-starter` on
-GitHub in content folder.
+GitHub in `Tools` folder.
 
 Paths are inferred, but if you have atypical structure or have more projects in cwd, setup necessary paths in
 paths module.
 
 There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.), such a
-content is under the Content topic.
+content is under the `Tools` topic.
 
 Links
 =====
@@ -86,7 +84,7 @@ You will meet error if you use it like this::
     helpers = mypythontools.helpers
 
 
-Check modules help or readme docs with examples.
+Check module help or readme docs with examples.
 
 :py:mod:`mypythontools.cicd`
 ----------------------------
@@ -138,11 +136,11 @@ There are a lot of stuff that's not in python library (installable via pip), but
 
 Link where you can find that content:
 
-https://github.com/Malachov/mypythontools/tree/master/content
+https://github.com/Malachov/mypythontools/tree/master/tools
 
 Link where you can read about how to use it:
 
-https://mypythontools.readthedocs.io/#content
+https://mypythontools.readthedocs.io/#Tools
 
 Some examples of what you can find only on GitHub
 
@@ -153,13 +151,13 @@ Project scaffolding fast and easy.
 
 Download project-starter from
 
-https://github.com/Malachov/mypythontools/tree/master/content/project-starter
+https://github.com/Malachov/mypythontools/tree/master/tools/project-starter
 
 (You may need to download all mypythontools repository in zip)
 
 And start developing.
 
-In your IDE do bulk renaming across files and replace `SET_YOUR_NAME` with name of your app / library.
+In your IDE, do bulk renaming across files and replace `SET_YOUR_NAME` with name of your app / library.
 
 This starter is for vue-eel applications (desktop as well as web) but also for python libraries that will be
 stored on PyPi.
@@ -237,7 +235,7 @@ requirements
 ------------
 
 Install many libraries at once (no need for Anaconda). Download `requirements.txt` file from
-https://github.com/Malachov/mypythontools/tree/master/content/requirements and in that folder use::
+https://github.com/Malachov/mypythontools/tree/master/tools/requirements and in that folder use::
 
     pip install -r requirements.txt
 
@@ -279,7 +277,7 @@ copy / paste all.
 
 Install extension **Task Explorer**
 
-On root copy folder `utils` from content/tasks
+On root copy folder `utils` from tools/tasks
 
 You are ready to go. You should see something like this
 
@@ -291,8 +289,11 @@ You are ready to go. You should see something like this
 You can do CI / CD pipeline or Build app with one click now.
 """
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
 __email__ = "malachovd@seznam.cz"
+
+from mypythontools import cicd
+from mypythontools import helpers

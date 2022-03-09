@@ -91,6 +91,5 @@ napoleon_custom_sections = [
     ("Type", "returns_style"),
     ("Options", "returns_style"),
     ("Default", "returns_style"),
-    ("Example", "returns_style"),
-    ("Examples", "returns_style"),
+    ("For example", "returns_style"),
 ]

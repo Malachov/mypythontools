@@ -8,6 +8,7 @@ nbmake
 pandas
 phmdoctest
 plotly
+pip-tools
 pyinstaller
 pytest
 pytest-cov

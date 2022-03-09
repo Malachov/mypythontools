@@ -5,17 +5,16 @@ from typing import Sequence, Union
 from pathlib import Path
 import sys
 import builtins
-import os
 
 import mylogging
 
 from ..types import validate_sequence
 
-PathLike = Union[Path, os.PathLike, str]  # Path is included in PathLike
+PathLike = Union[Path, str]  # Path is included in PathLike
 """Str pr pathlib Path. It can be also relative to current working directory."""
 
 
-class _ProjectPaths:
+class ProjectPaths:
     """Define paths for usual python projects like root path, docs path, init path etc.
 
     You can find paths, that are lazy evaluated only after you ask for them. They are inferred
@@ -24,10 +23,11 @@ class _ProjectPaths:
 
     Note:
         If you use paths in `sys.path.insert` or as subprocess main parameter, do not forget to convert it
-        to string with `.as_posix()`.
+        to string with `as_posix()`.
     """
 
     def __init__(self) -> None:
+        """Init the paths."""
         self._root = None
         self._app = None
         self._init = None
@@ -169,7 +169,7 @@ class _ProjectPaths:
 
     @property
     def readme(self) -> Path:
-        """Return README path whether it's capitalized or not
+        """Return README path whether it's capitalized or not.
 
         'Readme.md', 'readme.md', and rst extension also inferred if on root.
 
@@ -202,7 +202,7 @@ class _ProjectPaths:
         self._readme = None
 
 
-PROJECT_PATHS = _ProjectPaths()
+PROJECT_PATHS = ProjectPaths()
 
 
 def find_path(
@@ -268,7 +268,7 @@ def get_desktop_path() -> Path:
 
     Example:
         >>> desktop_path = get_desktop_path()
-        >>> desktop_path.exists() and "Desktop" in desktop_path.as_posix()
+        >>> desktop_path.exists()
         True
     """
     return Path.home() / "Desktop"

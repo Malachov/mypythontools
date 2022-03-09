@@ -87,5 +87,3 @@ def test_config_argparse():
 if __name__ == "__main__":
 
     pass
-
-    # test_config_argparse()

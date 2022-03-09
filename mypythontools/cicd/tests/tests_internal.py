@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 from typing import Sequence
-import subprocess
 from pathlib import Path
 import sys
 import warnings
@@ -13,7 +12,7 @@ import mylogging
 
 
 from ...helpers.paths import PROJECT_PATHS, validate_path, PathLike
-from ...helpers.misc import get_console_str_with_quotes
+from ...helpers.misc import get_console_str_with_quotes, terminal_do_command
 from .. import venvs
 
 
@@ -70,7 +69,7 @@ def run_tests(
     stop_on_first_error: bool = True,
     virtualenvs: None | Sequence[PathLike] = sys.prefix,
     sync_requirements: None | Literal["infer"] | PathLike | Sequence[PathLike] = "infer",
-    verbose: Literal[0, 1, 2] = 1,
+    verbosity: Literal[0, 1, 2] = 1,
     extra_args: None | list = None,
 ) -> None:
     """Run tests. If any test fails, raise an error.
@@ -80,8 +79,8 @@ def run_tests(
     more time than testing in IDE.
 
     Args:
-        tested_path (PathLike, optional): If None, root is used. root is necessary if using doctests
-            'Tests' folder not works for doctests in modules. Defaults to None.
+        tested_path (PathLike, optional): If None, root is used. root is necessary if using doctest, 'tests'
+            folder not works for doctests in modules. Defaults to None.
         tests_path (PathLike, optional): If None, tests is used. It means where venv will be stored etc.
             Defaults to None.
         test_coverage (bool, optional): Whether run test coverage plugin. If True, pytest-cov must
@@ -89,12 +88,13 @@ def run_tests(
         stop_on_first_error (bool, optional): Whether stop on first error. Defaults to True.
         virtualenvs (None | Sequence[PathLike], optional): Virtualenvs used to testing. It's used to be able
             to test more python versions at once. Example: ``["venv/37", "venv/310"]``. If you want to use
-            current venv, use ``sys.prefix``. Defaults to sys.prefix.
+            current venv, use `sys.prefix`. If there is no venv, it's created with default virtualenv version.
+            Defaults to sys.prefix.
         sync_requirements (None | Literal["infer"] | PathLike | Sequence[PathLike], optional): If using
             `virtualenvs` define what libraries will be installed by path to requirements.txt. Can also be a
-            list of more files e.g `["requirements.txt", "requirements_dev.txt"]`. If "infer", autodetected
+            list of more files e.g ``["requirements.txt", "requirements_dev.txt"]``. If "infer", autodetected
             (all requirements). Defaults to "infer".
-        verbose (Literal[0, 1, 2], optional): Whether print details on errors or keep silent. If 0, no
+        verbosity (Literal[0, 1, 2], optional): Whether print details on errors or keep silent. If 0, no
             details, parameters `-q and `--tb=no` are added. if 1, some details are added --tb=short. If 2,
             more details are printed (default --tb=auto) Defaults to 1.
         extra_args (None | list, optional): List of args passed to pytest. Defaults to None
@@ -107,11 +107,13 @@ def run_tests(
         If some of them fail, it's further analyzed in some other tool in IDE.
 
     Example:
-        ``run_tests(verbose=2)``
+        ``run_tests(verbosity=2)``
     """
     tested_path = validate_path(tested_path) if tested_path else PROJECT_PATHS.root
     tests_path = validate_path(tests_path) if tests_path else PROJECT_PATHS.tests
     tested_path_str = get_console_str_with_quotes(tested_path)
+
+    verbose = True if verbosity == 2 else False
 
     if not extra_args:
         extra_args = []
@@ -130,10 +132,10 @@ def run_tests(
     if stop_on_first_error:
         extra_args.append("-x")
 
-    if verbose == 0:
+    if verbosity == 0:
         extra_args.append("-q")
         extra_args.append("--tb=no")
-    elif verbose == 1:
+    elif verbosity == 1:
         extra_args.append("--tb=short")
 
     complete_args = [
@@ -151,32 +153,21 @@ def run_tests(
             my_venv = venvs.Venv(i)
             my_venv.create()
             if sync_requirements:
-                my_venv.sync_requirements(sync_requirements)
+                if verbosity:
+                    print(f"\nSyncing requirements in venv '{my_venv.venv_path.name}' for tests\n")
+                my_venv.sync_requirements(sync_requirements, verbose)
 
             test_commands.append(f"{my_venv.activate_command} && {test_command}")
     else:
         test_commands = [test_command]
 
-    for command in test_commands:
-        try:
-            pytested = subprocess.run(  # pylint: disable=subprocess-run-check
-                command, cwd=tested_path.as_posix(), capture_output=True
-            )  # , shell=True
-        except Exception:
-            mylogging.traceback(
-                "Tests failed and did not run. Try this command in terminal to know why it failed."
-                f"\n\n{command}\n\n"
-            )
-            raise
+    for i, command in enumerate(test_commands):
+        if verbosity and virtualenvs:
+            print(f"\nStarting tests with venv `{virtualenvs[i]}`\n")
 
-        if pytested.returncode != 0:
-            stdout_str = f"Stdout:\n\n{pytested.stdout.decode()}\n\n" if pytested.stdout else ""
-            stderr_str = f"Stderr:\n\n{pytested.stderr.decode()}\n\n" if pytested.stderr else ""
-            raise RuntimeError(
-                mylogging.format_str(
-                    f"Pytest failed. Used command is\n\n{test_command}\n\n" + stdout_str + stderr_str
-                )
-            )
+        terminal_do_command(
+            command, cwd=tested_path.as_posix(), verbose=verbose, error_header="Tests failed."
+        )
 
     if test_coverage and Path(".coverage").exists():
         Path(".coverage").unlink()
@@ -202,15 +193,15 @@ def add_readme_tests(readme_path: None | PathLike = None, test_folder_path: None
         Readme tests found.
 
     Note:
-        Only blocks with python defined syntax will be evaluated. Example:
+        Only blocks with python defined syntax will be evaluated. Example::
 
             ```python
             import numpy
             ```
 
-        If you want to import modules and use some global variables, add `<!--phmdoctest-setup-->` directive
+        If you want to import modules and use some global variables, add ``<!--phmdoctest-setup-->`` directive
         before block with setup code.
-        If you want to skip some test, add `<!--phmdoctest-mark.skip-->`
+        If you want to skip some test, add ``<!--phmdoctest-mark.skip-->``
     """
     readme_path = validate_path(readme_path) if readme_path else PROJECT_PATHS.readme
     test_folder_path = validate_path(test_folder_path) if test_folder_path else PROJECT_PATHS.tests
@@ -234,22 +225,14 @@ def add_readme_tests(readme_path: None | PathLike = None, test_folder_path: None
 
     generate_readme_test_command = f"{python_path} -m phmdoctest {readme} --outfile {output}"
 
-    readme_tests = subprocess.run(generate_readme_test_command)  # pylint: disable=subprocess-run-check
-
-    if readme_tests.returncode != 0:
-        raise RuntimeError(
-            mylogging.format_str(
-                f"Readme test creation failed with error code {readme_tests.returncode}. Try "
-                f"\n\n{' '.join(generate_readme_test_command)}\n\non your root."
-            )
-        )
+    terminal_do_command(generate_readme_test_command, error_header="Readme test creation failed")
 
 
 def deactivate_test_settings() -> None:
     """Deactivate functionality from setup_tests.
 
     Sometimess you want to run test just in normal mode (enable plots etc.). Usually at the end of
-    test file in `if __name__ = "__main__":` block.
+    test file in ``if __name__ = "__main__":`` block.
     """
     mylogging.config.colorize = True
 

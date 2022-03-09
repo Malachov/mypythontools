@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import pkg_resources
 import mypythontools
 
@@ -15,22 +15,28 @@ if __name__ == "__main__":
     setup(
         author_email="malachovd@seznam.cz",
         author="Daniel Malachov",
-        description="Some tools/functions/snippets used across projects.ions.",
+        description="Some tools/functions/snippets used across projects.",
         include_package_data=True,
         install_requires=my_requirements,
+        # extras_require={},
         license="mit",
         long_description_content_type="text/markdown",
         long_description=readme,
         name="mypythontools",
-        packages=["mypythontools"],
+        packages=find_packages(exclude=("tests**",)),
         platforms="any",
         project_urls={
             "Documentation": "https://mypythontools.readthedocs.io/",
-            "Home": "https://github.com/Malachov/mypythontools",
+            "Homepage": "https://github.com/Malachov/mypythontools",
         },
         python_requires=">=3.7",
         url="https://github.com/Malachov/mypythontools",
         version=version,
+        entry_points={
+            "console_scripts": [
+                "mypythontools.cicd = mypythontools.cicd.project_utils:project_utils_pipeline",
+            ],
+        },
         classifiers=[
             "Development Status :: 3 - Alpha",
             # "Development Status :: 4 - Beta
@@ -50,5 +56,4 @@ if __name__ == "__main__":
             "Topic :: Software Development :: Libraries :: Application Frameworks",
             "Topic :: Software Development :: Libraries :: Python Modules",
         ],
-        extras_require={},
     )

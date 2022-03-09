@@ -5,12 +5,14 @@ from typing import Sequence, Any
 import os
 import sys
 
+from typing_extensions import Literal
+
 import mylogging
 
 from .. import tests
 from .. import venvs
 from ...helpers.config import ConfigBase, MyProperty
-from ...helpers.misc import GLOBAL_VARS
+from ...helpers.misc import GLOBAL_VARS, PARTY, print_progress
 from ...helpers.paths import PROJECT_PATHS, PathLike
 from ...helpers.types import validate_sequence
 from ..deploy import deploy_to_pypi
@@ -19,7 +21,7 @@ from .project_utils_functions import (
     git_push,
     reformat_with_black,
     set_version,
-    sphinx_docs_regenerate,
+    docs_regenerate,
 )
 
 # Lazy loaded
@@ -28,6 +30,26 @@ from .project_utils_functions import (
 
 class PipelineConfig(ConfigBase):
     """Allow to setup CICD pipeline."""
+
+    @MyProperty
+    @staticmethod
+    def do_only() -> Literal[
+        None, "reformat", "test", "docs", "sync_requirements", "commit_and_push_git", "deploy"
+    ]:
+        """Run just single function from pipeline, ignore the others.
+
+        Type:
+            Literal[
+                None, "reformat", "test", "docs", "sync_requirements", "commit_and_push_git", "deploy"
+            ]
+
+        Default:
+            None
+
+        Reason for why to call it form here and not directly is to be able to use sys args or single command
+        line entrypoint.
+        """
+        return None
 
     @MyProperty
     @staticmethod
@@ -66,14 +88,14 @@ class PipelineConfig(ConfigBase):
         Default:
             None
 
-        Example:
-            ``{"virtualenvs": ["venv/37", "venv/310], "test_coverage": True, "verbose": False}``
+        For example:
+            >>> {"virtualenvs": ["venv/37", "venv/310], "test_coverage": True, "verbose": False}
         """
         return None
 
     @MyProperty
     @staticmethod
-    def version() -> str:
+    def version() -> None | str:
         """Overwrite __version__ in __init__.py.
 
         Type:
@@ -89,9 +111,9 @@ class PipelineConfig(ConfigBase):
 
     @MyProperty
     @staticmethod
-    def sphinx_docs() -> bool:
+    def docs() -> bool:
         """Whether generate sphinx apidoc and generate rst files for documentation. Some files in docs source
-        can be deleted - check `sphinx_docs` docstrings for details.
+        can be deleted - check `docs` docstrings for details.
 
         Type:
             bool
@@ -157,7 +179,7 @@ class PipelineConfig(ConfigBase):
 
     @MyProperty
     @staticmethod
-    def tag_mesage() -> str:
+    def tag_message() -> str:
         """Tag message.
 
         Type:
@@ -196,21 +218,44 @@ class PipelineConfig(ConfigBase):
         """
         return ["master", "main"]
 
+    @MyProperty
+    @staticmethod
+    def verbosity() -> Literal[0, 1, 2]:
+        """Pipeline runs only on defined branches.
+
+        Type:
+            Literal[0, 1, 2]
+
+        Default:
+            1
+        """
+        return 1
+
 
 def project_utils_pipeline(
-    config: PipelineConfig = None,
+    config: None | PipelineConfig = None,
+    do_only: Literal[
+        None,
+        "reformat",
+        "test",
+        "docs",
+        "sync_requirements",
+        "commit_and_push_git",
+        "deploy",
+    ] = None,
     reformat: bool = True,
     test: bool = True,
     test_options: None | dict[str, Sequence[PathLike]] | dict[str, Any] = None,
-    version: str = "increment",
-    sphinx_docs: bool = True,
+    version: None | str = "increment",
+    docs: bool = True,
     sync_requirements: bool | PathLike = False,
     commit_and_push_git: bool = True,
     commit_message: str = "New commit",
     tag: str = "__version__",
-    tag_mesage: str = "New version",
+    tag_message: str = "New version",
     deploy: bool = False,
     allowed_branches: None | Sequence[str] = ("master", "main"),
+    verbosity: Literal[0, 1, 2] = 1,
 ) -> None:
     """Run pipeline for pushing and deploying app.
 
@@ -223,26 +268,33 @@ def project_utils_pipeline(
     and set paths that are necessary in paths module.
 
     Note:
-        Beware that pushing to git create a commit and add all the changes.
+        Beware that pushing to git create a commit and add all the changes, not only the staged ones.
 
-    Check utils module docs for implementation example. Some functions have specific parameters and here can
-    be used just True / False. Use function separately if needed.
+    When using sys args for boolean values, always define True or False.
+
+    There is command line entrypoint called `mypythontools.cicd`. After mypythontools is installed, you can
+    use it in terminal like::
+
+        mypythontools.cicd --do_only reformat
 
     Args:
-        config (PipelineConfig, optional): It is possible to configure all the params with CLI args from
-            terminal. Just create script, where create config, use 'config.with_argparse()' and call
+        config (None | PipelineConfig, optional): It is possible to configure all the params with CLI args
+            from terminal. Just create script, where create config, use 'config.with_argparse()' and call
             project_utils_pipeline(config=config). Example usage 'python your_script.py --deploy True'
+        do_only (Literal[None, "reformat", "test", "docs", "sync_requirements", "commit_and_push_git", "deploy"], optional):
+            Run just single function from pipeline, ignore the others. Reason for why to call it form here and
+            not directly is to be able to use sys args or single command line entrypoint. Defaults to None.
         reformat (bool, optional): Reformat all python files with black. Setup parameters in
             `pyproject.toml`, especially setup `line-length`. Defaults to True.
         test (bool, optional): Whether run pytest tests. Defaults to True.
         test_options (None | dict, optional): Parameters of tests function e.g.
             ``{"virtualenvs": ["venv/37", "venv/310], "test_coverage": True, "verbose": False}``.
             Defaults to None.
-        version (str, optional): New version. E.g. '1.2.5'. If 'increment', than it's auto
+        version (None | str, optional): New version. E.g. '1.2.5'. If 'increment', than it's auto
             incremented. E.g from '1.0.2' to 'v1.0.3'. If empty string "" or not value arg in CLI,
             then version is not changed. 'Defaults to "increment".
-        sphinx_docs(bool, optional): Whether generate sphinx apidoc and generate rst files for documentation.
-            Some files in docs source can be deleted - check `sphinx_docs` docstrings for details.
+        docs(bool, optional): Whether generate sphinx apidoc and generate rst files for documentation.
+            Some files in docs source can be deleted - check `docs` docstrings for details.
             Defaults to True.
         sync_requirements(bool | PathLike, optional): Check requirements.txt and update all the libraries.
             You can use path to requirements. If True, then path is inferred. Defaults to False.
@@ -252,53 +304,84 @@ def project_utils_pipeline(
         tag (str, optional): Used tag. If tag is '__version__', than updated version from __init__
             is used.  If empty string "" or not value arg in CLI, then tag is not created.
             Defaults to __version__.
-        tag_mesage (str, optional): Tag message. Defaults to New version.
+        tag_message (str, optional): Tag message. Defaults to New version.
         deploy (bool, optional): Whether deploy to PYPI. `TWINE_USERNAME` and `TWINE_PASSWORD`
             are used for authorization. Defaults to False.
         allowed_branches (None | Sequence[str], optional): As there are stages like pushing to git or to PyPi,
             it's better to secure it to not to be triggered on some feature branch. If not one of
             defined branches, error is raised. Defaults to ("master", "main").
+        verbosity (Literal[0, 1, 2], optional): How much information print to console. 0 prints just errors,
+            1 prints when starting new step, 2 prints every stdout to console. Defaults to 1.
 
     Example:
-        Recommended use is from IDE (for example with Tasks in VS Code). Check utils docs for how
-        to use it. You can also use it from python...
+        Recommended use is from IDE (for example with Tasks in VS Code). Check utils docs for how to use it.
+        You can also use it from python... ::
 
-        Put it in `if __name__ == "__main__":` block::
+            if __name__ == "__main__":
+                project_utils_pipeline(commit_and_push_git=False, deploy=False, allowed_branches=None)
 
-            project_utils_pipeline(commit_and_push_git=False, deploy=False, allowed_branches=None)
+        It's also possible to use CLI and configure it via args. This example just push repo to PyPi. ::
 
-        It's also possible to use CLI and configure it via args. This example just push repo to PyPi.
-
-            python path-to-project/utils/push_script.py --deploy True --test False --reformat False --version --push_git False --sphinx_docs False
+            python path-to-project/utils/push_script.py --do_only deploy
     """
     if not config:
         config = PipelineConfig()
         config.update(
             {
+                "do_only": do_only,
                 "reformat": reformat,
                 "test": test,
                 "test_options": test_options,
                 "version": version,
                 "sync_requirements": sync_requirements,
-                "sphinx_docs": sphinx_docs,
+                "docs": docs,
                 "commit_and_push_git": commit_and_push_git,
                 "commit_message": commit_message,
                 "tag": tag,
-                "tag_mesage": tag_mesage,
+                "tag_message": tag_message,
                 "deploy": deploy,
                 "allowed_branches": allowed_branches,
+                "verbosity": verbosity,
             }
         )
 
     if not GLOBAL_VARS.is_tested:
         config.with_argparse()
 
+    if config.do_only:
+        config.update(
+            {
+                "reformat": False,
+                "test": False,
+                "docs": False,
+                "sync_requirements": False,
+                "commit_and_push_git": False,
+                "deploy": False,
+                "version": None,
+            }
+        )
+        config.update({config.do_only: True})
+
+        if config.verbosity == 1:
+            config.verbosity = 0
+
+    verbose = True if config.verbosity == 2 else False
+
     if config.allowed_branches:
         import git.repo
+        from git.exc import InvalidGitRepositoryError
 
         validate_sequence(allowed_branches, "allowed_branches")
 
-        branch = git.repo.Repo(PROJECT_PATHS.root.as_posix()).active_branch.name
+        try:
+            branch = git.repo.Repo(PROJECT_PATHS.root.as_posix()).active_branch.name
+        except InvalidGitRepositoryError:
+            raise RuntimeError(
+                mylogging.format_str(
+                    "Loading of git project failed. Verify whether running pipeline from correct path. If "
+                    "checks branch with `allowed_branches', there has to be `.git` folder available."
+                )
+            ) from None
 
         if branch not in config.allowed_branches:
             raise RuntimeError(
@@ -322,6 +405,8 @@ def project_utils_pipeline(
                 mylogging.format_str("Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.")
             )
     if config.sync_requirements:
+        print_progress("Syncing requirements", verbosity)
+
         sync_requirements = "infer" if config.sync_requirements is True else config.sync_requirements
         if not venvs.is_venv:
             raise RuntimeError(
@@ -329,31 +414,38 @@ def project_utils_pipeline(
             )
         my_venv = venvs.Venv(sys.prefix)
         my_venv.create()
-        my_venv.sync_requirements(sync_requirements)
+        my_venv.sync_requirements(sync_requirements, verbose=verbose)
 
     if config.test:
+        print_progress("Testing", verbosity)
+
         if not config.test_options:
             config.test_options = {}
 
-        tests.run_tests(**config.test_options)
+        tests.run_tests(**config.test_options, verbosity=verbosity)
 
     if config.reformat:
+        print_progress("Reformatting", verbosity)
         reformat_with_black()
 
     if config.version and config.version != "None":
+        print_progress("Setting version", verbosity)
         original_version = get_version()
         set_version(config.version)
 
     try:
-        if config.sphinx_docs:
-            sphinx_docs_regenerate()
+        if config.docs:
+            print_progress("Sphinx docs generation", verbosity)
+            docs_regenerate(verbose=verbose)
 
         if config.commit_and_push_git:
+            print_progress("Pushing to github", verbosity)
             git_push(
                 commit_message=config.commit_message,
                 tag=config.tag,
-                tag_message=config.tag_mesage,
+                tag_message=config.tag_message,
             )
+
     except Exception:  # pylint: disable=broad-except
         if config.version:
             set_version(original_version)  # type: ignore
@@ -366,9 +458,13 @@ def project_utils_pipeline(
 
     try:
         if config.deploy:
+            print_progress("Deploying to PyPi", verbosity)
             deploy_to_pypi()
+
     except Exception:  # pylint: disable=broad-except
         mylogging.traceback(
             "Deploy failed, but pushed to repository already. Deploy manually. Version already changed.",
             level="CRITICAL",
         )
+
+    print_progress(f"{3 * PARTY} Finished {3 * PARTY}", verbosity)

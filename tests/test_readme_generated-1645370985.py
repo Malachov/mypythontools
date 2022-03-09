@@ -4,14 +4,14 @@ import pytest
 from phmdoctest.functions import _phm_compare_exact
 
 
-def test_code_71():
+def test_code_56():
     from mypythontools import helpers
 
     # Caution- no assertions.
 
 
 @pytest.mark.skip()
-def test_code_78_output_196(capsys):
+def test_code_63_output_181(capsys):
     import mypythontools
 
     helpers = mypythontools.helpers

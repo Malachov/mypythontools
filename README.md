@@ -9,18 +9,17 @@ It's called mypythontools, but it's also made for you...
 
 Can be used as python library. Things like building the application with pyinstaller, incrementing version,
 generating rst files for sphinx docs, pushing to GitHub or deploying to PyPi or other CI/CD functionality,
-creating config module or plot data is a matter of calling one function or clicking one button (e.g. Vs Code task).
+creating config module or plot data is a matter of calling one function or clicking one button (e.g. VS Code task).
 
 Many projects - one codebase.
 
-If you are not sure whether the structure of your app will work with this code, check `project-starter` on GitHub
-in content folder.
+If you are not sure whether the structure of your app will work with this code, check `project-starter` on GitHub in `tools` folder.
 
 Paths are inferred, but if you have atypical structure or have more projects in cwd, setup necessary paths in paths
 module.
 
 There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.),
-such a content is under the Content topic.
+such a content is under the `Tools` topic.
 
 
 ## Links
@@ -29,20 +28,6 @@ Official documentation - [readthedocs](https://mypythontools.readthedocs.io/)
 
 Official repo - [GitHub](https://github.com/Malachov/mypythontools)
 
-It's called mypythontools, but it's also made for you...
-
-Usually used from IDE. Used paths are inferred and things like sphinx rst docs generation, building
-application with pyinstaller or deploying to PyPi is the matter of calling one function,
-or clicking one button (e.g. Vs Code task).
-
-Many projects - one codebase.
-
-If you are not sure whether the structure of your app will work with this code, check `project-starter` on GitHub in content folder.
-
-Paths are inferred, but if you have atypical structure or have more projects in cwd, setup paths in paths module.
-
-There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.), 
-such a content is in folder Content.
 
 ## Installation
 
@@ -79,7 +64,7 @@ import mypythontools
 helpers = mypythontools.helpers
 ```
 
-Check modules help or readme docs with examples.
+Check module help or readme docs with examples.
 
 cicd
 ----
@@ -132,11 +117,11 @@ There are some other things that are not installed via pip in mypythontools libr
 
 Project scaffolding fast and easy.
 
-Download project-starter from (GitHub)[https://github.com/Malachov/mypythontools/tree/master/content/project-starter] (You may need to download all mypythontools repository in zip)
+Download project-starter from (GitHub)[https://github.com/Malachov/mypythontools/tree/master/tools/project-starter] (You may need to download all mypythontools repository in zip)
 
 And start developing.
 
-In your IDE do bulk renaming across files and replace `SET_YOUR_NAME` with name of your app / library.
+In your IDE, do bulk renaming across files and replace `SET_YOUR_NAME` with name of your app / library.
 
 This starter is for vue-eel applications (desktop as well as web) but also for python libraries that will be stored on PyPi.
 
@@ -190,7 +175,7 @@ It also includes some default project specific settings for VS Code. You can als
 
 ### requirements
 
-Install many libraries at once (no need for Anaconda). Download `requirements.txt` file from (GitHub)[https://github.com/Malachov/mypythontools/tree/master/content/requirements] and in that folder use
+Install many libraries at once (no need for Anaconda). Download `requirements.txt` file from (GitHub)[https://github.com/Malachov/mypythontools/tree/master/tools/requirements] and in that folder use
 
 ```
 pip install -r requirements.txt
@@ -223,15 +208,15 @@ Result should look like this
 ### Tasks
 
 There are VS Code tasks examples in utils and build module, but here is small tutorial how to use it. Run
-command `Tasks: Open User Tasks`, add tasks from github/content/tasks or if you have no task yet, you can
+command `Tasks: Open User Tasks`, add tasks from github/tools/tasks or if you have no task yet, you can
 copy / paste all.
 
 Install extension **Task Explorer**
 
-On root copy folder `utils` from content/tasks
+On root copy folder `utils` from Tools/tasks
 
 You are ready to go. You should see something like this
 
 <div align="center"><img src="docs/source/_static/tasks.png" width="620" alt="tasks"/></div>
 
-You can do CI / CD pipeline or Build app with one click now.
+You can do CI / CD pipeline or build app with one click now.

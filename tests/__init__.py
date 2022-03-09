@@ -5,5 +5,6 @@
 in terminal in tests folder.
 """
 from . import test_cicd
+from . import test_helpers
 
-__all__ = ["test_cicd"]
+__all__ = ["test_cicd", "test_helpers"]

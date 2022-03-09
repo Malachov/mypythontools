@@ -11,6 +11,7 @@ from mypythontools.helpers.paths.paths_internal import (
     validate_path,
     PathLike,
     PROJECT_PATHS,
+    ProjectPaths,
 )
 
-__all__ = ["find_path", "get_desktop_path", "validate_path", "PathLike", "PROJECT_PATHS"]
+__all__ = ["find_path", "get_desktop_path", "validate_path", "PathLike", "PROJECT_PATHS", "ProjectPaths"]

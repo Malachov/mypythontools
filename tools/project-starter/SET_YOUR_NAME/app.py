@@ -15,7 +15,7 @@ pyvueeel_internal.expose_error_callback = print_traceback
 
 
 # If you are not using this template for the first time, you can delete all help unncecessary lines and comments.                   # **DELETELINE
-# For example in vs code, select some than hold ctrl + D after every is selected,                                                   # **DELETELINE
+# For example in VS Code, select some than hold ctrl + D after every is selected,                                                   # **DELETELINE
 # use ctrl + L to select all lines and use                                                                                          # **DELETELINE
 
 

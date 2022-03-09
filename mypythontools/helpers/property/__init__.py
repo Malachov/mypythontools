@@ -58,6 +58,7 @@ Examples:
     
     You can still setup a function (or lambda expression) as a new value
     and returned value still will be validated
+
     >>> config.var = lambda self: self.var_literal + 1
 """
 

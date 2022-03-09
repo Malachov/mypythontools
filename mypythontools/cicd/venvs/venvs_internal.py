@@ -14,7 +14,7 @@ from typing_extensions import Literal
 import mylogging
 
 from ...helpers.paths import PROJECT_PATHS, validate_path, PathLike
-from ...helpers.misc import get_console_str_with_quotes
+from ...helpers.misc import get_console_str_with_quotes, terminal_do_command, SHELL_AND, PYTHON
 
 
 class Venv:
@@ -23,13 +23,13 @@ class Venv:
     Example:
         >>> from pathlib import Path
         ...
-        >>> path = "venv/310"
+        >>> path = "venv/310" if platform.system() == "Windows" else "venv/ubuntu"
         >>> venv = Venv(path)
         >>> venv.create()  # If already exists, it's skipped
         >>> venv.install_library("colorama==0.3.9")
         >>> "colorama==0.3.9" in venv.list_packages()
         True
-        >>> venv.sync_requirements()  # There ia a 8.0.3 in requirements.txt
+        >>> venv.sync_requirements()  # There ia a 0.4.4 in requirements.txt
         >>> "colorama==0.4.4" in venv.list_packages()
         True
         >>> venv.remove()
@@ -60,11 +60,15 @@ class Venv:
         if platform.system() == "Windows":
             activate_path = self.venv_path / "Scripts" / "activate.bat"
             self.executable = self.venv_path / "Scripts" / "python.exe"
+            self.executable_str = get_console_str_with_quotes(
+                (self.venv_path / "Scripts" / "python.exe").as_posix()
+            )
             self.create_command = f"python -m virtualenv {self.venv_path_console_str}"
             self.activate_command = get_console_str_with_quotes(activate_path.as_posix())
             scripts_path = self.venv_path / "Scripts"
         else:
             self.executable = self.venv_path / "bin" / "python"
+            self.executable_str = get_console_str_with_quotes((self.venv_path / "bin" / "python").as_posix())
             self.create_command = f"python3 -m virtualenv {self.venv_path_console_str}"
             self.activate_command = (
                 f"source {get_console_str_with_quotes(self.venv_path / 'bin' / 'activate')}"
@@ -78,30 +82,31 @@ class Venv:
         """Path to the executables. Can be directly used in terminal. Some libraries cannot use
         ``python -m package`` syntax and therefore it can be called from scripts folder."""
 
-        self.subprocess_prefix = (
-            f"{self.activate_command} && {get_console_str_with_quotes(self.executable.as_posix())} -m "
-        )
-        """Run as module, so library can be directly call afterwards.
-        Can be directly used in terminal.
-        E.g. ``.../Scripts/activate.bat && .../venv/Scripts/python.exe -m``"""
+        self.subprocess_prefix = f"{self.activate_command} {SHELL_AND} {self.executable_str} -m "
+        """Run as module, so library can be directly call afterwards. Can be directly used in terminal. It can
+        look like this for example::
+        
+            .../Scripts/activate.bat && .../venv/Scripts/python.exe -m
+        """
 
-    def create(self) -> None:
-        """Create virtual environment. If it already exists, it will be skipped and nothing happens."""
+    def create(self, verbose: bool = False) -> None:
+        """Create virtual environment. If it already exists, it will be skipped and nothing happens.
+
+        Args:
+            verbose (bool, optional): If True, result of terminal command will be printed to console.
+                Defaults to False.
+        """
         if not self.installed:
-            try:
-                result = subprocess.run(self.create_command, check=True, capture_output=True, shell=True)
-                if result.returncode != 0:
-                    raise RuntimeError
-            except Exception:
-                mylogging.traceback("Creation of venv failed. Check logged error.")
-                raise
-            if not self.executable.exists():
-                raise RuntimeError(
-                    f"New venv not created. Return code: {result.returncode}, Stderr:\n\n{result.stderr}"
-                )
+            terminal_do_command(
+                self.create_command,
+                cwd=PROJECT_PATHS.root.as_posix(),
+                shell=True,
+                verbose=verbose,
+                error_header="Venv creation failed",
+            )
 
     def sync_requirements(
-        self, requirements: Literal["infer"] | PathLike | Sequence[PathLike] = "infer"
+        self, requirements: Literal["infer"] | PathLike | Sequence[PathLike] = "infer", verbose: bool = False
     ) -> None:
         """Sync libraries based on requirements. Install missing, remove unnecessary.
 
@@ -109,6 +114,8 @@ class Venv:
             requirements (Literal["infer"] | PathLike | Sequence[PathLike], optional): Define what libraries
                 will be installed. If "infer", autodetected. Can also be a list of more files e.g
                 `["requirements.txt", "requirements_dev.txt"]`. Defaults to "infer".
+            verbose (bool, optional): If True, result of terminal command will be printed to console.
+                Defaults to False.
         """
         if requirements == "infer":
 
@@ -116,10 +123,10 @@ class Venv:
 
             for i in PROJECT_PATHS.root.glob("*"):
                 if "requirements" in i.as_posix().lower() and i.suffix == ".txt":
-                    requirements.append(i)  # type: ignore
+                    requirements.append(i)
         else:
-            if not isinstance(requirements, list):
-                requirements = list(requirements)  # type: ignore
+            if isinstance(requirements, PathLike):
+                requirements = [requirements]
 
             requirements = [validate_path(req) for req in requirements]
 
@@ -140,67 +147,73 @@ class Venv:
         with open(requirements_all_path, "w") as requirement_libraries:
             requirement_libraries.write(requirements_content)
 
-        sync_command = (
-            f"{self.activate_command} && "
-            f"pip install pip-tools && "
-            f"pip-compile {requirements_all_console_path_str} --output-file {freezed_requirements_console_path_str} --quiet && "  # pylint: disable="line-too-long"
-            f"pip-sync {freezed_requirements_console_path_str} --quiet"
+        pip_compile_command = (
+            f"pip-compile {requirements_all_console_path_str} --output-file "
+            f"{freezed_requirements_console_path_str} --quiet"
         )
 
-        try:
-            result = subprocess.run(sync_command, check=True, shell=True)
-            if result.returncode != 0:
-                raise RuntimeError
+        pip_tools_install_msg = "Library necessary for syncing requirements 'pip-tools' failed to install."
 
-        except (Exception,):
-            mylogging.traceback(
-                "Update of venv libraries based on requirements failed. Check logged error. Try this command "
-                "(if windows, use cmd) with administrator rights in your project root folder because of "
-                "permission errors."
-                f"\n\n{sync_command}\n\n"
+        sync_commands = {
+            "pip install pip-tools": pip_tools_install_msg,
+            pip_compile_command: "Creading joined requirements.txt file failed.",
+            f"pip-sync {freezed_requirements_console_path_str} --quiet": "Requirements syncing failed.",
+        }
+
+        for i, j in sync_commands.items():
+            terminal_do_command(
+                f"{self.activate_command} {SHELL_AND} {i}", shell=True, verbose=verbose, error_header=j
             )
-            raise
 
-    def list_packages(self):
-        """Get list of installed libraries in the venv. The reason why it's meta coded via string parsing and
-        not parsed directly is that it needs to be available from other venv as well."""
-        command = (
-            """"import pkg_resources"\n"""
-            '''"print(sorted([f\'{i.key}=={i.version}\' for i in pkg_resources.working_set]))"'''
+    def list_packages(self) -> str:
+        """Get list of installed libraries in the venv.
+
+        The reason why it's meta coded via string parsing and not parsed directly is that it needs to be
+        available from other venv as well.
+        """
+        result = subprocess.run(
+            f"{self.activate_command} {SHELL_AND} {PYTHON} -m pip freeze",
+            capture_output=True,
+            check=True,
+            shell=True,
         )
-        result = subprocess.run(f"{self.executable} -c {command}", capture_output=True)
-
         output_str = result.stdout.decode().strip("\r\n")
 
-        return literal_eval(output_str)
+        return output_str
 
-    def install_library(self, name: str):
-        """Install package to venv with pip install."""
-        command = f"{self.activate_command} && pip install {name}"
-        try:
-            result = subprocess.run(command, check=True, shell=True)
-            if result.returncode != 0:
-                raise RuntimeError
-        except Exception:
-            raise RuntimeError(mylogging.format_str(f"Library {name} installation failed. Try it manually."))
+    def install_library(self, name: str, verbose: bool = False) -> None:
+        """Install package to venv with pip install.
 
-    def uninstall_library(self, name: str):
-        """Uninstall package to venv with pip install."""
-        command = f"{self.activate_command} && pip uninstall {name}"
-        try:
-            result = subprocess.run(command, check=True, shell=True)
-            if result.returncode != 0:
-                raise RuntimeError
-        except Exception:
-            raise RuntimeError(mylogging.format_str(f"Library {name} removal failed. Try it manually."))
+        Args:
+            verbose (bool, optional): If True, result of terminal command will be printed to console.
+                Defaults to False.
+        """
+        command = f"{self.activate_command} {SHELL_AND} pip install {name}"
+        terminal_do_command(command, shell=True, verbose=verbose, error_header="Library installation failed.")
+
+    def uninstall_library(self, name: str, verbose: bool = False) -> None:
+        """Uninstall package to venv with pip install.
+
+        Args:
+            verbose (bool, optional): If True, result of terminal command will be printed to console.
+                Defaults to False.
+        """
+        command = f"{self.activate_command} {SHELL_AND} pip uninstall {name}"
+
+        terminal_do_command(command, shell=True, verbose=verbose, error_header="Library removal failed")
 
     def remove(self) -> None:
         """Remove the folder with venv."""
         shutil.rmtree(self.venv_path.as_posix())
 
-    def get_script_path(self, name):
-        return get_console_str_with_quotes(self.scripts_path / f"{name}.exe")
+    def get_script_path(self, name: str) -> str:
+        """Get script path such as pip for example."""
+        if platform.system() == "Windows":
+            return get_console_str_with_quotes(self.scripts_path / f"{name}.exe")
+        else:
+            return get_console_str_with_quotes(self.scripts_path / name)
 
 
-def is_venv():
+def is_venv() -> bool:
+    """True if run in venv, False if run in main interpreter directly."""
     return sys.base_prefix.startswith(sys.prefix)

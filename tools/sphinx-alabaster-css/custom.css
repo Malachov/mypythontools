@@ -37,6 +37,10 @@ dd {
   margin-top: 10px;
 }
 
+dd .simple {
+  list-style: none;
+}
+
 .viewcode-link {
   font-size: 20px;
 }
@@ -49,6 +53,10 @@ a {
 cite {
   background-color: #eeeeee;
   padding: 2px 7px 2px 7px;
+}
+
+pre .go {
+  white-space: break-spaces;
 }
 
 #table-of-contents h1 {
@@ -84,9 +92,9 @@ div.body h3 {
   margin: 25px 0px 10px -20px;
 }
 
-div.body ul {
+/* div.body ul {
   margin-top: 10px !important;
-}
+} */
 
 div.footer {
   margin-top: 30px;
@@ -161,7 +169,11 @@ div.sphinxsidebar ul li.toctree-l1 > a {
 }
 
 dl.field-list > dt {
-  min-width: 80px;
+  min-width: 112px;
+}
+
+.field-odd .doctest {
+  margin: 5px 14px;
 }
 
 /*

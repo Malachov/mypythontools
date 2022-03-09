@@ -1,6 +1,7 @@
 """Module with functions for 'type_hints' subpackage."""
 
 from __future__ import annotations
+import sys
 
 # Import can be used in eval
 from typing import (
@@ -15,9 +16,26 @@ from typing import (
 )  # pylint: disable=unused-import
 
 from typing_extensions import Literal, get_origin, get_args, get_type_hints
-from typeguard import check_type
+
+from typeguard import typechecked  # , check_type
 
 import mylogging
+
+
+def typechecked_compatible(function):
+    """Turns off type checking for old incompatible python versions.
+
+    Mainly for new syntax like list[str] which raise TypeError.
+    """
+
+    # def decorator(func):
+    #     if sys.version_info.minor < 9:
+    #         return func
+    #     return typechecked(func)
+
+    if sys.version_info.minor < 9:
+        return function
+    return typechecked(function)
 
 
 def get_return_type_hints(func: Callable) -> Any:
@@ -28,7 +46,7 @@ def get_return_type_hints(func: Callable) -> Any:
 
     Note:
         Sometimes it may use eval as literal_eval cannot use users globals so types like pd.DataFrame would
-        fail. There do not use it for evaluating types of users input for sake of security.
+        fail. Therefore do not use it for evaluating types of users input for sake of security.
 
     Args:
         func (Callable): Function with type hints.
@@ -37,6 +55,7 @@ def get_return_type_hints(func: Callable) -> Any:
         Any: Type of return.
 
     Example:
+        >>> # You can use Union as well as Literal
         >>> def union_return() -> int | float:
         ...     return 1
         >>> inferred_type = get_return_type_hints(union_return)
@@ -87,42 +106,42 @@ class ValidationError(TypeError):
     pass
 
 
-def validate(value, allowed_type: Any, name: str) -> None:
-    """Type validation. It also works for Union and validate Literal values.
+# def validate(value, allowed_type: Any, name: str) -> None:
+#     """Type validation. It also works for Union and validate Literal values.
 
-    Instead of typeguard validation, it define just subset of types, but is simplier
-    and needs no extra import, therefore can be faster.
+#     Instead of typeguard validation, it define just subset of types, but is simplier
+#     and needs no extra import, therefore can be faster.
 
-    Args:
-        value (Any): Value that will be validated.
-        allowed_type (Any, optional): For example int, str or list. It can be also Union
-            or Literal. If Literal, validated value has to be one of Literal values.
-            Defaults to None.
-        name (str | None, optional): If error raised, name will be printed. Defaults to None.
+#     Args:
+#         value (Any): Value that will be validated.
+#         allowed_type (Any, optional): For example int, str or list. It can be also Union
+#             or Literal. If Literal, validated value has to be one of Literal values.
+#             Defaults to None.
+#         name (str | None, optional): If error raised, name will be printed. Defaults to None.
 
-    Raises:
-        ValidationError: Type does not fit.
+#     Raises:
+#         ValidationError: Type does not fit.
 
-    # Examples:
-    #     >>> from typing_extension import Literal
-    #     ...
-    #     >>> validate(1, int)
-    #     >>> validate(None, list | None)
-    #     >>> validate("two", Literal["one", "two"])
-    #     >>> validate("three", Literal["one", "two"])
-    #     Traceback (most recent call last):
-    #     ValidationError: ...
-    """
-    check_type(value=value, expected_type=allowed_type, argname=name)
+#     Examples:
+#         >>> from typing_extensions import Literal
+#         ...
+#         >>> validate(1, int)
+#         >>> validate(None, list | None)
+#         >>> validate("two", Literal["one", "two"])
+#         >>> validate("three", Literal["one", "two"])
+#         Traceback (most recent call last):
+#         ValidationError: ...
+#     """
+#     check_type(value=value, expected_type=allowed_type, argname=name)
 
-    # TODO Wrap error with colors and remove stack only to configuration line...
-    # try:
-    #     check_type(value=value, expected_type=allowed_type, argname=name)
-    # except TypeError:
+# TODO Wrap error with colors and remove stack only to configuration line...
+# try:
+#     check_type(value=value, expected_type=allowed_type, argname=name)
+# except TypeError:
 
-    #     # ValidationError(mylogging.format_str("validate"))
+#     # ValidationError(mylogging.format_str("validate"))
 
-    #     raise
+#     raise
 
 
 def small_validate(value, allowed_type: None | Any = None, name: str | None = None) -> None:
