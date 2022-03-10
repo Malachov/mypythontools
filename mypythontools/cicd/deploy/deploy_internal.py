@@ -7,11 +7,8 @@ import shutil
 import mylogging
 
 from ...helpers.paths import PROJECT_PATHS, validate_path, PathLike
-from ...helpers.misc import (
-    terminal_do_command,
-    check_script_is_available,
-    check_library_is_available,
-)
+from ...helpers.misc import check_script_is_available, check_library_is_available
+from ...helpers.terminal import terminal_do_command, PYTHON
 
 
 def deploy_to_pypi(setup_path: None | PathLike = None, clean: bool = True, verbose: bool = True) -> None:
@@ -56,13 +53,13 @@ def deploy_to_pypi(setup_path: None | PathLike = None, clean: bool = True, verbo
     if build_path.exists():
         shutil.rmtree(build_path)
 
-    build_command = f"pyproject-build"
+    build_command = f"{PYTHON} setup.py sdist bdist_wheel"
 
     terminal_do_command(
         build_command,
         cwd=setup_dir_path.as_posix(),
         verbose=verbose,
-        error_header="Library build necessary for deploying to PyPi failed.",
+        error_header="Build python package for PyPi deployment failed.",
     )
 
     command = f"twine upload -u {usr} -p {password} dist/*"

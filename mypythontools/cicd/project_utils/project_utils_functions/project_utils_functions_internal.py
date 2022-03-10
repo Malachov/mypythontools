@@ -6,14 +6,16 @@ import ast
 
 import mylogging
 
-from ....helpers.misc import (
-    check_script_is_available,
-    get_console_str_with_quotes,
-    delete_files,
-    terminal_do_command,
-)
 from ....helpers.paths import PROJECT_PATHS, validate_path, PathLike
 from ....helpers.types import validate_sequence
+from ....helpers.terminal import (
+    get_console_str_with_quotes,
+    terminal_do_command,
+)
+from ....helpers.misc import (
+    check_script_is_available,
+    delete_files,
+)
 
 # Lazy loaded
 # from git import Repo
@@ -45,9 +47,7 @@ def reformat_with_black(
 
 
 def git_push(
-    commit_message: str,
-    tag: str = "__version__",
-    tag_message: str = "New version",
+    commit_message: str, tag: str = "__version__", tag_message: str = "New version", verbose: bool = False
 ) -> None:
     """Stage all changes, commit, add tag and push.
 
@@ -58,6 +58,8 @@ def git_push(
         tag (str, optional): Define tag used in push. If tag is '__version__', than is automatically generated
             from __init__ version. E.g from '1.0.2' to 'v1.0.2'.  Defaults to '__version__'.
         tag_message (str, optional): Message in annotated tag. Defaults to 'New version'.
+        verbose (bool, optional): If True, result of terminal command will be printed to console.
+            Defaults to False.
     """
     import git.repo
 
@@ -74,7 +76,7 @@ def git_push(
         git_command += " --follow-tags"
 
     try:
-        terminal_do_command(git_command, cwd=PROJECT_PATHS.root.as_posix(), shell=True)
+        terminal_do_command(git_command, cwd=PROJECT_PATHS.root.as_posix(), verbose=verbose)
 
     except RuntimeError as err:
         git.repo.Repo(PROJECT_PATHS.root.as_posix()).delete_tag(tag)  # type: ignore
@@ -183,13 +185,7 @@ def docs_regenerate(
     docs_path: None | PathLike = None,
     build_locally: bool = True,
     git_add: bool = True,
-    keep: Sequence[PathLike] = (
-        "conf.py",
-        "index.rst",
-        "_static",
-        "_templates",
-        "content/**",
-    ),
+    keep: Sequence[PathLike] = (),
     ignore: Sequence[PathLike] = ("modules.rst", "**/*internal.py"),
     verbose: bool = False,
 ) -> None:
@@ -198,7 +194,8 @@ def docs_regenerate(
     It automatically delete rst files from removed or renamed files.
 
     Note:
-        All the files except in 'keep' parameter will be deleted!!! Because if some files would be deleted or
+        All the files except ['conf.py', 'index.rst', '_static', '_templates', 'content/**'], and files in
+        'keep' parameter will be deleted!!! Because if some files would be deleted or
         renamed, rst would stay and html was generated. If you have some extra files or folders in docs
         source, add it to content folder or to 'keep' parameter.
 
@@ -213,8 +210,7 @@ def docs_regenerate(
             testing reasons. Defaults to True.
         keep (Sequence[PathLike], optional): List of files and folder names that will not be
             deleted. Deletion is because if some file would be renamed or deleted, rst docs would still stay.
-            Glob-style patterns can be used.
-            Defaults to ("conf.py", "index.rst", "_static", "_templates", "content/**").
+            Glob-style patterns can be used. Defaults to None.
         ignore (Sequence[PathLike], optional): Whether ignore some files from generated rst files. For example
             It can be python modules that will be ignored or it can be rst files created, that will be
             deleted. to have no errors in sphinx build for unused modules, or for internal modules. Glob-style
@@ -241,6 +237,14 @@ def docs_regenerate(
     source_path = PROJECT_PATHS.app
     source_console_path = get_console_str_with_quotes(source_path)
 
+    keep = [
+        *keep,
+        "conf.py",
+        "index.rst",
+        "_static",
+        "_templates",
+        "content/**",
+    ]
     ignore_list = [*ignore]
 
     ignored = " "

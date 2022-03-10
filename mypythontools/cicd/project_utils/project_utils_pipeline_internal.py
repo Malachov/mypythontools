@@ -12,7 +12,7 @@ import mylogging
 from .. import tests
 from .. import venvs
 from ...helpers.config import ConfigBase, MyProperty
-from ...helpers.misc import GLOBAL_VARS, PARTY, print_progress
+from ...helpers.misc import GLOBAL_VARS, EMOJIS, print_progress
 from ...helpers.paths import PROJECT_PATHS, PathLike
 from ...helpers.types import validate_sequence
 from ..deploy import deploy_to_pypi
@@ -366,6 +366,7 @@ def project_utils_pipeline(
             config.verbosity = 0
 
     verbose = True if config.verbosity == 2 else False
+    progress_is_printed = config.verbosity > 0
 
     if config.allowed_branches:
         import git.repo
@@ -405,7 +406,7 @@ def project_utils_pipeline(
                 mylogging.format_str("Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.")
             )
     if config.sync_requirements:
-        print_progress("Syncing requirements", verbosity)
+        print_progress("Syncing requirements", progress_is_printed)
 
         sync_requirements = "infer" if config.sync_requirements is True else config.sync_requirements
         if not venvs.is_venv:
@@ -417,7 +418,7 @@ def project_utils_pipeline(
         my_venv.sync_requirements(sync_requirements, verbose=verbose)
 
     if config.test:
-        print_progress("Testing", verbosity)
+        print_progress("Testing", progress_is_printed)
 
         if not config.test_options:
             config.test_options = {}
@@ -425,25 +426,26 @@ def project_utils_pipeline(
         tests.run_tests(**config.test_options, verbosity=verbosity)
 
     if config.reformat:
-        print_progress("Reformatting", verbosity)
+        print_progress("Reformatting", progress_is_printed)
         reformat_with_black()
 
     if config.version and config.version != "None":
-        print_progress("Setting version", verbosity)
+        print_progress("Setting version", progress_is_printed)
         original_version = get_version()
         set_version(config.version)
 
     try:
         if config.docs:
-            print_progress("Sphinx docs generation", verbosity)
+            print_progress("Sphinx docs generation", progress_is_printed)
             docs_regenerate(verbose=verbose)
 
         if config.commit_and_push_git:
-            print_progress("Pushing to github", verbosity)
+            print_progress("Pushing to github", progress_is_printed)
             git_push(
                 commit_message=config.commit_message,
                 tag=config.tag,
                 tag_message=config.tag_message,
+                verbose=verbose,
             )
 
     except Exception:  # pylint: disable=broad-except
@@ -451,20 +453,23 @@ def project_utils_pipeline(
             set_version(original_version)  # type: ignore
 
         mylogging.traceback(
-            "Utils pipeline failed. Original version restored. Nothing was pushed to repo, "
-            "you can restart pipeline."
+            f"{3 * EMOJIS.DISAPPOINTMENT} Utils pipeline failed {3 * EMOJIS.DISAPPOINTMENT} \n\n"
+            "Original version restored. Nothing was pushed to repo, you can restart pipeline."
         )
         return
 
     try:
         if config.deploy:
-            print_progress("Deploying to PyPi", verbosity)
+            print_progress("Deploying to PyPi", progress_is_printed)
             deploy_to_pypi()
 
     except Exception:  # pylint: disable=broad-except
         mylogging.traceback(
-            "Deploy failed, but pushed to repository already. Deploy manually. Version already changed.",
+            f"{3 * EMOJIS.DISAPPOINTMENT} Deploy failed {3 * EMOJIS.DISAPPOINTMENT} \n\n"
+            "Already pushed to repository. Deploy manually. Version already changed.",
             level="CRITICAL",
         )
 
-    print_progress(f"{3 * PARTY} Finished {3 * PARTY}", verbosity)
+        return
+
+    print_progress(f"{3 * EMOJIS.PARTY} Finished {3 * EMOJIS.PARTY}", True)

@@ -2,7 +2,6 @@ mylogging>=4.0.0
 mydatapreprocessing>=2.0.9
 EelForkExcludeFiles
 black
-build
 GitPython
 nbmake
 pandas

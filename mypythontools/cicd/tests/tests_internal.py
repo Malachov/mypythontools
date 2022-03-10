@@ -12,7 +12,7 @@ import mylogging
 
 
 from ...helpers.paths import PROJECT_PATHS, validate_path, PathLike
-from ...helpers.misc import get_console_str_with_quotes, terminal_do_command
+from ...helpers.terminal import get_console_str_with_quotes, terminal_do_command
 from .. import venvs
 
 

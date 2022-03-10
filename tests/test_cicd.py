@@ -23,6 +23,7 @@ test_project_path = Path("tests").resolve() / "tested project"
 
 def test_docs_regenerate():
     rst_path = test_project_path / "docs" / "source" / "project_lib.rst"
+    another_rst_path = test_project_path / "docs" / "source" / "content" / "also_not_deleted.rst"
     not_deleted = test_project_path / "docs" / "source" / "not_deleted.rst"
 
     if rst_path.exists():
@@ -33,9 +34,12 @@ def test_docs_regenerate():
             not_deleted_file.write("I will not be deleted.")
             # missing_ok=True from python 3.8 on...
 
-    cicd.project_utils.project_utils_functions.docs_regenerate(keep=["not_deleted.rst"])
+    cicd.project_utils.project_utils_functions.docs_regenerate(
+        keep=("conf.py", "index.rst", "_static", "_templates", "content/**", "not_deleted.rst")
+    )
 
     assert rst_path.exists()
+    assert another_rst_path.exists()
     assert not_deleted.exists()
 
 

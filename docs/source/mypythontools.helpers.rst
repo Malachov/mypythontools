@@ -17,4 +17,5 @@ Subpackages
    mypythontools.helpers.paths
    mypythontools.helpers.plots
    mypythontools.helpers.property
+   mypythontools.helpers.terminal
    mypythontools.helpers.types

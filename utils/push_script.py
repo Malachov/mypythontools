@@ -27,6 +27,6 @@ if __name__ == "__main__":
         commit_message="New commit",
         tag="__version__",
         tag_message="New version",
-        deploy=False,
+        deploy=True,
         allowed_branches=("master", "main"),
     )

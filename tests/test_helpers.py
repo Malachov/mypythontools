@@ -11,13 +11,14 @@ sys.path.insert(0, root_path)
 
 from mypythontools import helpers
 from mypythontools import cicd
+from mypythontools.helpers.terminal import get_console_str_with_quotes, PYTHON
 
 from typing_extensions import Literal
 
 cicd.tests.setup_tests()
 
-test_project_path = Path("tests").resolve() / "tested project"
-py_executable = sys.executable
+tests_path = Path("tests").resolve()
+test_project_path = tests_path / "tested project"
 
 # pylint: disable=missing-function-docstring,
 
@@ -44,18 +45,20 @@ def test_config_argparse():
         {"name": "dict_arg", "input_value": "\"{'key': 666}\"", "expected_value": "666", "type": "dict"},
     ]
 
-    for i in options:
+    argparse_script_path = get_console_str_with_quotes(tests_path / "helpers" / "argparse_config.py")
 
+    for i in options:
         output = subprocess.check_output(
-            f"{py_executable} tests/helpers/argparse_config.py --{i['name']} {i['input_value']}",
+            f"{PYTHON} {argparse_script_path} --{i['name']} {i['input_value']}",
             cwd=root_path,
             text=True,
+            shell=True,
         ).strip()
 
         assert all(member in output for member in [i["name"], i["expected_value"], i["type"]])
 
     get_help = subprocess.check_output(
-        f"{py_executable} tests/helpers/argparse_config.py --help", cwd=root_path, text=True
+        f"{PYTHON} {argparse_script_path} --help", cwd=root_path, text=True, shell=True
     ).strip()
 
     assert "This should be in CLI help" in get_help and "How it works." in get_help
@@ -64,7 +67,7 @@ def test_config_argparse():
 
     try:
         subprocess.check_output(
-            f"{py_executable} tests/helpers/argparse_config.py --bool_arg", cwd=root_path, text=True
+            f"{PYTHON} {argparse_script_path} --bool_arg", cwd=root_path, text=True, shell=True
         ).strip()
     except Exception:
         is_error = True
@@ -75,9 +78,10 @@ def test_config_argparse():
 
     try:
         subprocess.check_output(
-            f"{py_executable} tests/helpers/argparse_config.py --nonexisting_arg nonsense",
+            f"{PYTHON} {argparse_script_path} --nonexisting_arg nonsense",
             cwd=root_path,
             text=True,
+            shell=True,
         ).strip()
     except Exception:
         is_error = True

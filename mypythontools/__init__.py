@@ -289,7 +289,7 @@ You are ready to go. You should see something like this
 You can do CI / CD pipeline or Build app with one click now.
 """
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

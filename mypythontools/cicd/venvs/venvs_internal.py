@@ -14,7 +14,13 @@ from typing_extensions import Literal
 import mylogging
 
 from ...helpers.paths import PROJECT_PATHS, validate_path, PathLike
-from ...helpers.misc import get_console_str_with_quotes, terminal_do_command, SHELL_AND, PYTHON
+from ...helpers.terminal import (
+    get_console_str_with_quotes,
+    terminal_do_command,
+    SHELL_AND,
+    PYTHON,
+    EXECUTABLE,
+)
 
 
 class Venv:
@@ -176,6 +182,7 @@ class Venv:
             capture_output=True,
             check=True,
             shell=True,
+            executable=EXECUTABLE,
         )
         output_str = result.stdout.decode().strip("\r\n")
 
