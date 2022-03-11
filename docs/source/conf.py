@@ -28,6 +28,9 @@ for i in [script_dir, root, lib_path]:
     if i.as_posix() not in sys.path:
         sys.path.insert(0, i.as_posix())
 
+import mypythontools
+from mypythontools.cicd import build
+
 # -- Project information -----------------------------------------------------
 
 copyright = f"2020, {AUTHOR}"  # pylint: disable=redefined-builtin
