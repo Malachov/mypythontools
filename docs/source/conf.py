@@ -29,7 +29,7 @@ for i in [script_dir, root, lib_path]:
         sys.path.insert(0, i.as_posix())
 
 import mypythontools
-from mypythontools.cicd import build
+from mypythontools.helpers import paths
 
 # -- Project information -----------------------------------------------------
 
@@ -86,7 +86,7 @@ html_static_path = ["_static"]
 # html_extra_path = ['../extra']
 
 html_css_files = [
-    "https://malachov.github.io/mypythontools/content/sphinx-alabaster-css/custom.css",
+    "https://malachov.github.io/mypythontools/tools/sphinx-alabaster-css/custom.css",
 ]
 
 napoleon_custom_sections = [
