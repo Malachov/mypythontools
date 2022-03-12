@@ -160,7 +160,7 @@ def run_tests(
             my_venv.create()
             if sync_requirements:
                 if verbosity:
-                    print(f"\nSyncing requirements in venv '{my_venv.venv_path.name}' for tests\n")
+                    print(f"\tSyncing requirements in venv '{my_venv.venv_path.name}' for tests")
                 my_venv.sync_requirements(sync_requirements, verbose)
 
             test_commands.append(f"{my_venv.activate_command} && {test_command}")
@@ -169,7 +169,7 @@ def run_tests(
 
     for i, command in enumerate(test_commands):
         if verbosity and virtualenvs:
-            print(f"\nStarting tests with venv `{virtualenvs[i]}`\n")
+            print(f"\tStarting tests with venv `{virtualenvs[i]}`")
 
         terminal_do_command(
             command, cwd=tested_path.as_posix(), verbose=verbose, error_header="Tests failed."

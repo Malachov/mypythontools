@@ -15,7 +15,7 @@ if root_path_str not in sys.path:
 from mypythontools import cicd
 
 if __name__ == "__main__":
-    # All the parameters can be overwritten via CLI args
+    All the parameters can be overwritten via CLI args
     cicd.project_utils.project_utils_pipeline(
         reformat=True,
         test=True,

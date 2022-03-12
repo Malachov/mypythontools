@@ -29,6 +29,7 @@ if __name__ == "__main__":
             "Documentation": "https://mypythontools.readthedocs.io/",
             "Homepage": "https://github.com/Malachov/mypythontools",
         },
+        setup_requires="mypythontools",
         python_requires=">=3.7",
         url="https://github.com/Malachov/mypythontools",
         version=version,
