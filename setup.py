@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 import pkg_resources
-import mypythontools
+# import mypythontools
 
-version = mypythontools.__version__
+# version = mypythontools.__version__
 
 with open("README.md") as readme_file:
     readme = readme_file.read()
@@ -32,7 +32,8 @@ if __name__ == "__main__":
         setup_requires="mypythontools",
         python_requires=">=3.7",
         url="https://github.com/Malachov/mypythontools",
-        version=version,
+        # version=version,
+        version="0.1.5",
         entry_points={
             "console_scripts": [
                 "mypythontools.cicd = mypythontools.cicd.project_utils:project_utils_pipeline",
