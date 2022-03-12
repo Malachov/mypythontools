@@ -70,10 +70,8 @@ def check_if_column_in_df(df: pd.DataFrame, column, parameter):
     """Check if column exists in DataFrame and if not, raise an KeyError."""
     if not column in df.columns:
         raise KeyError(
-            mylogging.format_str(
-                f"Column {column} from parameter {parameter} not found in DataFrame. "
-                f"Possible columns are: {df.columns}"
-            )
+            f"Column {column} from parameter {parameter} not found in DataFrame. "
+            f"Possible columns are: {df.columns}"
         )
 
 

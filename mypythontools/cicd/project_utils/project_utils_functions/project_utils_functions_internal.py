@@ -80,9 +80,7 @@ def git_push(
 
     except RuntimeError as err:
         git.repo.Repo(PROJECT_PATHS.root.as_posix()).delete_tag(tag)  # type: ignore
-        raise RuntimeError(
-            mylogging.format_str("Push to git failed. Version restored and created git tag deleted.")
-        ) from err
+        raise RuntimeError("Push to git failed. Version restored and created git tag deleted.") from err
 
 
 def set_version(
@@ -109,10 +107,8 @@ def set_version(
 
     if not is_valid:
         raise ValueError(
-            mylogging.format_str(
-                "Version not validated. Version has to be of form '1.2.3'. Three digits and two dots. "
-                f"You used {version}"
-            )
+            "Version not validated. Version has to be of form '1.2.3'. Three digits and two dots. "
+            f"You used {version}"
         )
 
     with open(init_path.as_posix(), "r") as init_file:
@@ -141,9 +137,7 @@ def set_version(
                 break
 
         if not found:
-            raise ValueError(
-                mylogging.format_str("__version__ variable not found in __init__.py. Try set init.")
-            )
+            raise ValueError("__version__ variable not found in __init__.py. Try set init.")
 
     with open(init_path.as_posix(), "w") as init_file:
 
@@ -178,7 +172,7 @@ def get_version(init_path: None | PathLike = None) -> str:
                 delim = '"' if '"' in line else "'"
                 return line.split(delim)[1]
 
-        raise ValueError(mylogging.format_str("__version__ variable not found in __init__.py."))
+        raise ValueError("__version__ variable not found in __init__.py.")
 
 
 def docs_regenerate(

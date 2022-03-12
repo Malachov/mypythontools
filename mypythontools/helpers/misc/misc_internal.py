@@ -22,7 +22,7 @@ class Emojis:
     """Emojis that can be printed."""
 
     PARTY = "🎉"  # "\U0001F389"
-    DISAPPOINTMENT = "☹️"  # "\U0001F641"
+    DISAPPOINTMENT = " ☹️ "  # "\U0001F641"
 
 
 EMOJIS = Emojis()
@@ -126,7 +126,7 @@ def check_library_is_available(name, message="default"):
         )
 
     if not importlib.util.find_spec(name):
-        raise ModuleNotFoundError(mylogging.format_str(message))
+        raise ModuleNotFoundError(message)
 
 
 def check_script_is_available(name, install_library=None, message="default"):
@@ -151,7 +151,7 @@ def check_script_is_available(name, install_library=None, message="default"):
         RuntimeError: ...
     """
     if message == "default":
-        message = f"Python script {name} is necessary and not available."
+        message = f"Python script {name} is necessary and not available. "
 
     if install_library:
         message = message + f"To get this executable available, do \n\n\tpip install {name}\n\n"
@@ -219,19 +219,13 @@ def watchdog(timeout: int | float, function: Callable, *args, **kwargs) -> Any:
     except TimeoutError:
         sys.settrace(old_tracer)
         raise TimeoutError(
-            mylogging.format_str(
-                "Timeout defined in watchdog exceeded.",
-                caption="TimeoutError",
-                level="ERROR",
-            )
+            "Timeout defined in watchdog exceeded.",
         )
 
     except Exception:
         sys.settrace(old_tracer)
         raise RuntimeError(
-            mylogging.format_str(
-                f"Watchdog with function {function.__name__}, args {args} and kwargs {kwargs} failed."
-            )
+            f"Watchdog with function {function.__name__}, args {args} and kwargs {kwargs} failed."
         )
 
     finally:

@@ -145,7 +145,7 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
                 "__test__",
             ]:
 
-                raise AttributeError(mylogging.format_str(f"Variable {name} not found in config.")) from None
+                raise AttributeError(f"Variable {name} not found in config.") from None
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Setup new config values. Define logic when setting attributes from other subconfig class."""
@@ -172,11 +172,9 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
 
         else:
             raise AttributeError(
-                mylogging.format_str(
-                    f"Object {str(self)} is frozen. New attributes cannot be set and attribute '{name}' "
-                    "not found. Maybe you misspelled name. If you really need to change the value, set "
-                    "attribute frozen to false."
-                )
+                f"Object {str(self)} is frozen. New attributes cannot be set and attribute '{name}' "
+                "not found. Maybe you misspelled name. If you really need to change the value, set "
+                "attribute frozen to false."
             )
 
     def __getitem__(self, key):
@@ -189,11 +187,7 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
 
     def __call__(self, *args: Any, **kwds) -> None:
         """Just to be sure to not be used in unexpected way."""
-        raise TypeError(
-            mylogging.format_str(
-                "Class is not supposed to be called. Just inherit it to create custom config."
-            )
-        )
+        raise TypeError("Class is not supposed to be called. Just inherit it to create custom config.")
 
     def copy(self: ConfigType) -> ConfigType:
         """Create deep copy of config and all it's attributes.
@@ -216,7 +210,7 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
             if hasattr(self, i):
                 setattr(self, i, j)
             else:
-                raise AttributeError(mylogging.format_str(f"Config has no attribute {i}"))
+                raise AttributeError(f"Config has no attribute {i}")
 
     def reset(self) -> None:
         """Reset config to it's default values."""
@@ -315,10 +309,8 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
 
         if parsed_args[1]:
             raise RuntimeError(
-                mylogging.format_str(
-                    f"Config args parsing failed on unknown args: {parsed_args[1]}."
-                    "It may happen if variable not exists in config."
-                )
+                f"Config args parsing failed on unknown args: {parsed_args[1]}."
+                "It may happen if variable not exists in config."
             )
 
         # Non empty command line args

@@ -17,8 +17,6 @@ from mypythontools import cicd
 from mypythontools.helpers.paths import PROJECT_PATHS
 
 test_project_path = Path("tests").resolve() / "tested project"
-# test_project_venv = test_project_path / "venv/310"
-# requirements = Path("requirements.txt").resolve()
 
 
 def test_docs_regenerate():
@@ -103,20 +101,4 @@ if __name__ == "__main__":
     # test_cicd()
     # test_build()
 
-    import platform
-    from mypythontools.cicd.venvs import Venv
-    from pathlib import Path
-
-    path = "venv/310" if platform.system() == "Windows" else "venv/ubuntu"
-    venv = Venv(path)
-    venv.create()  # If already exists, it's skipped
-    venv.install_library("colorama==0.3.9")
-    "colorama==0.3.9" in venv.list_packages()
-    # tru
-    venv.sync_requirements()  # There ia a 8.0.3 in requirements.txt
-    "colorama==0.4.4" in venv.list_packages()
-
-    # tru
-    venv.remove()
-    Path(path).exists()
-    # false
+    test_project_utils_pipeline()

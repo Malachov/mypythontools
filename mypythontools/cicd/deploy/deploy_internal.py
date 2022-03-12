@@ -33,11 +33,8 @@ def deploy_to_pypi(setup_path: None | PathLike = None, clean: bool = True, verbo
     password = os.environ.get("TWINE_PASSWORD")
 
     if not usr or not password:
-        raise KeyError(
-            mylogging.format_str("Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.")
-        )
+        raise KeyError("Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.")
 
-    check_library_is_available("build", "build")
     check_script_is_available("twine", "twine")
 
     setup_path = PROJECT_PATHS.root / "setup.py" if not setup_path else validate_path(setup_path)

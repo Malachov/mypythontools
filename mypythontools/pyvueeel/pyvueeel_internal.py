@@ -176,8 +176,7 @@ def run_gui(
         )
 
     except Exception:
-        mylogging.traceback("Py side terminated...")
-        raise
+        raise RuntimeError("Py side terminated...")
 
 
 def expose(callback_function: Callable) -> None:
@@ -291,11 +290,9 @@ def to_table(df: "pd.DataFrame", index: bool = False) -> dict:
 
     if not isinstance(df, pd.DataFrame):
         raise TypeError(
-            mylogging.format_str(
-                "Only dataframe is allowed in to_table function. If you have Series, "
-                "convert it to dataframe. You can use shape (1, x) for one row or use "
-                "df.T and shape (x, 1) for one column."
-            )
+            "Only dataframe is allowed in to_table function. If you have Series, "
+            "convert it to dataframe. You can use shape (1, x) for one row or use "
+            "df.T and shape (x, 1) for one column."
         )
 
     data = df.copy()

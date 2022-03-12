@@ -133,7 +133,7 @@ class ProjectPaths:
                     self._tests = self.root / i
                     return self._tests
 
-            raise RuntimeError(mylogging.format_str("Test path not found."))
+            raise RuntimeError("Test path not found.")
 
         return self._tests
 
@@ -159,7 +159,7 @@ class ProjectPaths:
                     self._docs = self.root / i
                     return self._docs
 
-            raise RuntimeError(mylogging.format_str("Test path not found."))
+            raise RuntimeError("Test path not found.")
 
         return self._docs
 
@@ -184,7 +184,7 @@ class ProjectPaths:
                 if (self.root / i).exists():
                     self._readme = self.root / i
                     return self._readme
-            raise RuntimeError(mylogging.format_str("Readme path not found."))
+            raise RuntimeError("Readme path not found.")
 
         return self._readme
 
@@ -257,7 +257,7 @@ def find_path(
                 return i
 
     # If not returned - not found
-    raise FileNotFoundError(mylogging.format_str(f"File `{name}` not found"))
+    raise FileNotFoundError(f"File `{name}` not found")
 
 
 def get_desktop_path() -> Path:
@@ -295,5 +295,5 @@ def validate_path(path: PathLike) -> Path:
     """
     path = Path(path).resolve()
     if not path.exists():
-        raise FileNotFoundError(mylogging.format_str(f"File nor folder found on defined path {path}"))
+        raise FileNotFoundError(f"File nor folder found on defined path {path}")
     return path

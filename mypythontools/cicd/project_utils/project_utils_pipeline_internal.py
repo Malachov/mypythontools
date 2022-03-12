@@ -378,22 +378,15 @@ def project_utils_pipeline(
             branch = git.repo.Repo(PROJECT_PATHS.root.as_posix()).active_branch.name
         except InvalidGitRepositoryError:
             raise RuntimeError(
-                mylogging.format_str(
-                    "Loading of git project failed. Verify whether running pipeline from correct path. If "
-                    "checks branch with `allowed_branches', there has to be `.git` folder available."
-                )
+                "Loading of git project failed. Verify whether running pipeline from correct path. If "
+                "checks branch with `allowed_branches', there has to be `.git` folder available."
             ) from None
 
         if branch not in config.allowed_branches:
             raise RuntimeError(
-                mylogging.critical(
-                    (
-                        "Pipeline started on branch that is not allowed."
-                        "If you want to use it anyway, add it to allowed_branches parameter and "
-                        "turn off changing version and creating tag."
-                    ),
-                    caption="Pipeline error",
-                )
+                "Pipeline started on branch that is not allowed."
+                "If you want to use it anyway, add it to allowed_branches parameter and "
+                "turn off changing version and creating tag."
             )
 
     # Do some checks before run pipeline so not need to rollback eventually
@@ -402,17 +395,14 @@ def project_utils_pipeline(
         pas = os.environ.get("TWINE_PASSWORD")
 
         if not usr or not pas:
-            raise KeyError(
-                mylogging.format_str("Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.")
-            )
+            raise KeyError("Setup env vars TWINE_USERNAME and TWINE_PASSWORD to use deploy.")
+
     if config.sync_requirements:
         print_progress("Syncing requirements", progress_is_printed)
 
         sync_requirements = "infer" if config.sync_requirements is True else config.sync_requirements
         if not venvs.is_venv:
-            raise RuntimeError(
-                mylogging.format_str("'sync_requirements' available only if using virtualenv.")
-            )
+            raise RuntimeError("'sync_requirements' available only if using virtualenv.")
         my_venv = venvs.Venv(sys.prefix)
         my_venv.create()
         my_venv.sync_requirements(sync_requirements, verbose=verbose)
@@ -452,11 +442,10 @@ def project_utils_pipeline(
         if config.version:
             set_version(original_version)  # type: ignore
 
-        mylogging.traceback(
+        raise RuntimeError(
             f"{3 * EMOJIS.DISAPPOINTMENT} Utils pipeline failed {3 * EMOJIS.DISAPPOINTMENT} \n\n"
             "Original version restored. Nothing was pushed to repo, you can restart pipeline."
         )
-        return
 
     try:
         if config.deploy:
@@ -464,12 +453,9 @@ def project_utils_pipeline(
             deploy_to_pypi()
 
     except Exception:  # pylint: disable=broad-except
-        mylogging.traceback(
+        raise RuntimeError(
             f"{3 * EMOJIS.DISAPPOINTMENT} Deploy failed {3 * EMOJIS.DISAPPOINTMENT} \n\n"
             "Already pushed to repository. Deploy manually. Version already changed.",
-            level="CRITICAL",
         )
-
-        return
 
     print_progress(f"{3 * EMOJIS.PARTY} Finished {3 * EMOJIS.PARTY}", True)

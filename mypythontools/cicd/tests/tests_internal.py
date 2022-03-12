@@ -13,6 +13,7 @@ import mylogging
 
 from ...helpers.paths import PROJECT_PATHS, validate_path, PathLike
 from ...helpers.terminal import get_console_str_with_quotes, terminal_do_command
+from ...helpers.misc import delete_files
 from .. import venvs
 
 
@@ -68,6 +69,7 @@ def run_tests(
     test_coverage: bool = True,
     stop_on_first_error: bool = True,
     virtualenvs: None | Sequence[PathLike] = sys.prefix,
+    wsl_virtualenvs: None | Sequence[PathLike] = None,
     sync_requirements: None | Literal["infer"] | PathLike | Sequence[PathLike] = "infer",
     verbosity: Literal[0, 1, 2] = 1,
     extra_args: None | list = None,
@@ -90,6 +92,10 @@ def run_tests(
             to test more python versions at once. Example: ``["venv/37", "venv/310"]``. If you want to use
             current venv, use `sys.prefix`. If there is no venv, it's created with default virtualenv version.
             Defaults to sys.prefix.
+        wsl_virtualenvs (None | Sequence[PathLike], optional): If want to test Linux python from windows,
+            it's possible with wsl. Just define path to venvs. Beware, that libraries are not synced for wsl
+            and that for example python subprocess.run can fails in tests as called from windows.
+            Defaults to None
         sync_requirements (None | Literal["infer"] | PathLike | Sequence[PathLike], optional): If using
             `virtualenvs` define what libraries will be installed by path to requirements.txt. Can also be a
             list of more files e.g ``["requirements.txt", "requirements_dev.txt"]``. If "infer", autodetected
@@ -169,8 +175,21 @@ def run_tests(
             command, cwd=tested_path.as_posix(), verbose=verbose, error_header="Tests failed."
         )
 
-    if test_coverage and Path(".coverage").exists():
-        Path(".coverage").unlink()
+    if test_coverage:
+        delete_files(".coverage")
+
+    if wsl_virtualenvs:
+        test_commands = []
+        wsl_virtualenvs = [wsl_virtualenvs] if isinstance(wsl_virtualenvs, (str, Path)) else wsl_virtualenvs
+        for i in wsl_virtualenvs:
+            if verbosity:
+                print(f"\nTesting wsl_virtualenv {i}.\n")
+            terminal_do_command(
+                f"wsl source venv/linux/bin/activate && wsl {i}/bin/pytest",
+                cwd=tested_path.as_posix(),
+                verbose=verbose,
+                error_header="Tests failed.",
+            )
 
 
 def add_readme_tests(readme_path: None | PathLike = None, test_folder_path: None | PathLike = None) -> None:

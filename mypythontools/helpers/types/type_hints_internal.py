@@ -190,9 +190,7 @@ def small_validate(value, allowed_type: None | Any = None, name: str | None = No
                 return
             else:
                 raise ValidationError(
-                    mylogging.format_str(
-                        f"New value < {value} > for variable < {name} > is not in allowed options {options}."
-                    )
+                    f"New value < {value} > for variable < {name} > is not in allowed options {options}."
                 )
 
         else:
@@ -200,7 +198,5 @@ def small_validate(value, allowed_type: None | Any = None, name: str | None = No
                 return
             else:
                 raise ValidationError(
-                    mylogging.format_str(
-                        f"Allowed allowed_type for variable < {name} > is {allowed_type}, but you try to set an {type(value)}"
-                    )
+                    f"Allowed allowed_type for variable < {name} > is {allowed_type}, but you try to set an {type(value)}"
                 )

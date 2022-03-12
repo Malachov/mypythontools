@@ -288,14 +288,17 @@ You are ready to go. You should see something like this
 
 You can do CI / CD pipeline or Build app with one click now.
 """
-
-__version__ = "0.1.3"
-
-__author__ = "Daniel Malachov"
-__license__ = "MIT"
-__email__ = "malachovd@seznam.cz"
+import mylogging as __mylogging
 
 from mypythontools import cicd
 from mypythontools import helpers
 
 __all__ = ["cicd", "helpers"]
+
+__version__ = "0.1.4"
+
+__author__ = "Daniel Malachov"
+__license__ = "MIT"
+__email__ = "malachovd@seznam.cz"
+
+__mylogging.my_traceback.enhance_excepthook()

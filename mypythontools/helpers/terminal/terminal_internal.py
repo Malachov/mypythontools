@@ -5,9 +5,11 @@ from pathlib import Path
 import subprocess
 import platform
 
-import mylogging
-
 from ..paths import PathLike
+
+
+class TerminalCommandError(Exception):
+    pass
 
 
 SHELL_AND = " && " if platform.system() == "Windows" else " && "
@@ -55,17 +57,14 @@ def terminal_do_command(
         header = f"{error_header}\n\n" if error_header else ""
         cwd_str = "on your project root" if cwd is None else f"in '{cwd}' folder"
 
-        raise RuntimeError(
-            mylogging.format_str(
-                f"{header}"
-                f"Running command in terminal failed. Try command below in the terminal {cwd_str} "
-                f"\n\n{command}\n\n"
-                "On windows use cmd so script paths resolved correctly. Try it with administrator rights in\n"
-                "your project root folder. Permission error may be one of the typical issue or some\n"
-                "necessary library missing or installed elsewhere than in used venv.\n\n"
-                f"Captured error: {error}",
-                caption="Terminal command failed",
-            )
+        raise TerminalCommandError(
+            f"{header}"
+            f"Running command in terminal failed. Try command below in the terminal {cwd_str} "
+            f"\n\n{command}\n\n"
+            "On windows use cmd so script paths resolved correctly. Try it with administrator rights in\n"
+            "your project root folder. Permission error may be one of the typical issue or some\n"
+            "necessary library missing or installed elsewhere than in used venv.\n\n"
+            f"Captured error: {error}",
         )
 
 
