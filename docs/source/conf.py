@@ -28,8 +28,6 @@ for i in [script_dir, root, lib_path]:
     if i.as_posix() not in sys.path:
         sys.path.insert(0, i.as_posix())
 
-import mypythontools
-from mypythontools.helpers import paths
 
 # -- Project information -----------------------------------------------------
 

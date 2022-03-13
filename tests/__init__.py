@@ -4,7 +4,6 @@
 
 in terminal in tests folder.
 """
-from . import test_cicd
-from . import test_helpers
+from . import test_mypythontools
 
-__all__ = ["test_cicd", "test_helpers"]
+__all__ = ["test_mypythontools"]

@@ -68,51 +68,6 @@ Python library
 
 **subpackages**
 
-- cicd
-- helpers
-- pyvueeel
-
-Subpackages are loaded on demand so the import time is as smallest as possible.
-
-Import subpackage with this syntax
-
->>> from mypythontools import helpers
-
-You will meet error if you use it like this::
-
-    import mypythontools
-    helpers = mypythontools.helpers
-
-
-Check module help or readme docs with examples.
-
-:py:mod:`mypythontools.cicd`
-----------------------------
-
-Module with functionality around Continuous Integration and Continuous Delivery.
-
-Subpackages
-
-- build
-- deploy
-- project_utils
-- tests
-
-In project utils you can find many functions for CI/CD, but also pipelining functions that will call them
-in defined order.
-
-Why to use this and not Travis or Circle CI? It's local and it's fast. You can setup it as a task in IDE and
-if some phase fails, you know it soon and before pushing to repo.
- 
-You can also import mypythontools in your CI/CD and use it there of course.
-
-:py:mod:`mypythontools.helpers`
--------------------------------
-
-Module help with many various problems.
-
-Subpackages
-
 - config
 - misc
 - paths
@@ -121,13 +76,6 @@ Subpackages
 - type_hints
 
 Subpackages names are self describing and you can find documentation in subpackages docstrings.
-
-
-:py:mod:`mypythontools.pyvueeel`
---------------------------------
-
-Library helper for applications made in python and Vue.js (frontend) connected with eel library.
-
 
 Tools
 =====
@@ -229,6 +177,8 @@ It also includes some default project specific
 If developing py - vue - eel app this is the recommended way, but if you want to build just what is necessary
 from scratch, you can use this tutorial
 
+# TODO edit link
+
 https://mypythontools.readthedocs.io/mypythontools.pyvueeel.html#mypythontools.pyvueeel.help_starter_pack_vue_app
 
 requirements
@@ -290,10 +240,9 @@ You can do CI / CD pipeline or Build app with one click now.
 """
 import mylogging as __mylogging
 
-from mypythontools import cicd
-from mypythontools import helpers
+from mypythontools import config, misc, paths, plots, property, terminal, types
 
-__all__ = ["cicd", "helpers"]
+__all__ = ["config", "misc", "paths", "plots", "property", "terminal", "types"]
 
 __version__ = "0.1.4"
 

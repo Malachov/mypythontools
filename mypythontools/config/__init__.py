@@ -212,7 +212,7 @@ Here is example
 """
 from __future__ import annotations
 
-from mypythontools.helpers.config.config_internal import ConfigBase, ConfigStructured
-from mypythontools.helpers.property import MyProperty
+from mypythontools.config.config_internal import ConfigBase, ConfigStructured
+from mypythontools.property import MyProperty
 
 __all__ = ["ConfigBase", "ConfigStructured", "MyProperty"]

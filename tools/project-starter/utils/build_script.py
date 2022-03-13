@@ -1,6 +1,6 @@
 """Utils script helps to build an application."""
 
-from mypythontools.cicd import build
+from mypythontools_cicd import build
 
 
 if __name__ == "__main__":

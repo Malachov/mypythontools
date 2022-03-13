@@ -1,3 +1,5 @@
+# TODO change on refactored standalone version
+
 from pathlib import Path
 
 import pandas as pd  # **DELETELINE

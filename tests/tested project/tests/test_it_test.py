@@ -1,4 +1,4 @@
-from mypythontools.cicd.tests import setup_tests
+from mypythontools_cicd.tests import setup_tests
 
 setup_tests()
 

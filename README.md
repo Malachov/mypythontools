@@ -44,55 +44,6 @@ Python library
 
 **subpackages**
 
-- cicd
-- helpers
-- pyvueeel
-
-Subpackages are loaded on demand, so the import time is as small as possible.
-
-Import subpackage with this syntax
-
-```python
-from mypythontools import helpers
-```
-
-You will meet error if you use it like this
-
-<!--phmdoctest-mark.skip-->
-```python
-import mypythontools
-helpers = mypythontools.helpers
-```
-
-Check module help or readme docs with examples.
-
-cicd
-----
-
-Module with functionality around Continuous Integration and Continuous Delivery.
-
-Subpackages
-
-- build
-- deploy
-- project_utils
-- tests
-
-In project utils, you can find many functions for CI/CD, but also pipelining functions that will call them
-in defined order.
-
-Why to use this and not Travis or Circle CI? It's local and it's fast. You can set up it as a task in IDE and
-if some phase fails, you know it soon and before pushing to repo.
-
-You can also import mypythontools in your CI/CD and use it there.
-
-helpers
--------
-
-Module help with many various problems.
-
-Subpackages
-
 - config
 - misc
 - paths
@@ -101,12 +52,6 @@ Subpackages
 - type_hints
 
 Subpackages names are self describing, and you can find documentation in subpackages docstrings.
-
-
-pyvueeel
---------
-
-Library helper for applications made in python and Vue.js (frontend) connected with eel library.
 
 
 ## Content

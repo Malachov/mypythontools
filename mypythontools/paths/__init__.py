@@ -5,7 +5,7 @@ some folder, excluding some other inner folders (like venv, node_modules etc.).T
 to get desktop path in posix way.
 """
 
-from mypythontools.helpers.paths.paths_internal import (
+from mypythontools.paths.paths_internal import (
     find_path,
     get_desktop_path,
     validate_path,

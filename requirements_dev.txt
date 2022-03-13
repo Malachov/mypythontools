@@ -1,6 +1,1 @@
-bandit
-pydocstyle
-pylint
-line_profiler
-memory_profiler
-setuptools
+mypythontools_cicd

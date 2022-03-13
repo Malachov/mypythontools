@@ -10,12 +10,12 @@ sys.path.insert(0, root_path)
 
 
 from mypythontools import helpers
-from mypythontools import cicd
+from mypythontools.cicd.tests import setup_tests
 from mypythontools.helpers.terminal import get_console_str_with_quotes, PYTHON
 
 from typing_extensions import Literal
 
-cicd.tests.setup_tests()
+setup_tests()
 
 tests_path = Path("tests").resolve()
 test_project_path = tests_path / "tested project"

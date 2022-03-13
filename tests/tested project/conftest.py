@@ -1,3 +1,3 @@
-from mypythontools import cicd
+from mypythontools.cicd.tests import setup_tests
 
-cicd.tests.setup_tests(generate_readme_tests=False)
+setup_tests(generate_readme_tests=False)
