@@ -244,7 +244,7 @@ from mypythontools import config, misc, paths, plots, property, terminal, types
 
 __all__ = ["config", "misc", "paths", "plots", "property", "terminal", "types"]
 
-__version__ = "0.1.4"
+__version__ = "1.0.0"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

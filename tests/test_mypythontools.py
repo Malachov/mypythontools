@@ -9,9 +9,10 @@ root_path = Path(__file__).parents[1].as_posix()  # pylint: disable=no-member
 sys.path.insert(0, root_path)
 
 
-from mypythontools import helpers
-from mypythontools.cicd.tests import setup_tests
-from mypythontools.helpers.terminal import get_console_str_with_quotes, PYTHON
+import mypythontools
+from mypythontools_cicd.tests import setup_tests
+from mypythontools.terminal import get_console_str_with_quotes, PYTHON
+from  mypythontools import paths
 
 from typing_extensions import Literal
 
@@ -25,12 +26,12 @@ test_project_path = tests_path / "tested project"
 
 def test_paths():
 
-    assert helpers.paths.PROJECT_PATHS.root == test_project_path
-    assert helpers.paths.PROJECT_PATHS.init == test_project_path / "project_lib" / "__init__.py"
-    assert helpers.paths.PROJECT_PATHS.app == test_project_path / "project_lib"
-    assert helpers.paths.PROJECT_PATHS.docs == test_project_path / "docs"
-    assert helpers.paths.PROJECT_PATHS.readme == test_project_path / "README.md"
-    assert helpers.paths.PROJECT_PATHS.tests == test_project_path / "tests"
+    assert paths.PROJECT_PATHS.root == test_project_path
+    assert paths.PROJECT_PATHS.init == test_project_path / "project_lib" / "__init__.py"
+    assert paths.PROJECT_PATHS.app == test_project_path / "project_lib"
+    assert paths.PROJECT_PATHS.docs == test_project_path / "docs"
+    assert paths.PROJECT_PATHS.readme == test_project_path / "README.md"
+    assert paths.PROJECT_PATHS.tests == test_project_path / "tests"
 
 
 def test_config_argparse():

@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, Path(__file__).parents[2].as_posix())
 
-from mypythontools.helpers.config import MyProperty, ConfigBase, ConfigStructured
+from mypythontools.config import MyProperty, ConfigBase, ConfigStructured
 
 if __name__ == "__main__":
 

@@ -3,7 +3,7 @@ Module with miscellaneous functions that do not fit into other subpackage but ar
 subpackage.
 """
 
-from mypythontools.helpers.misc.misc_internal import (
+from mypythontools.misc.misc_internal import (
     check_library_is_available,
     check_script_is_available,
     DEFAULT_TABLE_FORMAT,
