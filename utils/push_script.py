@@ -1,11 +1,11 @@
 """Push the CI pipeline. Format, create commit from all the changes, push and deploy to PyPi."""
 
 
-
 # TODO delete me
 import sys
 from pathlib import Path
-sys.path.insert(0, (Path.cwd().parent / 'mypythontools_cicd').as_posix())
+
+sys.path.insert(0, (Path.cwd().parent / "mypythontools_cicd").as_posix())
 import mypythontools_cicd
 
 from mypythontools_cicd.project_utils import project_utils_pipeline
@@ -15,10 +15,14 @@ if __name__ == "__main__":
     project_utils_pipeline(
         reformat=True,
         test=True,
-        test_options={"virtualenvs": ["venv/37", "venv/310"]},
+        test_options={
+            "virtualenvs": ["venv/37", "venv/310"],
+            "sync_requirements": "infer",
+            # "wsl_virtualenvs": "venv/linux",
+        },
         version="increment",
         docs=True,
-        sync_requirements=False,
+        sync_requirements=None,
         commit_and_push_git=True,
         commit_message="New commit",
         tag="__version__",

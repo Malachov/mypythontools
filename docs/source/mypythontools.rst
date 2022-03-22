@@ -12,6 +12,10 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   mypythontools.cicd
-   mypythontools.helpers
-   mypythontools.pyvueeel
+   mypythontools.config
+   mypythontools.misc
+   mypythontools.paths
+   mypythontools.plots
+   mypythontools.property
+   mypythontools.terminal
+   mypythontools.types

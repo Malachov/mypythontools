@@ -73,9 +73,20 @@ Python library
 - paths
 - plots
 - property
+- terminal
 - type_hints
 
 Subpackages names are self describing and you can find documentation in subpackages docstrings.
+
+Mypythontools_cicd
+==================
+
+There is extra library in separate repository
+
+https://github.com/Malachov/mypythontools_cicd
+
+This can help you with a lot of stuff around CICD like getting project paths, generating docs, testing,
+deploying to PyPi etc.
 
 Tools
 =====
@@ -177,9 +188,7 @@ It also includes some default project specific
 If developing py - vue - eel app this is the recommended way, but if you want to build just what is necessary
 from scratch, you can use this tutorial
 
-# TODO edit link
-
-https://mypythontools.readthedocs.io/mypythontools.pyvueeel.html#mypythontools.pyvueeel.help_starter_pack_vue_app
+https://pyvueeel.readthedocs.io/pyvueeel.html#pyvueeel.help_starter_pack_vue_app
 
 requirements
 ------------
@@ -244,7 +253,7 @@ from mypythontools import config, misc, paths, plots, property, terminal, types
 
 __all__ = ["config", "misc", "paths", "plots", "property", "terminal", "types"]
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

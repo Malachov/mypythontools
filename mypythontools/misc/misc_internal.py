@@ -8,7 +8,8 @@ import sys
 from pathlib import Path
 import os
 import importlib.util
-import subprocess
+from shutil import which
+
 
 import pandas as pd
 from tabulate import tabulate
@@ -156,24 +157,7 @@ def check_script_is_available(name, install_library=None, message="default"):
     if install_library:
         message = message + f"To get this executable available, do \n\n\tpip install {name}\n\n"
 
-    exists = False
-
-    for i in ["--version", "--help", ""]:
-        try:
-
-            result = subprocess.run(
-                f"{name} {i}", check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True
-            )
-
-            if result.returncode == 0:
-                exists = True
-
-            break
-
-        except Exception:
-            pass
-
-    if not exists:
+    if not which(name):
         raise RuntimeError(mylogging.format_str(message))
 
 

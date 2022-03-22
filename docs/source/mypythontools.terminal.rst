@@ -1,7 +1,7 @@
-mypythontools.pyvueeel package
+mypythontools.terminal package
 ==============================
 
-.. automodule:: mypythontools.pyvueeel
+.. automodule:: mypythontools.terminal
    :members:
    :undoc-members:
    :show-inheritance:
