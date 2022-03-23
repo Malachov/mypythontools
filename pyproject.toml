@@ -1,7 +1,6 @@
 [tool.pytest.ini_options]
 addopts = "--doctest-modules -x --nbmake"
 norecursedirs = [
-    "tested project",
     "tools",
     "dist",
     "build",

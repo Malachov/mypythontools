@@ -247,16 +247,12 @@ You are ready to go. You should see something like this
 
 You can do CI / CD pipeline or Build app with one click now.
 """
-import mylogging as __mylogging
+from mypythontools import config, misc, paths, plots, property, system, types
 
-from mypythontools import config, misc, paths, plots, property, terminal, types
+__all__ = ["config", "misc", "paths", "plots", "property", "system", "types"]
 
-__all__ = ["config", "misc", "paths", "plots", "property", "terminal", "types"]
-
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
 __email__ = "malachovd@seznam.cz"
-
-__mylogging.my_traceback.enhance_excepthook()

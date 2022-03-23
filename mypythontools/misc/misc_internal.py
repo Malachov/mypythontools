@@ -7,14 +7,9 @@ import time
 import sys
 from pathlib import Path
 import os
-import importlib.util
-from shutil import which
-
 
 import pandas as pd
 from tabulate import tabulate
-
-import mylogging
 
 from ..paths import PathLike, validate_path
 
@@ -102,65 +97,6 @@ class TimeTable:
         self.time_table = tabulate(self.time_df.values, headers=list(self.time_df.columns), **table_format)
 
 
-def check_library_is_available(name, message="default"):
-    """Make one-liner for checking whether some library is installed.
-
-    If running on venv, it checks only this venv, no global site packages.
-
-    Args:
-        name (str): Name of the library.
-        message (str, optional): Message that will be printed when library not installed. Defaults to "default".
-
-    Raises:
-        ModuleNotFoundError: If module is installed, error is raised.
-
-    Example:
-        >>> check_library_is_available("typing_extensions")
-        >>> check_library_is_available("not_installed_lib")
-        Traceback (most recent call last):
-        ModuleNotFoundError: ...
-    """
-    if message == "default":
-        message = (
-            f"Library {name} is necessary and not available. Some libraries are used in just for small"
-            f"part of module, so not installed by default. Use \n\n\tpip install {name}\n\n"
-        )
-
-    if not importlib.util.find_spec(name):
-        raise ModuleNotFoundError(message)
-
-
-def check_script_is_available(name, install_library=None, message="default"):
-    """Check if python script is available.
-
-    This doesn't need to be installed in current venv, but anywhere on computer.
-
-    Args:
-        name (str): Name of the script. E.g "black'.
-        install_library (str, optional): Install script with this library added to default message.
-            Defaults to None.
-        message (str, optional): Message that will be printed when library not installed.
-            Defaults to "default".
-
-    Raises:
-        RuntimeError: If module is installed, error is raised.
-
-    Example:
-        >>> check_script_is_available("black")
-        >>> check_script_is_available("not_existing_script")
-        Traceback (most recent call last):
-        RuntimeError: ...
-    """
-    if message == "default":
-        message = f"Python script {name} is necessary and not available. "
-
-    if install_library:
-        message = message + f"To get this executable available, do \n\n\tpip install {name}\n\n"
-
-    if not which(name):
-        raise RuntimeError(mylogging.format_str(message))
-
-
 def watchdog(timeout: int | float, function: Callable, *args, **kwargs) -> Any:
     """Time-limited execution for python function. TimeoutError raised if not finished during defined time.
 
@@ -206,11 +142,11 @@ def watchdog(timeout: int | float, function: Callable, *args, **kwargs) -> Any:
             "Timeout defined in watchdog exceeded.",
         )
 
-    except Exception:
+    except Exception as err:
         sys.settrace(old_tracer)
         raise RuntimeError(
             f"Watchdog with function {function.__name__}, args {args} and kwargs {kwargs} failed."
-        )
+        ) from err
 
     finally:
         sys.settrace(old_tracer)

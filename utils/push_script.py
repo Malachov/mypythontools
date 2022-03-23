@@ -5,9 +5,6 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, (Path.cwd().parent / "mypythontools_cicd").as_posix())
-import mypythontools_cicd
-
 from mypythontools_cicd.project_utils import project_utils_pipeline
 
 if __name__ == "__main__":
@@ -32,5 +29,10 @@ if __name__ == "__main__":
     )
 
     # project_utils_pipeline(
-    #     do_only="deploy",
+    #     do_only="test",
+    #     test_options={
+    #         "virtualenvs": [],
+    #         "sync_requirements": None,
+    #         "wsl_virtualenvs": "venv/linux",
+    #     },
     # )

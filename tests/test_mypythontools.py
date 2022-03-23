@@ -10,7 +10,7 @@ sys.path.insert(0, root_path)
 
 
 from mypythontools_cicd.tests import setup_tests
-from mypythontools.terminal import get_console_str_with_quotes, PYTHON
+from mypythontools.system import get_console_str_with_quotes, PYTHON
 
 from typing_extensions import Literal
 

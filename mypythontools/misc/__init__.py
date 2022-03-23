@@ -4,8 +4,6 @@ subpackage.
 """
 
 from mypythontools.misc.misc_internal import (
-    check_library_is_available,
-    check_script_is_available,
     DEFAULT_TABLE_FORMAT,
     delete_files,
     EMOJIS,
@@ -16,8 +14,6 @@ from mypythontools.misc.misc_internal import (
 )
 
 __all__ = [
-    "check_library_is_available",
-    "check_script_is_available",
     "DEFAULT_TABLE_FORMAT",
     "delete_files",
     "EMOJIS",
