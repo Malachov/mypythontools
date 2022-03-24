@@ -17,5 +17,5 @@ Subpackages
    mypythontools.paths
    mypythontools.plots
    mypythontools.property
-   mypythontools.terminal
+   mypythontools.system
    mypythontools.types

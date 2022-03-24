@@ -5,8 +5,7 @@ from pathlib import Path
 import subprocess
 import platform
 import importlib.util
-
-import mylogging
+import sys
 
 from ..paths import PathLike
 
@@ -103,6 +102,15 @@ def get_console_str_with_quotes(string: PathLike):
     return f'"{string}"'
 
 
+def is_wsl():
+    """Check whether script runs in Windows Subsystem for Linux or not.
+
+    Returns:
+        bool: True or False based on using wsl.
+    """
+    return "microsoft-standard" in platform.uname().release
+
+
 def which(name):
     """Return path of defined script.
 
@@ -117,13 +125,17 @@ def which(name):
         None | Path: Path to script or None if it's not available.
 
     Example:
-        >>> which("black")
+        >>> which("black").exists()
+        True
     """
-    which = "where " if platform.system() == "Windows" else "which "
+    if is_wsl():
+        which = f"source {sys.prefix}/bin/activate && which "
+    else:
+        which = "where " if platform.system() == "Windows" else "which "
 
     command = which + name
 
-    result = subprocess.run(command, shell=True, capture_output=True)
+    result = subprocess.run(command, shell=True, capture_output=True, executable=EXECUTABLE)
 
     output = result.stdout.decode().rstrip("\r\n")
 
@@ -134,34 +146,6 @@ def which(name):
         return None
     else:
         return Path(output)
-
-
-def check_library_is_available(name, message="default"):
-    """Make one-liner for checking whether some library is installed.
-
-    If running on venv, it checks only this venv, no global site packages.
-
-    Args:
-        name (str): Name of the library.
-        message (str, optional): Message that will be printed when library not installed. Defaults to "default".
-
-    Raises:
-        ModuleNotFoundError: If module is installed, error is raised.
-
-    Example:
-        >>> check_library_is_available("typing_extensions")
-        >>> check_library_is_available("not_installed_lib")
-        Traceback (most recent call last):
-        ModuleNotFoundError: ...
-    """
-    if message == "default":
-        message = (
-            f"Library {name} is necessary and not available. Some libraries are used in just for small"
-            f"part of module, so not installed by default. Use \n\n\tpip install {name}\n\n"
-        )
-
-    if not importlib.util.find_spec(name):
-        raise ModuleNotFoundError(message)
 
 
 def check_script_is_available(name, install_library=None, message="default"):
@@ -193,3 +177,31 @@ def check_script_is_available(name, install_library=None, message="default"):
 
     if not which(name):
         raise RuntimeError(message)
+
+
+def check_library_is_available(name, message="default"):
+    """Make one-liner for checking whether some library is installed.
+
+    If running on venv, it checks only this venv, no global site packages.
+
+    Args:
+        name (str): Name of the library.
+        message (str, optional): Message that will be printed when library not installed. Defaults to "default".
+
+    Raises:
+        ModuleNotFoundError: If module is installed, error is raised.
+
+    Example:
+        >>> check_library_is_available("typing_extensions")
+        >>> check_library_is_available("not_installed_lib")
+        Traceback (most recent call last):
+        ModuleNotFoundError: ...
+    """
+    if message == "default":
+        message = (
+            f"Library {name} is necessary and not available. Some libraries are used in just for small"
+            f"part of module, so not installed by default. Use \n\n\tpip install {name}\n\n"
+        )
+
+    if not importlib.util.find_spec(name):
+        raise ModuleNotFoundError(message)
