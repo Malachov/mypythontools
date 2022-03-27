@@ -10,6 +10,22 @@ import sys
 from ..paths import PathLike
 
 
+def is_wsl():
+    """Check whether script runs in Windows Subsystem for Linux or not.
+
+    Returns:
+        bool: True or False based on using wsl.
+    """
+    return "microsoft-standard" in platform.uname().release
+
+
+SHELL_AND = " && "
+"""If using some nonstandard shell can be edited here globally. ';' can be used if && not working."""
+EXECUTABLE = None if platform.system() == "Windows" and not is_wsl() else "/bin/bash"
+"""To be able to use 'source' it points to '/bin/bash' on linux."""
+PYTHON = "python" if platform.system() == "Windows" and not is_wsl() else "python3"
+
+
 class TerminalCommandError(Exception):
     """Error that function `terminal_do_command` raises.
 
@@ -17,13 +33,6 @@ class TerminalCommandError(Exception):
     """
 
     pass
-
-
-SHELL_AND = " && " if platform.system() == "Windows" else " && "
-"""If using some nonstandard shell can be edited here globally ';' can be used if && not working."""
-EXECUTABLE = None if platform.system() == "Windows" else "/bin/bash"
-"""To be able to use 'source' it points to '/bin/bash' on linux."""
-PYTHON = "python" if platform.system() == "Windows" else "python3"
 
 
 def terminal_do_command(
@@ -100,15 +109,6 @@ def get_console_str_with_quotes(string: PathLike):
     string = string.strip("'")
     string = string.strip('"')
     return f'"{string}"'
-
-
-def is_wsl():
-    """Check whether script runs in Windows Subsystem for Linux or not.
-
-    Returns:
-        bool: True or False based on using wsl.
-    """
-    return "microsoft-standard" in platform.uname().release
 
 
 def which(name):
