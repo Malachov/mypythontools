@@ -7,8 +7,8 @@ Use strings as input and if there can be space in some command, use 'get_console
 from mypythontools.system.system_internal import (
     check_library_is_available,
     check_script_is_available,
-    EXECUTABLE,
     get_console_str_with_quotes,
+    is_wsl,
     PYTHON,
     SHELL_AND,
     terminal_do_command,
@@ -18,8 +18,8 @@ from mypythontools.system.system_internal import (
 __all__ = [
     "check_library_is_available",
     "check_script_is_available",
-    "EXECUTABLE",
     "get_console_str_with_quotes",
+    "is_wsl",
     "PYTHON",
     "SHELL_AND",
     "terminal_do_command",

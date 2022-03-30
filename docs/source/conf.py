@@ -12,7 +12,7 @@ import datetime
 # Suppose separate build and source structure and logo.png in _static folder
 
 # Settings
-PROJECT = "mypythontools"
+PROJECT = {{}}
 AUTHOR = "Daniel Malachov"
 GITHUB_USER = "Malachov"
 

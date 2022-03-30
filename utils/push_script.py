@@ -1,10 +1,5 @@
 """Push the CI pipeline. Format, create commit from all the changes, push and deploy to PyPi."""
 
-
-# TODO delete me
-import sys
-from pathlib import Path
-
 from mypythontools_cicd.project_utils import project_utils_pipeline
 
 if __name__ == "__main__":

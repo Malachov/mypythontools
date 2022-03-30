@@ -1,24 +1,14 @@
 # mypythontools
 
-[![Python versions](https://img.shields.io/pypi/pyversions/mypythontools.svg)](https://pypi.python.org/pypi/mypythontools/) [![PyPI version](https://badge.fury.io/py/mypythontools.svg)](https://badge.fury.io/py/mypythontools) [![Downloads](https://pepy.tech/badge/mypythontools)](https://pepy.tech/project/mypythontools) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Malachov/mypythontools.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Malachov/mypythontools/context:python) [![Documentation Status](https://readthedocs.org/projects/mypythontools/badge/?version=latest)](https://mypythontools.readthedocs.io/en/latest/?badge=latest) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/Malachov/mypythontools/branch/master/graph/badge.svg)](https://codecov.io/gh/Malachov/mypythontools)
-
-
 Some tools/functions/snippets/files used across projects.
+
+[![Python versions](https://img.shields.io/pypi/pyversions/mypythontools.svg)](https://pypi.python.org/pypi/mypythontools/) [![PyPI version](https://badge.fury.io/py/mypythontools.svg)](https://badge.fury.io/py/mypythontools) [![Downloads](https://pepy.tech/badge/mypythontools)](https://pepy.tech/project/mypythontools) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Malachov/mypythontools.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Malachov/mypythontools/context:python) [![Documentation Status](https://readthedocs.org/projects/mypythontools/badge/?version=latest)](https://mypythontools.readthedocs.io/en/latest/?badge=latest) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/Malachov/mypythontools/branch/master/graph/badge.svg)](https://codecov.io/gh/Malachov/mypythontools)
 
 It's called mypythontools, but it's also made for you...
 
-Can be used as python library. Things like building the application with pyinstaller, incrementing version,
-generating rst files for sphinx docs, pushing to GitHub or deploying to PyPi or other CI/CD functionality,
-creating config module or plot data is a matter of calling one function or clicking one button (e.g. VS Code task).
-
 Many projects - one codebase.
 
-If you are not sure whether the structure of your app will work with this code, check `project-starter` on GitHub in `tools` folder.
-
-Paths are inferred, but if you have atypical structure or have more projects in cwd, setup necessary paths in paths
-module.
-
-There is also some extra stuff, that is not bundled via PyPI (cookiecutter, CSS for readthedocs etc.),
+There is also some extra stuff, that is not bundled via PyPI (CSS for readthedocs etc.),
 such a content is under the `Tools` topic.
 
 
@@ -58,65 +48,6 @@ Subpackages names are self describing, and you can find documentation in subpack
 
 There are some other things that are not installed via pip in mypythontools library.
 
-### project-starter
-
-Project scaffolding fast and easy.
-
-Download project-starter from (GitHub)[https://github.com/Malachov/mypythontools/tree/master/tools/project-starter] (You may need to download all mypythontools repository in zip)
-
-And start developing.
-
-In your IDE, do bulk renaming across files and replace `SET_YOUR_NAME` with name of your app / library.
-
-This starter is for vue-eel applications (desktop as well as web) but also for python libraries that will be stored on PyPi.
-
-**Used as a python library**
-
-If it's python library, delete `gui` folder.
-
-**Used as an application**
-It can be opened as web page from explorer, or it can be opened as standalone desktop application (looks similar to electron and require chrome or chromium on the background).
-
-If it's app with gui, delete `setup.py`, `__init__.py` and remove **Installation** and **Modules** from README. Also, from
-assets delete `mdi.css` if not using icons and `formulate.css` if not using **vue formulate**. In
-`package.json` uncomment library you will be using.
-
-Install used python libraries via `pip install -r requirements.txt` and install JS libraries as well with
-`npm install` in folder where package.json is.
-
-To run an app in develop mode, you have to run both frontend and python. Run frontend with debugging app.py (do not run, just debug). Then run frontend with `npm run serve` in gui folder (or use Task explorer if using VS Code). Open your favourite browser and open [http://localhost:8080](http://localhost:8080).
-
-It's recommended to use Vue.js devtools extension where you can see what component is on cursor, edit props values or see list of all used mutations.
-
-In opened app, there is a little help button where there is a simple overview about how to develop with these tools.
-
-Delete is faster than write, so there are many working examples like for example plot, various formatting (flex row, flex column), settings panel, function call from python to JS and vice versa or automatic alerting from python. If you want to see how some example is working, just use **ctrl + F** in IDE or check components for its props.
-
-This is how the example looks like
-
-<div align="center"><img src="docs/source/_static/project-starter-gui.png" width="620" alt="project-starter-gui"/></div>
-
-For a desktop version where the user does not have python installed, you have to build it first. Use mypythontools `build` module (trigger with tasks button).
-
-**Docs**
-It includes docs structure for sphinx docs generations from docstrings. Edit first few lines in conf.py, index.rst, navi.html and if you want, add static files like logo to \_static.
-
-Usually used with [readthedocs](https://readthedocs.org/) free hosting that trigger deploys automatically after pushing to master. Because of correct relative redirecting in `index.rst` and `navi.html` use for readthedocs /path/ before relative link to other module.
-
-It's also necessary to generate other modules rst files for other pages. If you are using `push_script.py` as CI/CD (see below), it's generated automatically via `apidoc`.
-
-It's recommended to use with `sphinx-alabaster-css` (see below).
-
-**CI/CD**
-Project include `.travis.yml` for Travis CI, but it's not recommended using it. There is file `push_script.py` in folder `utils` which for my use case is better (faster) than travis and can do most of what you want from CI like run pipeline - running tests / generate docs / increment version / push to GitHub / push to PyPi.
-
-You can delete `.travis.yml`. If you want to generate test coverage badge (usually from travis), you can use GitHub actions yml file for pushing codecov coverage file (without token).
-
-Check utils module for more information.
-
-**IDE files**
-It also includes some default project specific settings for VS Code. You can also delete it.
-
 
 ### requirements
 
@@ -144,24 +75,8 @@ html_css_files = [
 ]
 ```
 
-Also, of course if you want you can download it and use locally from project if you need.
+Also, of course if you want, you can download it and use locally from the project if you need.
 
-Result should look like this
+The result should look like this
 
 <div align="center"><img src="docs/source/_static/sphinx-alabaster-css.png" width="620" alt="sphinx-alabaster-css"/></div>
-
-### Tasks
-
-There are VS Code tasks examples in utils and build module, but here is small tutorial how to use it. Run
-command `Tasks: Open User Tasks`, add tasks from github/tools/tasks or if you have no task yet, you can
-copy / paste all.
-
-Install extension **Task Explorer**
-
-On root copy folder `utils` from Tools/tasks
-
-You are ready to go. You should see something like this
-
-<div align="center"><img src="docs/source/_static/tasks.png" width="620" alt="tasks"/></div>
-
-You can do CI / CD pipeline or build app with one click now.

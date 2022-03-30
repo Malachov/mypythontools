@@ -73,7 +73,7 @@ This is how help looks like in VS Code
 
 .. image:: /_static/intellisense.png
     :width: 620
-    :alt: tasks
+    :alt: intellisense
     :align: center
 
 
@@ -207,7 +207,7 @@ Here is example
 
 .. image:: /_static/config_on_sphinx.png
     :width: 620
-    :alt: tasks
+    :alt: config_on_sphinx
     :align: center
 """
 from __future__ import annotations

@@ -21,8 +21,6 @@ def is_wsl():
 
 SHELL_AND = " && "
 """If using some nonstandard shell can be edited here globally. ';' can be used if && not working."""
-EXECUTABLE = None if platform.system() == "Windows" and not is_wsl() else "/bin/bash"
-"""To be able to use 'source' it points to '/bin/bash' on linux."""
 PYTHON = "python" if platform.system() == "Windows" and not is_wsl() else "python3"
 
 
@@ -129,13 +127,13 @@ def which(name):
         True
     """
     if is_wsl():
-        which = f"source {sys.prefix}/bin/activate && which "
+        which = f". {sys.prefix}/bin/activate && which "
     else:
         which = "where " if platform.system() == "Windows" else "which "
 
     command = which + name
 
-    result = subprocess.run(command, shell=True, capture_output=True, executable=EXECUTABLE)
+    result = subprocess.run(command, shell=True, capture_output=True)
 
     output = result.stdout.decode().rstrip("\r\n")
 
