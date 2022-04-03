@@ -17,7 +17,6 @@ Examples:
     ...         init_my_properties(self)
     ...
     ...     @MyProperty
-    ...     @staticmethod  # Use staticmethod or add self or add pylint ignore message
     ...     def var() -> int:  # Type hints are validated.
     ...         '''
     ...         Type:

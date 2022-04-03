@@ -119,8 +119,7 @@ def MyProperty(f: Callable[..., T]) -> MyPropertyClass[T]:  # pylint: disable=in
     """Wrap MyProperty to work as expected.
 
     If not using this workaround, but use class decorator, IDE complains that property has no defined
-    setter. It's also prepended with staticmethod so IDE don't complain about On the other hand, it use
-    correct type hint.
+    setter.
 
     Args:
         f(Callable[..., T]): Usually it's decorated method from class. It can be static as well.

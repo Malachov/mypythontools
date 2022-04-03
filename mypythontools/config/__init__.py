@@ -18,7 +18,6 @@ Examples:
     ...
     >>> class SimpleConfig(ConfigBase):
     ...     @MyProperty
-    ...     @staticmethod
     ...     def var() -> int:  # Type hints are validated.
     ...         '''
     ...         Type:
@@ -113,7 +112,7 @@ Note:
 ...             return self.value2 + 1
 ...
 ...     # Also subconfig category can contain values itself
-...     @MyProperty  # Even if no defining @staticmethod, it will work, but may be confusing
+...     @MyProperty
 ...     def value3() -> int:
 ...         return 3
 ...
