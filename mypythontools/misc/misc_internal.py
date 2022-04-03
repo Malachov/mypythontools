@@ -7,7 +7,9 @@ import time
 import sys
 from pathlib import Path
 import os
+import shutil
 
+from typing_extensions import Literal
 import pandas as pd
 from tabulate import tabulate
 
@@ -154,16 +156,35 @@ def watchdog(timeout: int | float, function: Callable, *args, **kwargs) -> Any:
     return result
 
 
-def delete_files(paths: PathLike | Iterable[PathLike]):
-    """Delete file or Sequence of files. If no permissions or file is open, it passes without error."""
+def delete_files(paths: PathLike | Iterable[PathLike], on_error: Literal["pass", "raise"] = "pass"):
+    """Delete file, folder or Sequence of files or folders.
+
+    Folder can contain files, it will be also recursively deleted. You can choose behavior on error (because
+    of permissions for example).
+
+    Args:
+        paths (PathLike | Iterable[PathLike]): List or tuple of paths to be deleted. Can be files as well
+            as folders.
+        on_error (Literal["pass", "raise"], optional): Depends whether you want to pass or raise an error.
+            Error can occur when for example file is opened or if has no necessary permissions.
+            Defaults to "pass".
+    """
     if isinstance(paths, (Path, str, os.PathLike)):
         paths = [paths]
 
     for i in paths:
         try:
-            validate_path(i).unlink()
+            delete_path = Path(i)
+
+            if delete_path.exists():
+                if delete_path.is_dir():
+                    shutil.rmtree(delete_path, ignore_errors=False)
+                else:
+                    delete_path.unlink()
+
         except (FileNotFoundError, OSError):
-            pass
+            if on_error == "raise":
+                raise
 
 
 def print_progress(name: str, verbose: bool = True):

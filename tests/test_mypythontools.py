@@ -4,15 +4,16 @@ from __future__ import annotations
 from pathlib import Path
 import sys
 import subprocess
+import os
 
 root_path = Path(__file__).parents[1].as_posix()  # pylint: disable=no-member
 sys.path.insert(0, root_path)
 
-
 from mypythontools_cicd.tests import setup_tests
+
+import mypythontools
 from mypythontools.system import get_console_str_with_quotes, PYTHON
 
-from typing_extensions import Literal
 
 setup_tests()
 
@@ -75,6 +76,27 @@ def test_config_argparse():
     except Exception:
         is_error = True
     assert is_error, "Non existing variable passed"
+
+
+def test_delete_files():
+    dir_path = Path("dir_to_be_deleted")
+
+    file_in_folder = dir_path / "to_be_deleted.txt"
+    file_one = Path("to_be_deleted_one.txt")
+    file_two = Path("to_be_deleted_two.txt")
+
+    os.mkdir(dir_path.as_posix())
+
+    for i in [file_in_folder, file_one, file_two]:
+        with open(i, "w") as opened_file:
+            opened_file.write("content")
+        assert i.exists, f"File {i} was not created."
+
+    mypythontools.misc.delete_files(dir_path)
+    mypythontools.misc.delete_files([file_one, file_two.as_posix()])
+
+    assert not dir_path.exists(), "Directory was not deleted."
+    assert not (file_one.exists() and file_two.exists()), "Directory was not deleted."
 
 
 if __name__ == "__main__":

@@ -44,9 +44,9 @@ Python library
 Subpackages names are self describing, and you can find documentation in subpackages docstrings.
 
 
-## Content
+## Tools
 
-There are some other things that are not installed via pip in mypythontools library.
+There are some extra tools not included in python library (installable via pip), but still on GitHub repository.
 
 
 ### requirements

@@ -59,7 +59,8 @@ def terminal_do_command(
         result = subprocess.run(command, shell=shell, cwd=cwd, capture_output=True)
         if result.returncode == 0:
             if verbose:
-                print(result.stdout.decode().strip("\r\n"))
+                striped = "\r\n"
+                print(f"\n{result.stdout.decode().strip(striped)}\n")
         else:
             stderr = result.stderr.decode().strip("\r\n")
             stdout = result.stdout.decode().strip("\r\n")

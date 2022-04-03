@@ -12,8 +12,6 @@ from copy import deepcopy
 import argparse
 import sys
 
-import mylogging
-
 from ..property import init_my_properties, MyProperty  # pylint: disable=unused-import
 from .. import misc
 from .. import types

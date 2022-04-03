@@ -18,16 +18,21 @@ class MyPropertyClass(property, Generic[T]):
     """Python property on steroids. Check module docstrings for more info."""
 
     # Property is inherited just for formatting help in IDE, so not called from init
-    def __init__(self, fget: Callable[..., T] = None, doc=None):  # pylint: disable=super-init-not-called
+    def __init__(self, fget: Callable[..., T], doc=None):  # pylint: disable=super-init-not-called
         """Init property."""
         if fget:
             self.allowed_types = types.get_return_type_hints(fget)
 
             self.init_function = fget
 
+            if isinstance(fget, staticmethod):
+                inner_func = fget.__func__
+            else:
+                inner_func = fget
+
             if doc:
                 self.__doc__ = doc
-            elif fget.__doc__:
+            elif inner_func.__doc__:
                 self.__doc__ = fget.__doc__
             else:
                 self.__doc__ = None

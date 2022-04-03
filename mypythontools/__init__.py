@@ -82,7 +82,8 @@ deploying to PyPi etc.
 Tools
 =====
 
-There are a lot of stuff that's not in python library (installable via pip), but still on GitHub repository.
+There are some extra tools not included in in python library (installable via pip), but still on GitHub
+repository. Some tools were big enough to be refactored to own repository. Still listed here though. 
 
 Link where you can find that content:
 
@@ -93,93 +94,6 @@ Link where you can read about how to use it:
 https://mypythontools.readthedocs.io/#Tools
 
 Some examples of what you can find only on GitHub
-
-project-starter
----------------
-
-Project scaffolding fast and easy.
-
-Download project-starter from
-
-https://github.com/Malachov/mypythontools/tree/master/tools/project-starter
-
-(You may need to download all mypythontools repository in zip)
-
-And start developing.
-
-In your IDE, do bulk renaming across files and replace `SET_YOUR_NAME` with name of your app / library.
-
-This starter is for vue-eel applications (desktop as well as web) but also for python libraries that will be
-stored on PyPi.
-
-
-If it's python library, delete `gui` folder.
-
-If it's app with gui, delete `setup.py`, `__init__.py` and remove **Installation** and **Modules** from
-README. Also, from assets delete `mdi.css` if not using icons and `formulate.css` if not using **vue
-formulate**. In `package.json` uncomment library you will be using.
-
-Install used python libraries via `pip install -r requirements.txt` and install JS libraries as well with
-`npm install` in folder where package.json is.
-
-To run an app in develop mode, you have to run both frontend and python. Run frontend with debugging
-app.py (do not run, just debug). Then run frontend with `npm run serve` in gui folder (or use Task explorer if
-using VS Code). Open your favorite browser and open
-
-http://localhost:8080
-
-It's recommended to use Vue.js devtools extension where you can see what component is on cursor, edit props
-values or see list of all used mutations.
-
-In opened app, there is a little help button where there is simple overview about how to develop with these
-tools.
-
-Delete is faster than write, so there is many working examples like for example plot, various formatting (flex
-row, flex column), settings panel, function call from python to js and vice versa or automatic alerting from
-python. If you want to see how some example is working, just use **ctrl + F** in IDE or check components for
-its props.
-
-This is how the example looks like
-
-.. image:: /_static/project-starter-gui.png
-    :width: 620
-    :alt: project-starter-gui
-    :align: center
-
-**Docs**
-
-It includes docs structure for sphinx docs generations from docstrings. Edit first few lines in conf.py,
-index.rst, navi.html and if you want, add static files like logo to `\\_static`.
-
-Usually used with https://readthedocs.org/ free hosting that trigger deploys automatically after pushing to
-master. Because of correct relative redirecting in index.rst and navi.html use for readthedocs /path/ before
-relative link to other module.
-
-It's also necessary to generate other modules rst files for other pages, but it's if using `push_script.py` as
-CI/CD (see below), it's generated automatically via `apidoc`.
-
-It's recommended to use with `sphinx-alabaster-css` (see below).
-
-**CI/CD**
-
-It also includes GitHub actions yml file for pushing codecov coverage file (without token) and .travis.yml for
-Travis CI. You don't need those files and can you can delete it.
-
-There is file `push_script.py` in folder `utils` which personally is better (faster) than travis and can do
-most of what you want from CI like run pipeline - running tests / generate docs / increment version / push to
-GitHub / push to pypi.
-
-Check utils module for more information.
-
-**IDE files**
-
-It also includes some default project specific
- settings for VS Code. You can also delete it.
-
-If developing py - vue - eel app this is the recommended way, but if you want to build just what is necessary
-from scratch, you can use this tutorial
-
-https://pyvueeel.readthedocs.io/pyvueeel.html#pyvueeel.help_starter_pack_vue_app
 
 requirements
 ------------
@@ -222,7 +136,7 @@ from mypythontools import config, misc, paths, plots, property, system, types
 
 __all__ = ["config", "misc", "paths", "plots", "property", "system", "types"]
 
-__version__ = "1.0.5"
+__version__ = "1.0.8"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
