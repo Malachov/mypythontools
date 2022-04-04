@@ -64,6 +64,7 @@ Python library
 - paths
 - plots
 - property
+- system
 - terminal
 - type_hints
 

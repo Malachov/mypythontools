@@ -39,6 +39,7 @@ Python library
 - paths
 - plots
 - property
+- system
 - type_hints
 
 Subpackages names are self describing, and you can find documentation in subpackages docstrings.
