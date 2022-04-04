@@ -225,6 +225,10 @@ dl.field-list > dt {
     font-size: 94%;
   }
 
+  div.sphinxsidebar {
+    width: 265px;
+  }
+
   div.document {
     width: 90vw;
   }
