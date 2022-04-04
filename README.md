@@ -40,7 +40,7 @@ Python library
 - plots
 - property
 - system
-- type_hints
+- types
 
 Subpackages names are self describing, and you can find documentation in subpackages docstrings.
 

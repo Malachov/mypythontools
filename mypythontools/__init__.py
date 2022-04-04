@@ -59,14 +59,14 @@ Python library
 
 **subpackages**
 
-- config
-- misc
-- paths
-- plots
-- property
-- system
-- terminal
-- type_hints
+- :py:mod:`mypythontools.config`
+- :py:mod:`mypythontools.misc`
+- :py:mod:`mypythontools.paths`
+- :py:mod:`mypythontools.plots`
+- :py:mod:`mypythontools.property`
+- :py:mod:`mypythontools.system`
+- :py:mod:`mypythontools.terminal`
+- :py:mod:`mypythontools.types`
 
 Subpackages names are self describing and you can find documentation in subpackages docstrings.
 
