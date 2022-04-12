@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pathlib import Path
 import sys
 
@@ -12,6 +13,10 @@ if __name__ == "__main__":
             self.simple_sub_config = self.SimpleSubConfig()
 
         class SimpleSubConfig(ConfigBase):
+            @MyProperty
+            def none_arg() -> None | dict:
+                return {}
+
             @MyProperty
             def bool_arg() -> bool:
                 """This should be in CLI help."""
@@ -48,5 +53,5 @@ if __name__ == "__main__":
     config.with_argparse("How it works.")
 
     for i, j in config.get_dict().items():
-        if "666" in str(j) or j is True:
-            print(i, j, type(j))
+        if "666" in str(j) or j is True or j is None:
+            print(i, j, str(type(j)))

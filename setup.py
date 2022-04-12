@@ -12,6 +12,9 @@ if __name__ == "__main__":
     with open("requirements.txt") as f:
         my_requirements = [str(requirement) for requirement in pkg_resources.parse_requirements(f)]
 
+    with open("requirements_extras.txt") as f:
+        requirements_extras = [str(requirement) for requirement in pkg_resources.parse_requirements(f)]
+
     with open("mypythontools/__init__.py") as version_file:
         version = re.findall('__version__ = "(.*)"', version_file.read())[0]
 
@@ -21,7 +24,7 @@ if __name__ == "__main__":
         description="Some tools/functions/snippets used across projects.",
         include_package_data=True,
         install_requires=my_requirements,
-        # extras_require={},
+        extras_require={"plots": requirements_extras},
         license="mit",
         long_description_content_type="text/markdown",
         long_description=readme,

@@ -102,3 +102,71 @@ def validate_path(path: PathLike) -> Path:
     if not path.exists():
         raise FileNotFoundError(f"File nor folder found on defined path {path}")
     return path
+
+
+def isFolderEmpty(path: PathLike) -> bool:
+    """Check whether folder is empty.
+
+    Args:
+        path (PathLike): Path to folder
+
+    Raises:
+        RuntimeError: If there is no folder on path.
+
+    Returns:
+        bool: True or False
+
+    Example:
+        >>> from pathlib import Path
+        >>> from shutil import rmtree
+        >>> test_path = Path("isFolderEmptyFolder")
+        >>> test_path.mkdir()
+        >>> isFolderEmpty(test_path)
+        True
+        >>> isFolderEmpty(test_path.parent)
+        False
+        >>> rmtree("isFolderEmptyFolder")
+    """
+    path = validate_path(path)
+
+    if not path.is_dir():
+        raise RuntimeError("On defined path is not folder.")
+
+    content = next(path.iterdir(), None)
+
+    if content is None:
+        return True
+    else:
+        return False
+
+
+def is_path_free(path: PathLike):
+    """Check whether path is available. It means that it doesn't exists yet or its a folder, but it's empty.
+
+    Args:
+        path (PathLike): Path to be verified.
+
+    Returns:
+        bool: True or False
+
+    Example:
+        >>> from pathlib import Path
+        >>> from shutil import rmtree
+        >>> is_path_free("non/existing/path")
+        True
+        >>> test_path = Path("isFolderEmptyFolder")
+        >>> test_path.mkdir()
+        >>> is_path_free(test_path)
+        True
+        >>> is_path_free(test_path.parent)
+        False
+        >>> rmtree("isFolderEmptyFolder")
+    """
+    path = Path(path)
+    if not Path(path).exists():
+        return True
+    else:
+        if path.is_dir:
+            if isFolderEmpty(path):
+                return True
+    return False

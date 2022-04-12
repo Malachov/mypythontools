@@ -27,6 +27,7 @@ def test_config_argparse():
     """Doctest not tested in config. If changing test, change docs as well."""
 
     options = [
+        {"name": "none_arg", "input_value": "None", "expected_value": "None", "type": type(None)},
         {"name": "bool_arg", "input_value": "True", "expected_value": "True", "type": "bool"},
         {"name": "int_arg", "input_value": "666", "expected_value": "666", "type": "int"},
         {"name": "float_arg", "input_value": "666", "expected_value": "666", "type": "float"},
@@ -45,7 +46,7 @@ def test_config_argparse():
             shell=True,
         ).strip()
 
-        assert all(member in output for member in [i["name"], i["expected_value"], i["type"]])
+        assert all(member in output for member in [i["name"], i["expected_value"], str(i["type"])])
 
     get_help = subprocess.check_output(
         f"{PYTHON} {argparse_script_path} --help", cwd=root_path, text=True, shell=True

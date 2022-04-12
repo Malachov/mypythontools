@@ -6,8 +6,10 @@ to get desktop path in posix way.
 from mypythontools.paths.paths_internal import (
     find_path,
     get_desktop_path,
+    isFolderEmpty,
+    is_path_free,
     validate_path,
     PathLike,
 )
 
-__all__ = ["find_path", "get_desktop_path", "validate_path", "PathLike"]
+__all__ = ["find_path", "get_desktop_path", "isFolderEmpty", "is_path_free", "validate_path", "PathLike"]

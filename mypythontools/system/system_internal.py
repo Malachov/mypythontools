@@ -178,14 +178,19 @@ def check_script_is_available(name, install_library=None, message="default"):
         raise RuntimeError(message)
 
 
-def check_library_is_available(name, message="default"):
+def check_library_is_available(name, message="default", extras: str | None = None):
     """Make one-liner for checking whether some library is installed.
 
     If running on venv, it checks only this venv, no global site packages.
 
     Args:
         name (str): Name of the library.
-        message (str, optional): Message that will be printed when library not installed. Defaults to "default".
+        message (str, optional): Message that will be printed when library not installed.
+            Defaults to "default".
+        extras (str, optional): Sometimes there are sections of requirements that are installable with extra
+            pip command e.g. `pip install mypythontools[plots]`. If you define a name of a library with name
+            of extras, for example 'mypythontools[plots]', it will be printed to the user, so he is able to
+            install all libraries at once. Defaults to None.
 
     Raises:
         ModuleNotFoundError: If module is installed, error is raised.
@@ -200,6 +205,12 @@ def check_library_is_available(name, message="default"):
         message = (
             f"Library {name} is necessary and not available. Some libraries are used in just for small"
             f"part of module, so not installed by default. Use \n\n\tpip install {name}\n\n"
+        )
+
+    if extras:
+        message = message + (
+            "There may be more libraries you will need for this use case. There are extra requirements to be "
+            "installed. You can install it with  \n\n\tpip install {extras}\n\n"
         )
 
     if not importlib.util.find_spec(name):

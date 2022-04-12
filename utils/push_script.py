@@ -8,9 +8,9 @@ if __name__ == "__main__":
         reformat=True,
         test=True,
         test_options={
-            "virtualenvs": ["venv/37", "venv/310"],
+            # "virtualenvs": ["venv/37", "venv/310"],
             "sync_requirements": "infer",
-            "wsl_virtualenvs": "venv/linux",
+            # "wsl_virtualenvs": "venv/linux",
         },
         version="increment",
         docs=True,

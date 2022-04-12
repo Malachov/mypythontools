@@ -5,10 +5,9 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import Literal
 
-import mylogging
-
 from .. import misc
 from ..paths import PathLike, get_desktop_path
+from ..system import check_library_is_available
 
 # Lazy imports
 # from pathlib import Path
@@ -139,7 +138,11 @@ def plot(
         save_path = get_desktop_path() / "plot.html"
 
     if plot_library == "matplotlib":
+        check_library_is_available("matplotlib")
+        check_library_is_available("IPython")
+
         if misc.GLOBAL_VARS.jupyter:
+
             from IPython import get_ipython
 
             get_ipython().run_line_magic("matplotlib", "inline")  # type: ignore
@@ -166,6 +169,8 @@ def plot(
             plt.show()
 
     elif plot_library == "plotly":
+
+        check_library_is_available("plotly")
 
         import plotly as pl
 
