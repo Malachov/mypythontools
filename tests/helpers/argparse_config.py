@@ -4,15 +4,15 @@ import sys
 
 sys.path.insert(0, Path(__file__).parents[2].as_posix())
 
-from mypythontools.config import MyProperty, ConfigBase, ConfigStructured
+from mypythontools.config import MyProperty, Config
 
 if __name__ == "__main__":
 
-    class SimpleConfig(ConfigStructured):
+    class SimpleConfig(Config):
         def __init__(self) -> None:
             self.simple_sub_config = self.SimpleSubConfig()
 
-        class SimpleSubConfig(ConfigBase):
+        class SimpleSubConfig(Config):
             @MyProperty
             def none_arg() -> None | dict:
                 return {}

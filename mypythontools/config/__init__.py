@@ -16,7 +16,7 @@ Examples:
     >>> from __future__ import annotations
     >>> from typing_extensions import Literal
     ...
-    >>> class SimpleConfig(ConfigBase):
+    >>> class SimpleConfig(Config):
     ...     @MyProperty
     ...     def var() -> int:  # Type hints are validated.
     ...         '''
@@ -32,7 +32,7 @@ Examples:
     ...         return 123  # This is initial value that can be edited.
     ...
     ...     @MyProperty
-    ...     def var_literal(self) -> Literal[1, 2, 3]:  # Literal options are also validated
+    ...     def var_literal() -> Literal[1, 2, 3]:  # Literal options are also validated
     ...         return 2
     ...
     ...     @MyProperty   # If other defined value is changed, computed property is also updated
@@ -52,11 +52,11 @@ Examples:
     665
     >>> config['var']  # You can also access params as in a dictionary
     665
-    >>> config.var = "String is problem"  # doctest: +IGNORE_EXCEPTION_DETAIL
+    >>> config.var = "String is problem"
     Traceback (most recent call last):
     TypeError: ...
     ...
-    >>> config.var_literal = 4  # doctest: +IGNORE_EXCEPTION_DETAIL
+    >>> config.var_literal = 4
     Traceback (most recent call last):
     TypeError: ...
     ...
@@ -79,21 +79,22 @@ This is how help looks like in VS Code
 Hierarchical config
 -------------------
 
-If last level, do inherit from ConfigBase, else inherit from ConfigStructured
-
+It is possible to use another config object as a value in config and thus hierarchical configs can be created.
 Note:
     Use unique values for all config variables even if they are in various subconfig.
 
->>> class Config(ConfigStructured):
+>>> from mypythontools.config import Config as mypythontools_config
+...
+>>> class Config(mypythontools_config):
 ...     def __init__(self) -> None:
 ...         self.subconfig1 = self.SubConfiguration1()
 ...         self.subconfig2 = self.SubConfiguration2()
 ...
-...     class SubConfiguration1(ConfigStructured):
+...     class SubConfiguration1(Config):
 ...         def __init__(self) -> None:
 ...             self.subsubconfig = self.SubSubConfiguration()
 ...
-...         class SubSubConfiguration(ConfigBase):
+...         class SubSubConfiguration(Config):
 ...             @MyProperty
 ...             def value1() -> Literal[0, 1, 2, 3]:
 ...                 '''Documentation here
@@ -106,7 +107,7 @@ Note:
 ...             def value2(self):
 ...                 return self.value1 + 1
 ...
-...     class SubConfiguration2(ConfigBase):
+...     class SubConfiguration2(Config):
 ...         @MyProperty
 ...         def other_val(self):
 ...             return self.value2 + 1
@@ -209,9 +210,7 @@ Here is example
     :alt: config_on_sphinx
     :align: center
 """
-from __future__ import annotations
-
-from mypythontools.config.config_internal import ConfigBase, ConfigStructured
+from mypythontools.config.config_internal import Config
 from mypythontools.property import MyProperty
 
-__all__ = ["ConfigBase", "ConfigStructured", "MyProperty"]
+__all__ = ["Config", "MyProperty"]

@@ -70,7 +70,7 @@ class MyPropertyClass(property, Generic[T]):
         if isinstance(content, staticmethod):
             content = content.__func__
 
-        if callable(content):
+        if not hasattr(content, "myproperties_list") and callable(content):
             # Depends whether it's staticmethod or not
             try:
                 value = content(used_object)
@@ -85,7 +85,7 @@ class MyPropertyClass(property, Generic[T]):
     def __set__(self, used_object, content: T | Callable[..., T]):
         """Define what happen if user set new config value."""
         # You can setup value or function, that return that value
-        if callable(content):
+        if not hasattr(content, "myproperties_list") and callable(content):
             result = content(used_object)
         else:
             result = content

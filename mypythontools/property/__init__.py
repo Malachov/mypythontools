@@ -44,11 +44,11 @@ Examples:
     >>> config.var = 665
     >>> config.var
     665
-    >>> config.var = "String is problem"  # doctest: +IGNORE_EXCEPTION_DETAIL
+    >>> config.var = "String is problem"
     Traceback (most recent call last):
     TypeError: ...
     ...
-    >>> config.var_literal = 4  # doctest: +IGNORE_EXCEPTION_DETAIL
+    >>> config.var_literal = 4
     Traceback (most recent call last):
     TypeError: ...
     ...

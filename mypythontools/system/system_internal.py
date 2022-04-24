@@ -172,7 +172,7 @@ def check_script_is_available(name, install_library=None, message="default"):
         message = f"Python script {name} is necessary and not available. "
 
     if install_library:
-        message = message + f"To get this executable available, do \n\n\tpip install {name}\n\n"
+        message = message + f"\nTo get this executable available, do \n\n\tpip install {name}\n\n"
 
     if not which(name):
         raise RuntimeError(message)

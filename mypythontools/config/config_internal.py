@@ -3,20 +3,22 @@
 
 # TODO - check if some arg name not more times - would be overwritten
 # TODO - add frozen and dict_values in __init__
-# TODO - Remove one loop over vars (from propagatebase_config_map and do the logic in meta loop)
+# TODO - Remove one loop over vars (from propagate_base_config_map and do the logic in meta loop)
 # TODO - Redefine base_config_map and properties list on class, not in objects in meta
 
 from __future__ import annotations
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Union
+from types import UnionType
 from copy import deepcopy
 import argparse
 import sys
 
+from typing_extensions import get_args
 from ..property import init_my_properties, MyProperty  # pylint: disable=unused-import
 from .. import misc
 from .. import types
 
-ConfigType = TypeVar("ConfigType", bound="ConfigBase")
+ConfigType = TypeVar("ConfigType", bound="Config")
 
 
 class ConfigMeta(type):
@@ -26,7 +28,7 @@ class ConfigMeta(type):
     still has functionality from parent __init__ that is necessary. With this meta, there is no need
     to use super().__init__ by user.
 
-    As user, you probably will not need it. It's used internally if inheriting from ConfigStructured.
+    As user, you probably will not need it.
     """
 
     def __init__(cls, name, bases, dct) -> None:
@@ -34,10 +36,7 @@ class ConfigMeta(type):
         type.__init__(cls, name, bases, dct)
 
         # Avoid base classes here and wrap only user class init
-        if name in [
-            "ConfigBase",
-            "ConfigStructured",
-        ]:
+        if name == "Config" and not bases:
             return
 
         def add_parent__init__(
@@ -61,9 +60,7 @@ class ConfigMeta(type):
                 if isinstance(j, property):
                     self.properties_list.append(i)
 
-            # If structured config, add proxies to subconfigs
-            if self.is_structured:
-                self.propagatebase_config_map()
+            self.propagate_base_config_map()
 
             # Update values from dict param in init
             if dict_values:
@@ -83,8 +80,8 @@ class ConfigMeta(type):
         return getattr(cls, key)
 
 
-class ConfigBase(metaclass=ConfigMeta):  # type: ignore
-    """Main config class. If need nested config, use ConfigStructured instead.
+class Config(metaclass=ConfigMeta):  # type: ignore
+    """Main config class.
 
     You can find working examples in module docstrings.
     """
@@ -94,12 +91,9 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
     # to enable creating new instances.
     frozen = False
 
-    is_structured = False
-
-    # base_config_map is used only if using structured config. You can access attribute from subconfig as
-    # well as from main config object, there is proxy mapping config dict (same for base and subconfig) if
-    # attribute not found on defined object, it will find if it's in this dict where are all config values as
-    # key and config object where it's stored. It's poppulated automatically in metaclass during init
+    # You can access attribute from subconfig as well as from main config object, there is proxy mapping
+    # config dict. If attribute not found on defined object, it will search through this proxy. It's
+    # poppulated automatically in metaclass during init
     base_config_map = {}
 
     def __init__(self) -> None:
@@ -112,10 +106,8 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
 
     def __new__(cls, *args, **kwargs):
         """Just controll that class is subclassed and not instantiated."""
-        if cls is ConfigBase or cls is ConfigStructured:
-            raise TypeError(
-                "ConfigBase and ConfigStructured are not supposed to be instantiated only to be subclassed."
-            )
+        if cls is Config:
+            raise TypeError("Config is not supposed to be instantiated only to be subclassed.")
         return object.__new__(cls, *args, **kwargs)
 
     def __deepcopy__(self, memo):
@@ -130,7 +122,6 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
     def __getattr__(self, name: str):
         """Controll logic if attribute from other subcongif is used."""
         try:
-            # If structured config. Value may not be in this object, but in another related object.
             return getattr(self.base_config_map[name], name)
 
         except KeyError:
@@ -186,6 +177,27 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
     def __call__(self, *args: Any, **kwds) -> None:
         """Just to be sure to not be used in unexpected way."""
         raise TypeError("Class is not supposed to be called. Just inherit it to create custom config.")
+
+    def propagate_base_config_map(self) -> None:
+        """Provide transfering arguments from base or from sub configs.
+
+        Config class has subconfigs. It is possible to access subconfigs attributes from main config or from
+        any other level because of this function.
+        """
+        for k, i in vars(self).items():
+            if hasattr(i, "myproperties_list"):
+                for j in i.myproperties_list:
+                    self.base_config_map[j] = i
+
+            elif hasattr(i, "properties_list"):
+                for j in i.properties_list:
+                    self.base_config_map[j] = i
+
+            # i is iterated subconfig and self is higher level config
+            if isinstance(i, Config):
+                i.propagate_base_config_map()  #  type: ignore
+                self.base_config_map.update(i.base_config_map)
+                i.base_config_map.update(self.base_config_map)
 
     def copy(self: ConfigType) -> ConfigType:
         """Create deep copy of config and all it's attributes.
@@ -249,7 +261,15 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
             i: j for i, j in normal_vars.items() if not (i.startswith("_") and i[1:] in property_vars)
         }
 
-        return {**normal_vars, **property_vars}
+        dict_of_values = {**normal_vars, **property_vars}
+
+        # From sub configs
+        for i in vars(self).values():
+            if hasattr(i, "myproperties_list"):
+                subconfig_dict = i.get_dict()
+                dict_of_values.update(subconfig_dict)
+
+        return dict_of_values
 
     def with_argparse(self, about: str | None = None) -> None:
         """Parse sys.argv flags and update the config.
@@ -321,10 +341,10 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
             if j is None:
                 continue
 
-            if self.is_structured:
-                used_type = type(self.base_config_map[i])[i].allowed_types
-            else:
+            try:
                 used_type = type(self)[i].allowed_types
+            except AttributeError:
+                used_type = type(self.base_config_map[i])[i].allowed_types
 
             if used_type is not str:
                 try:
@@ -332,46 +352,18 @@ class ConfigBase(metaclass=ConfigMeta):  # type: ignore
                     parser_args_dict[i] = types.str_to_infer_type(j)
                 except ValueError:
                     parser_args_dict[i] = j
+                except Exception:
+                    # UnionType stands for new Union | syntax
+                    if type(used_type) in [type(Union[str, float]), UnionType] and str in get_args(used_type):
+                        parser_args_dict[i] = j
+                    else:
+                        raise RuntimeError(
+                            f"Type not inferred error. Config option {i} type was not inferred and it cannot "
+                            "be a string. Only literal_eval is used in type inferring from CLI parsing. "
+                            "If you need more complex types like numpy array, try to use it directly from "
+                            "python."
+                        )
             else:
                 parser_args_dict[i] = j
 
         self.update(parser_args_dict)
-
-
-class ConfigStructured(ConfigBase):
-    """Class for creating config. Read why and how in config module docstrings."""
-
-    is_structured = True
-
-    def get_dict(self) -> dict:
-        """Flatten data and return to string."""
-        # From main class
-        dict_of_values = super().get_dict()
-        # From sub configs
-        for i in vars(self).values():
-            if hasattr(i, "myproperties_list"):
-                subconfig_dict = i.get_dict()
-                dict_of_values.update(subconfig_dict)
-
-        return dict_of_values
-
-    def propagatebase_config_map(self) -> None:
-        """Provide transfering arguments from base or from sub configs.
-
-        Config class has subconfigs. It is possible to access subconfigs attributes from main config or from
-        any other level because of this function.
-        """
-        for i in vars(self).values():
-            if hasattr(i, "myproperties_list"):
-                for j in i.myproperties_list:
-                    self.base_config_map[j] = i
-
-            elif hasattr(i, "properties_list"):
-                for j in i.properties_list:
-                    self.base_config_map[j] = i
-
-            if isinstance(i, ConfigBase):
-                i.base_config_map = self.base_config_map
-
-            if ConfigStructured in type(i).mro():
-                i.propagatebase_config_map()  #  type: ignore
