@@ -14,6 +14,7 @@ from mypythontools_cicd.tests import setup_tests
 import mypythontools
 from mypythontools.system import get_console_str_with_quotes, PYTHON
 
+# pylint: disable=missing-function-docstring
 
 setup_tests()
 
