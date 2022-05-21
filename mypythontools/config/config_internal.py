@@ -116,7 +116,11 @@ class Config(metaclass=ConfigMeta):  # type: ignore
         result = cls.__new__(cls)
         memo[id(self)] = result
         for i, j in self.__dict__.items():
-            setattr(result, i, deepcopy(j, memo))
+            if isinstance(j, staticmethod):
+                atr = j.__func__
+            else:
+                atr = j
+            setattr(result, i, deepcopy(atr, memo))
         return result
 
     def __getattr__(self, name: str):
@@ -286,7 +290,7 @@ class Config(metaclass=ConfigMeta):  # type: ignore
             python my_file.py --config_arg config_value
 
         Only basic types like int, float, str, list, dict, set are possible as eval for using type like numpy
-        array or pandas dataframe could be security leak.
+        array or pandas DataFrame could be security leak.
 
         Args:
             about (str, optional): Description used in --help. Defaults to None.

@@ -114,7 +114,7 @@ def plot(
         None | str: Only if return_div is True, else None.
 
     Examples:
-        Plot dataframe with
+        Plot DataFrame with
 
         >>> import pandas as pd
         >>> df = pd.DataFrame([[None, None, 1], [None, None, 2], [3, 3, 6], [3, 2.5, 4]])

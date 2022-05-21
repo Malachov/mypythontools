@@ -18,6 +18,7 @@ Examples:
     ...
     >>> class SimpleConfig(Config):
     ...     @MyProperty
+    ...     @staticmethod  # You can add this for Pylint complain (needs to be after @MyProperty)
     ...     def var() -> int:  # Type hints are validated.
     ...         '''
     ...         Type:
@@ -32,15 +33,11 @@ Examples:
     ...         return 123  # This is initial value that can be edited.
     ...
     ...     @MyProperty
+    ...     @staticmethod
     ...     def var_literal() -> Literal[1, 2, 3]:  # Literal options are also validated
     ...         return 2
     ...
     ...     @MyProperty   # If other defined value is changed, computed property is also updated
-    ...     def evaluated(self) -> int | float:
-    ...         return self.var + 1
-    ...
-    ...
-    ...     @property   # If you need some logic in setter, use normal property
     ...     def evaluated(self) -> int | float:
     ...         return self.var + 1
     ...
@@ -96,6 +93,7 @@ Note:
 ...
 ...         class SubSubConfiguration(Config):
 ...             @MyProperty
+...             @staticmethod
 ...             def value1() -> Literal[0, 1, 2, 3]:
 ...                 '''Documentation here
 ...
@@ -188,7 +186,12 @@ Now you can use in terminal like.
 
 
 Only basic types like int, float, str, list, dict, set are possible as eval for using type like numpy
-array or pandas dataframe could be security leak.
+array or pandas DataFrame could be security leak.
+
+Setter
+======
+
+If you need extra logic in setters, use normal property or implement custom descriptors.
 
 Sphinx docs
 ===========
