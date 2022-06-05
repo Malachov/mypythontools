@@ -93,19 +93,14 @@ class Config(metaclass=ConfigMeta):  # type: ignore
 
     # You can access attribute from subconfig as well as from main config object, there is proxy mapping
     # config dict. If attribute not found on defined object, it will search through this proxy. It's
-    # poppulated automatically in metaclass during init
+    # populated automatically in metaclass during init
     base_config_map = {}
 
-    def __init__(self) -> None:
-        """Can be overwritten by user and don't need to be called with super().
-
-        Mainly for linting and type hints.
-        """
-        self.myproperties_list = []
-        self.properties_list = []
+    myproperties_list = []
+    properties_list = []
 
     def __new__(cls, *args, **kwargs):
-        """Just controll that class is subclassed and not instantiated."""
+        """Just control that class is subclassed and not instantiated."""
         if cls is Config:
             raise TypeError("Config is not supposed to be instantiated only to be subclassed.")
         return object.__new__(cls, *args, **kwargs)
@@ -124,7 +119,7 @@ class Config(metaclass=ConfigMeta):  # type: ignore
         return result
 
     def __getattr__(self, name: str):
-        """Controll logic if attribute from other subcongif is used."""
+        """Control logic if attribute from other subconfig is used."""
         try:
             return getattr(self.base_config_map[name], name)
 
@@ -138,7 +133,7 @@ class Config(metaclass=ConfigMeta):  # type: ignore
                 "__test__",
             ]:
 
-                raise AttributeError(f"Variable {name} not found in config.") from None
+                raise AttributeError(f"Variable '{name}' not found in config.") from None
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Setup new config values. Define logic when setting attributes from other subconfig class."""
@@ -183,7 +178,7 @@ class Config(metaclass=ConfigMeta):  # type: ignore
         raise TypeError("Class is not supposed to be called. Just inherit it to create custom config.")
 
     def propagate_base_config_map(self) -> None:
-        """Provide transfering arguments from base or from sub configs.
+        """Provide transferring arguments from base or from sub configs.
 
         Config class has subconfigs. It is possible to access subconfigs attributes from main config or from
         any other level because of this function.
@@ -356,7 +351,7 @@ class Config(metaclass=ConfigMeta):  # type: ignore
                     parser_args_dict[i] = types.str_to_infer_type(j)
                 except ValueError:
                     parser_args_dict[i] = j
-                except Exception:
+                except Exception as err:
                     # UnionType stands for new Union | syntax
                     if type(used_type) in [type(Union[str, float]), UnionType] and str in get_args(used_type):
                         parser_args_dict[i] = j
@@ -366,7 +361,7 @@ class Config(metaclass=ConfigMeta):  # type: ignore
                             "be a string. Only literal_eval is used in type inferring from CLI parsing. "
                             "If you need more complex types like numpy array, try to use it directly from "
                             "python."
-                        )
+                        ) from err
             else:
                 parser_args_dict[i] = j
 

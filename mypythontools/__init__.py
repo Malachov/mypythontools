@@ -137,7 +137,7 @@ from mypythontools import config, misc, paths, plots, property, system, types
 
 __all__ = ["config", "misc", "paths", "plots", "property", "system", "types"]
 
-__version__ = "2.0.2"
+__version__ = "2.0.3"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

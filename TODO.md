@@ -1,5 +1,6 @@
+- [ ] Simplify intellisense - move base_config_map, myproperties_list and properties list into internal and rest methods somehow into do object
 - [ ] Try to make oneliner config. Try property decorator on variable
-- [ ] Add do-just option or add sys args to functions so single task can be executed simply
+- [ ] Add do-just option or add sys args to functions, so single task can be executed simply
 - [ ] Remove project.rst as it is in index.rst via automodule
 - [ ] In configuration use type annotation for type verification. Implement Literal as options.
 - [ ] Check if coverage from doctest included

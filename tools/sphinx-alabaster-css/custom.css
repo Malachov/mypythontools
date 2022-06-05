@@ -41,6 +41,10 @@ dd .simple {
   list-style: none;
 }
 
+dt {
+    word-wrap: break-word;
+}
+
 .viewcode-link {
   font-size: 20px;
 }
@@ -131,7 +135,7 @@ div.footer {
 
 div.sphinxsidebar {
   font-size: 17px;
-  width: 320px;
+  width: 300px;
 }
 
 div.sphinxsidebar ul li {
@@ -198,7 +202,7 @@ dl.field-list > dt {
   }
 
   div.bodywrapper {
-    margin: 0 0 0 305px;
+    margin: 0 0 0 280px;
   }
 
   div.sphinxsidebar h1,
