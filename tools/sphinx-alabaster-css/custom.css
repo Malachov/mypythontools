@@ -59,8 +59,7 @@ cite {
   padding: 2px 7px 2px 7px;
 }
 
-pre,
-span.pre {
+dt span.pre {
   white-space: normal;
 }
 
