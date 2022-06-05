@@ -42,7 +42,7 @@ dd .simple {
 }
 
 dt {
-    word-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .viewcode-link {
@@ -59,7 +59,8 @@ cite {
   padding: 2px 7px 2px 7px;
 }
 
-pre, span.pre {
+pre,
+span.pre {
   white-space: normal;
 }
 
@@ -108,6 +109,10 @@ div.footer {
 .field-list p {
   text-indent: -58px;
   margin-left: 72px;
+}
+
+.field-list ul {
+  padding-left: 0;
 }
 
 .headerlink {
