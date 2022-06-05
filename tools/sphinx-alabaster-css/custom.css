@@ -59,8 +59,8 @@ cite {
   padding: 2px 7px 2px 7px;
 }
 
-pre .go {
-  white-space: break-spaces;
+pre {
+  white-space: normal;
 }
 
 #table-of-contents h1 {
