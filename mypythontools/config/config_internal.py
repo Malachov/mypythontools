@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 from typing import Any, TypeVar, Union
-from types import UnionType
 from copy import deepcopy
 import argparse
 import sys
@@ -96,8 +95,8 @@ class Config(metaclass=ConfigMeta):  # type: ignore
     # populated automatically in metaclass during init
     base_config_map = {}
 
-    myproperties_list = []
-    properties_list = []
+    myproperties_list: list[str] = []
+    properties_list: list[str] = []
 
     def __new__(cls, *args, **kwargs):
         """Just control that class is subclassed and not instantiated."""
@@ -352,8 +351,16 @@ class Config(metaclass=ConfigMeta):  # type: ignore
                 except ValueError:
                     parser_args_dict[i] = j
                 except Exception as err:
+                    union_types = [type(Union[str, float])]
+                    try:
+                        from types import UnionType
+
+                        union_types.append(UnionType)
+                    except ImportError:
+                        pass
+
                     # UnionType stands for new Union | syntax
-                    if type(used_type) in [type(Union[str, float]), UnionType] and str in get_args(used_type):
+                    if type(used_type) in union_types and str in get_args(used_type):
                         parser_args_dict[i] = j
                     else:
                         raise RuntimeError(

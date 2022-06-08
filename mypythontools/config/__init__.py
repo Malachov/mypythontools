@@ -213,6 +213,9 @@ Here is example
     :alt: config_on_sphinx
     :align: center
 """
+# Because of doctest
+from __future__ import annotations
+
 from mypythontools.config.config_internal import Config
 from mypythontools.property import MyProperty
 
