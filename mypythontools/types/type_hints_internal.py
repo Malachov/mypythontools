@@ -20,13 +20,6 @@ from typing_extensions import get_type_hints
 def get_return_type_hints(func: Callable) -> Any:
     """Return function return types.
 
-    This is because `get_type_hints` result in error for some types in older
-    versions of python and also that `__annotations__` contains only string, not types.
-
-    Note:
-        Sometimes it may use eval as literal_eval cannot use users globals so types like pd.DataFrame would
-        fail. !!! Therefore do not use it for evaluating types of users input for sake of security !!!
-
     Args:
         func (Callable): Function with type hints.
 
@@ -53,6 +46,40 @@ def get_return_type_hints(func: Callable) -> Any:
         types = get_type_hints(func).get("return")
     except Exception:
         types = func.__annotations__.get("return")
+
+    return types
+
+
+def get_return_type_hints_old_versions(func: Callable) -> Any:
+    """Return function return types on old versions of python (3.7).
+
+    This is because `get_type_hints` result in error for some types in older versions of python and also that
+    `__annotations__` contains only string, not types and it needs to be parsed.
+
+    Note:
+        Sometimes it may use eval as literal_eval cannot use users globals so types like pd.DataFrame would
+        fail. !!! Therefore do not use it for evaluating types of users input for sake of security !!!
+
+    Args:
+        func (Callable): Function with type hints.
+
+    Returns:
+        Any: Type of return. E.g. <class 'tuple'> or typing_extensions.Literal['int', 'float'].
+
+    Example:
+        >>> # You can use Union as well as Literal
+        >>> def union_return() -> int | float:
+        ...     return 1
+        >>> inferred_type = get_return_type_hints(union_return)
+        >>> 'int' in str(inferred_type) and 'float' in str(inferred_type)
+        True
+        >>> def literal_return() -> Literal[1, 2, 3]:
+        ...     return 1
+        >>> inferred_type = get_return_type_hints(literal_return)
+        >>> 'Literal' in str(inferred_type)
+        True
+    """
+    types = get_return_type_hints(func)
 
     if isinstance(types, str) and "Union" in types:
         types = eval(types, func.__globals__)

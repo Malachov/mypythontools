@@ -4,7 +4,8 @@ norecursedirs = [
     "tools",
     "dist",
     "build",
-    "venv"
+    "venv",
+    ".ipynb_checkpoints"
 ]
 doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER ELLIPSIS IGNORE_EXCEPTION_DETAIL"
 

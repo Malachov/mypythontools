@@ -186,7 +186,9 @@ Now you can use in terminal like.
 
 
 Only basic types like int, float, str, list, dict, set are possible as eval for using type like numpy
-array or pandas DataFrame could be security leak.
+array or pandas DataFrame could be security leak if eval would be used.
+
+Lists and tuples put inside brackets so it's not taken as more parameters.
 
 Setter
 ======

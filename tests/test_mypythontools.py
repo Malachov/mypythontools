@@ -33,8 +33,13 @@ def test_config_argparse():
         {"name": "int_arg", "input_value": "666", "expected_value": "666", "type": "int"},
         {"name": "float_arg", "input_value": "666", "expected_value": "666", "type": "float"},
         {"name": "str_arg", "input_value": "666", "expected_value": "666", "type": "str"},
-        {"name": "list_arg", "input_value": "[666]", "expected_value": "666", "type": "list"},
-        {"name": "dict_arg", "input_value": "\"{'key': 666}\"", "expected_value": "666", "type": "dict"},
+        {"name": "list_arg", "input_value": '"[666, 777]"', "expected_value": "666", "type": "list"},
+        {
+            "name": "dict_arg",
+            "input_value": "\"{'key': 666, 'key2': 777}\"",
+            "expected_value": "666",
+            "type": "dict",
+        },
     ]
 
     argparse_script_path = get_console_str_with_quotes(tests_path / "helpers" / "argparse_config.py")
@@ -104,34 +109,3 @@ def test_delete_files():
 if __name__ == "__main__":
 
     pass
-
-    from mypythontools.config import Config, MyProperty
-    from typing_extensions import Literal
-
-    class SimpleConfig(Config):
-        @MyProperty
-        @staticmethod  # You can add this for Pylint complain (needs to be after @MyProperty)
-        def var() -> int:  # Type hints are validated.
-            """
-            Type:
-                int
-
-            Default:
-                123
-
-            This is docstrings (also visible in IDE, because not defined dynamically).
-            Also visible in Sphinx documentation."""
-
-            return 123  # This is initial value that can be edited.
-
-        @MyProperty  # If other defined value is changed, computed property is also updated
-        def evaluated(self) -> int | float:
-            return self.var + 1
-
-    config = SimpleConfig()
-    config.var
-    config.var = 665
-    config.var
-    config["var"]  # You can also access params as in a dictionary
-    config.evaluated = 9
-    a = 8
