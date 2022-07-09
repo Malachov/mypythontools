@@ -5,10 +5,14 @@ norecursedirs = [
     "dist",
     "build",
     "venv",
-    ".ipynb_checkpoints"
+    ".ipynb_checkpoints",
+    "tests/venvs"
 ]
 doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER ELLIPSIS IGNORE_EXCEPTION_DETAIL"
 
 
 [tool.black]
 line-length = 110
+
+[build-system]
+requires = ["mypythontools_cicd[packages]"]

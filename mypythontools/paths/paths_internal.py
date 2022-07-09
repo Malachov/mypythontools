@@ -79,14 +79,19 @@ def get_desktop_path() -> Path:
     return Path.home() / "Desktop"
 
 
-def validate_path(path: PathLike) -> Path:
+def validate_path(
+    path: PathLike, error_prefix: None | str = None, error_file_name: None | str = None
+) -> Path:
     """Convert to pathlib path, resolve to full path and check if exists.
 
     Args:
         path (PathLike): Validated path.
+        error_prefix (None | str): Prefix for raised error if file nor folder found. Defaults to None.
+        error_file_name (): In raised error it's the name of file or folder that should be found, so user
+            understand what happened. Defaults to None.
 
     Raises:
-        FileNotFoundError: If file do not exists.
+        FileNotFoundError: If file nor folder do not exists.
 
     Returns:
         Path: Pathlib Path object.
@@ -100,7 +105,8 @@ def validate_path(path: PathLike) -> Path:
     """
     path = Path(path).resolve()
     if not path.exists():
-        raise FileNotFoundError(f"File nor folder found on defined path {path}")
+        error_file_name = f"'{error_file_name}' not " if error_file_name else "Nothing"
+        raise FileNotFoundError(f"{error_prefix}. Nothing found on defined path {path}")
     return path
 
 

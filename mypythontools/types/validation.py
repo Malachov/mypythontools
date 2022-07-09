@@ -120,9 +120,7 @@ def small_validate(value, allowed_type: None | Any = None, name: str | None = No
                 return
             else:
                 raise ValidationError(
-                    mylogging.format_str(
-                        f"Allowed type for variable '{name}' are {allowed_type}, but you try to set an {type(value)}"
-                    )
+                    f"Allowed type for variable '{name}' are {allowed_type}, but you try to set an {type(value)}"
                 )
 
         # If Literal - parse options

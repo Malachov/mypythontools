@@ -12,7 +12,7 @@ import datetime
 # Suppose separate build and source structure and logo.png in _static folder
 
 # Settings
-PROJECT = "mypythontools"
+PROJECT = "mypythontools_scientific"
 AUTHOR = "Daniel Malachov"
 GITHUB_USER = "Malachov"
 
@@ -84,7 +84,7 @@ html_static_path = ["_static"]
 # html_extra_path = ['../extra']
 
 html_css_files = [
-    "https://malachov.github.io/mypythontools/tools/sphinx-alabaster-css/custom.css",
+    "https://malachov.github.io/_scientific/tools/sphinx-alabaster-css/custom.css",
 ]
 
 napoleon_custom_sections = [

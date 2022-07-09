@@ -1,13 +1,13 @@
 """Module with functions for 'terminal' subpackage."""
 
 from __future__ import annotations
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import subprocess
 import platform
 import importlib.util
 import sys
 
-from ..paths import PathLike
+from ..paths import PathLike, WslPath
 
 
 def is_wsl():
@@ -22,6 +22,23 @@ def is_wsl():
 SHELL_AND = " && "
 """If using some nonstandard shell can be edited here globally. ';' can be used if && not working."""
 PYTHON = "python" if platform.system() == "Windows" and not is_wsl() else "python3"
+
+
+def convert_to_wsl_command(command: str) -> str:
+    """Convert linux command so it can run on wsl.
+
+    Args:
+        command (str): Command to be converted.
+
+    Returns:
+        str: Converted command with escaped symbols.
+
+    Note:
+        If using `subprocess` with `shell=False`, it should not be converted.
+    """
+    for i in ["^", "&", "$", "|", "<", ">"]:
+        command = command.replace(i, f"^{i}")
+    return command
 
 
 class TerminalCommandError(Exception):
@@ -39,38 +56,48 @@ def terminal_do_command(
     cwd: None | PathLike = None,
     verbose: bool = True,
     error_header: str = "",
-):
-    """Run command in terminall and process output.
+    with_wsl: bool = False,
+) -> str:
+    """Run command in terminal and process output.
 
     Args:
         command (str): Command to run.
         shell (bool, optional): Same meaning as in ``subprocess.run()``. Defaults to False.
         cwd (None | PathLike, optional): Same meaning as in ``subprocess.run()``. Defaults to None.
         verbose (bool, optional): Whether print output to console. Defaults to True.
-        error_header (str, optional): If meet error, message at the beginning of message. Default to "".
+        error_header (str, optional): If meet error, message at the beginning of message. Defaults to "".
+        with_wsl (bool, optional): Prepend wsl prefix and edit command so it works. Path needs to be edited
+            manually (for example with `wsl_pathlib` package). Defaults to False
 
     Raises:
         RuntimeError: When process fails to finish or return non zero return code.
     """
-    error = None
-    context = None
+    error = "Terminal command crashed internally in subprocess and did not finished."
+
+    if with_wsl:
+        command = "wsl " + command
+
+        if shell:
+            command = convert_to_wsl_command(command)
+        if cwd:
+            cwd = WslPath(cwd)
 
     try:
         result = subprocess.run(command, shell=shell, cwd=cwd, capture_output=True)
         if result.returncode == 0:
+            stdout = result.stdout.decode().strip("\r\n")
             if verbose:
-                striped = "\r\n"
-                print(f"\n{result.stdout.decode().strip(striped)}\n")
+                print(f"\n{stdout}\n")
+            return stdout
         else:
             stderr = result.stderr.decode().strip("\r\n")
             stdout = result.stdout.decode().strip("\r\n")
             error = f"\n\nstderr:\n\n{stderr}\n\nstdout:\n\n{stdout}\n\n"
 
-    except Exception as err:  # pylint: disable=broad-except
-        error = "Suprocess command crashed internally in subprocess and did not finished."
-        context = err
+            raise TerminalCommandError("Return code is not 0.")
 
-    if error:
+    except Exception as err:  # pylint: disable=broad-except
+
         header = f"{error_header}\n\n" if error_header else ""
         cwd_str = "on your project root" if cwd is None else f"in '{cwd}' folder"
 
@@ -82,7 +109,7 @@ def terminal_do_command(
             "your project root folder. Permission error may be one of the typical issue or some\n"
             "necessary library missing or installed elsewhere than in used venv.\n\n"
             f"Captured error: {error}",
-        ) from context
+        ) from err
 
 
 def get_console_str_with_quotes(string: PathLike):
@@ -182,6 +209,10 @@ def check_library_is_available(name, message="default", extras: str | None = Non
     """Make one-liner for checking whether some library is installed.
 
     If running on venv, it checks only this venv, no global site packages.
+
+    Note:
+        This function has much worse performance, than simple try with ModuleNotFoundError error. This is
+        beneficial only if don't know the name of a package.
 
     Args:
         name (str): Name of the library.

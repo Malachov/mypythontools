@@ -37,7 +37,6 @@ Python library
 - config
 - misc
 - paths
-- plots
 - property
 - system
 - types
