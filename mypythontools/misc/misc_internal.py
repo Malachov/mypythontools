@@ -10,7 +10,6 @@ import os
 import shutil
 
 from typing_extensions import Literal
-import pandas as pd
 from tabulate import tabulate
 
 from ..paths import PathLike, validate_path
@@ -75,14 +74,13 @@ class TimeTable:
 
     def __init__(self) -> None:
         """Init the table."""
-        self.time_df: pd.DataFrame = pd.DataFrame()
         self.time_table: str = ""
-        self.times: list[tuple[str, float]] = []
+        self.records: list[tuple[str, float]] = []
         self.last_time: float = time.time()
 
     def add_entry(self, phase_name: str) -> None:
         """Add new line to the Time table."""
-        self.times.append((phase_name, round((time.time() - self.last_time), 3)))
+        self.records.append((phase_name, round((time.time() - self.last_time), 3)))
 
     def finish_table(self, table_format: None | dict = None) -> None:
         """Create time table.
@@ -95,8 +93,7 @@ class TimeTable:
             table_format = DEFAULT_TABLE_FORMAT
 
         self.add_entry("Completed")
-        self.time_df = pd.DataFrame(self.times, columns=["Time", "Phase name"])
-        self.time_table = tabulate(self.time_df.values, headers=list(self.time_df.columns), **table_format)
+        self.time_table = tabulate(self.records, headers=["Time", "Phase name"], **table_format)
 
 
 def watchdog(timeout: int | float, function: Callable, *args, **kwargs) -> Any:
