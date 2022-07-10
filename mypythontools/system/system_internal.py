@@ -137,7 +137,7 @@ def get_console_str_with_quotes(string: PathLike):
     return f'"{string}"'
 
 
-def which(name):
+def which(name) -> None | Path:
     """Return path of defined script.
 
     It's similar to `whichcraft.which` or `shutil.which` with the difference that it will work also if calling
@@ -151,7 +151,7 @@ def which(name):
         None | Path: Path to script or None if it's not available.
 
     Example:
-        >>> which("black").exists()
+        >>> which("pip").exists()
         True
     """
     if is_wsl():
@@ -190,7 +190,7 @@ def check_script_is_available(name, install_library=None, message="default"):
         RuntimeError: If module is installed, error is raised.
 
     Example:
-        >>> check_script_is_available("black")
+        >>> check_script_is_available("pip")
         >>> check_script_is_available("not_existing_script")
         Traceback (most recent call last):
         RuntimeError: ...

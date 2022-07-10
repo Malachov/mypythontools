@@ -65,7 +65,7 @@ class GetPlotlyLayouts:
 get_plotly_layout = GetPlotlyLayouts()
 
 
-def check_if_column_in_df(df: pd.DataFrame, column, parameter):
+def _check_if_column_in_df(df: pd.DataFrame, column, parameter):
     """Check if column exists in DataFrame and if not, raise an KeyError."""
     if not column in df.columns:
         raise KeyError(
@@ -182,8 +182,8 @@ def plot(
         graph_data = []
 
         if grey_area:
-            check_if_column_in_df(df, grey_area[0], "grey_area[0]")
-            check_if_column_in_df(df, grey_area[1], "grey_area[1]")
+            _check_if_column_in_df(df, grey_area[0], "grey_area[0]")
+            _check_if_column_in_df(df, grey_area[1], "grey_area[1]")
 
             upper_bound = pl.graph_objs.Scatter(
                 name="Upper bound",
@@ -208,7 +208,7 @@ def plot(
             graph_data.append(lower_bound)
 
         if black_column:
-            check_if_column_in_df(df, black_column, "black_column")
+            _check_if_column_in_df(df, black_column, "black_column")
 
             surrounded = pl.graph_objs.Scatter(
                 name=black_column,
@@ -227,7 +227,7 @@ def plot(
 
         if blue_column:
 
-            check_if_column_in_df(df, blue_column, "blue_column")
+            _check_if_column_in_df(df, blue_column, "blue_column")
 
             blue_column_ax = pl.graph_objs.Scatter(
                 name=str(blue_column),

@@ -16,5 +16,6 @@ if __name__ == "__main__":
         description="Some tools/functions/snippets used across projects.",
         long_description=packages.get_readme(),
         install_requires=packages.get_requirements("requirements/requirements.txt"),
+        setup_requires=["mypythontools_cicd[packages]"],
         extras_require=extras_requirements,
     )

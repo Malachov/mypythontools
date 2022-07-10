@@ -3,10 +3,7 @@
 from mypythontools_cicd.cicd import cicd_pipeline, default_pipeline_config
 
 default_pipeline_config.deploy = True
-default_pipeline_config.test.sync_test_requirements = ["requirements/requirements.txt"]
-
-# default_pipeline_config.do_only = ""
-
+default_pipeline_config.test.sync_test_requirements = ["requirements/requirements_tests.txt"]
 
 if __name__ == "__main__":
 
