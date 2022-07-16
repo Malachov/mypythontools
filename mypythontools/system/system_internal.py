@@ -1,13 +1,13 @@
 """Module with functions for 'terminal' subpackage."""
 
 from __future__ import annotations
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 import subprocess
 import platform
 import importlib.util
 import sys
 
-from ..paths import PathLike, WslPath
+from ..paths import PathLike, WslPath, validate_path
 
 
 def is_wsl():
@@ -57,6 +57,7 @@ def terminal_do_command(
     verbose: bool = True,
     error_header: str = "",
     with_wsl: bool = False,
+    input: None | str = None,
 ) -> str:
     """Run command in terminal and process output.
 
@@ -68,11 +69,16 @@ def terminal_do_command(
         error_header (str, optional): If meet error, message at the beginning of message. Defaults to "".
         with_wsl (bool, optional): Prepend wsl prefix and edit command so it works. Path needs to be edited
             manually (for example with `wsl_pathlib` package). Defaults to False
+        input (None | str): Input inserted into terminal. It can be answer `y` for example if terminal needs
+            an confirmation. Defaults to None.
 
     Raises:
         RuntimeError: When process fails to finish or return non zero return code.
     """
     error = "Terminal command crashed internally in subprocess and did not finished."
+
+    if cwd:
+        cwd = validate_path(cwd)
 
     if with_wsl:
         command = "wsl " + command
@@ -82,8 +88,10 @@ def terminal_do_command(
         if cwd:
             cwd = WslPath(cwd)
 
+    input_bytes = input.encode() if input else None
+
     try:
-        result = subprocess.run(command, shell=shell, cwd=cwd, capture_output=True)
+        result = subprocess.run(command, shell=shell, cwd=cwd, capture_output=True, input=input_bytes)
         if result.returncode == 0:
             stdout = result.stdout.decode().strip("\r\n")
             if verbose:
