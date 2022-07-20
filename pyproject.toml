@@ -4,12 +4,12 @@ norecursedirs = [
     "tools",
     "dist",
     "build",
+    "profiling",
     "venv",
     ".ipynb_checkpoints",
-    "tests/venvs"
+    "tests/venv"
 ]
 doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER ELLIPSIS IGNORE_EXCEPTION_DETAIL"
-
 
 [tool.black]
 line-length = 110

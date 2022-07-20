@@ -7,7 +7,7 @@ from mypythontools_cicd import packages
 if __name__ == "__main__":
 
     extras_requirements = {
-        i: packages.get_requirements(f"requirements/requirements_extras_{i}.txt") for i in ["plots"]
+        i: packages.get_requirements(f"requirements/extras_{i}.txt") for i in ["all", "plots"]
     }
 
     setup(

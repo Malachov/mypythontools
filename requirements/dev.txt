@@ -1,1 +1,3 @@
+-r requirements.txt
+
 mypythontools_cicd[all]>=0.0.27

@@ -29,6 +29,14 @@ Install with
 pip install mypythontools
 ```
 
+There can be some extras, that not everybody need. Install it like
+
+```console
+pip install mypythontools[plots]
+```
+
+Available extras are ["all", "plots"]
+
 Python library
 ==============
 
