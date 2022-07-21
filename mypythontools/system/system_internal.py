@@ -102,13 +102,13 @@ def terminal_do_command(
     try:
         result = subprocess.run(command, shell=shell, cwd=cwd, capture_output=True, input=input_bytes)
         if result.returncode == 0:
-            stdout = result.stdout.decode("utf-8").strip("\r\n")
+            stdout = result.stdout.decode("utf-8", errors="replace").strip("\r\n")
             if verbose:
                 print(f"\n{stdout}\n")
             return stdout
         else:
-            stderr = result.stderr.decode("utf-8").strip("\r\n")
-            stdout = result.stdout.decode("utf-8").strip("\r\n")
+            stderr = result.stderr.decode("utf-8", errors="replace").strip("\r\n")
+            stdout = result.stdout.decode("utf-8", errors="replace").strip("\r\n")
             error = f"\n\nstderr:\n\n{stderr}\n\nstdout:\n\n{stdout}\n\n"
 
             raise TerminalCommandError("Return code is not 0.")
@@ -180,7 +180,7 @@ def which(name) -> None | Path:
 
     result = subprocess.run(command, shell=True, capture_output=True)
 
-    output = result.stdout.decode("utf-8").rstrip("\r\n")
+    output = result.stdout.decode("utf-8", errors="replace").rstrip("\r\n")
 
     if "\r\n" in output:
         output = output.split("\r\n")[0]
