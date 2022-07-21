@@ -70,7 +70,6 @@ Python library
 - :py:mod:`mypythontools.plots`
 - :py:mod:`mypythontools.property`
 - :py:mod:`mypythontools.system`
-- :py:mod:`mypythontools.terminal`
 - :py:mod:`mypythontools.types`
 
 Subpackages names are self describing and you can find documentation in subpackages docstrings.
@@ -142,7 +141,7 @@ from mypythontools import config, misc, paths, plots, property, system, types
 
 __all__ = ["config", "misc", "paths", "plots", "property", "system", "types"]
 
-__version__ = "2.1.5"
+__version__ = "2.1.6"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

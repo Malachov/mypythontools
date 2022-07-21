@@ -14,37 +14,37 @@ if __name__ == "__main__":
 
         class SimpleSubConfig(Config):
             @MyProperty
-            def none_arg() -> None | dict:
+            def none_arg(self) -> None | dict:
                 return {}
 
             @MyProperty
-            def bool_arg() -> bool:
+            def bool_arg(self) -> bool:
                 """This should be in CLI help."""
                 return False
 
             @MyProperty
-            def int_arg() -> int:
+            def int_arg(self) -> int:
                 """This should be in CLI help."""
                 return 123
 
             @MyProperty
-            def float_arg() -> float:
+            def float_arg(self) -> float:
                 return 123
 
             @MyProperty
-            def str_arg() -> str:
+            def str_arg(self) -> str:
                 return "123"
 
             @MyProperty
-            def list_arg() -> list:
+            def list_arg(self) -> list:
                 return []
 
             @MyProperty
-            def dict_arg() -> dict:
+            def dict_arg(self) -> dict:
                 return {}
 
         @MyProperty
-        def on_root() -> dict:
+        def on_root(self) -> dict:
             """jes"""
             return {}
 

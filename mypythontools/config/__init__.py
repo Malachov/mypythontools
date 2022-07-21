@@ -18,8 +18,7 @@ Examples:
     ...
     >>> class SimpleConfig(Config):
     ...     @MyProperty
-    ...     @staticmethod  # You can add this for Pylint complain (needs to be after @MyProperty)
-    ...     def var() -> int:  # Type hints are validated.
+    ...     def var(self) -> int:  # Type hints are validated.
     ...         '''
     ...         Type:
     ...             int
@@ -33,8 +32,7 @@ Examples:
     ...         return 123  # This is initial value that can be edited.
     ...
     ...     @MyProperty
-    ...     @staticmethod
-    ...     def var_literal() -> Literal[1, 2, 3]:  # Literal options are also validated
+    ...     def var_literal(self) -> Literal[1, 2, 3]:  # Literal options are also validated
     ...         return 2
     ...
     ...     @MyProperty   # If other defined value is changed, computed property is also updated
@@ -93,8 +91,7 @@ Note:
 ...
 ...         class SubSubConfiguration(Config):
 ...             @MyProperty
-...             @staticmethod
-...             def value1() -> Literal[0, 1, 2, 3]:
+...             def value1(self) -> Literal[0, 1, 2, 3]:
 ...                 '''Documentation here
 ...
 ...                 Options: [0, 1, 2, 3]
@@ -112,7 +109,7 @@ Note:
 ...
 ...     # Also subconfig category can contain values itself
 ...     @MyProperty
-...     def value3() -> int:
+...     def value3(self) -> int:
 ...         return 3
 ...
 >>> config = Config()

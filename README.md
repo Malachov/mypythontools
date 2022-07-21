@@ -88,3 +88,5 @@ Also, of course if you want, you can download it and use locally from the projec
 The result should look like this
 
 <div align="center"><img src="docs/source/_static/sphinx-alabaster-css.png" width="620" alt="sphinx-alabaster-css"/></div>
+
+# TODO reklama na ostatní repa (also v init)

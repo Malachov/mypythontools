@@ -17,7 +17,7 @@ Examples:
     ...         init_my_properties(self)
     ...
     ...     @MyProperty
-    ...     def var() -> int:  # Type hints are validated.
+    ...     def var(self) -> int:  # Type hints are validated.
     ...         '''
     ...         Type:
     ...             int
