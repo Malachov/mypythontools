@@ -136,12 +136,56 @@ Result should look like this
     :width: 620
     :alt: sphinx-alabaster-css
     :align: center
+
+Other projects
+==============
+
+There are many other projects, that are in separate repository
+
+mypythontools_cicd
+------------------
+
+Module with functionality around Continuous Integration and Continuous Delivery. Locally run tests, regenerate docs,
+deploy app or package.
+
+https://github.com/Malachov/mypythontools_cicd
+
+mylogging
+---------
+Logging in a very simple way.
+
+https://github.com/Malachov/mylogging
+
+Docs
+----
+Documentation - snippets for various topics.
+
+https://github.com/Malachov/DOCS
+
+pyvueeel
+--------
+Application microframework. Develop application really fast.
+
+https://github.com/Malachov/pyvueeel
+
+project-starter-cookiecutter
+----------------------------
+Cookiecutter template. Based on type (python package, python / js application) create empty project.
+
+https://github.com/Malachov/project-starter-cookiecutter
+
+Software-settings
+-----------------
+Various settings stored, so can be reused. E.g. starting scripts after fresh operation system install.
+
+https://github.com/Malachov/Software-settings
+
 """
 from mypythontools import config, misc, paths, plots, property, system, types
 
 __all__ = ["config", "misc", "paths", "plots", "property", "system", "types"]
 
-__version__ = "2.1.6"
+__version__ = "2.1.7"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"

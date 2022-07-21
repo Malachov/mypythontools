@@ -89,4 +89,43 @@ The result should look like this
 
 <div align="center"><img src="docs/source/_static/sphinx-alabaster-css.png" width="620" alt="sphinx-alabaster-css"/></div>
 
-# TODO reklama na ostatní repa (also v init)
+## Other projects
+
+There are many other projects, that are in separate repository
+
+### mypythontools_cicd
+
+Module with functionality around Continuous Integration and Continuous Delivery. Locally run tests, regenerate docs,
+deploy app or package.
+
+https://github.com/Malachov/mypythontools_cicd
+
+### mylogging
+
+Logging in a very simple way.
+
+https://github.com/Malachov/mylogging
+
+### Docs
+
+Documentation - snippets for various topics.
+
+https://github.com/Malachov/DOCS
+
+### pyvueeel
+
+Application microframework. Develop application really fast.
+
+https://github.com/Malachov/pyvueeel
+
+### project-starter-cookiecutter
+
+Cookiecutter template. Based on type (python package, python / js application) create empty project.
+
+https://github.com/Malachov/project-starter-cookiecutter
+
+### Software-settings
+
+Various settings stored, so can be reused. E.g. starting scripts after fresh operation system install.
+
+https://github.com/Malachov/Software-settings
