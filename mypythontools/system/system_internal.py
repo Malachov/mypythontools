@@ -7,6 +7,8 @@ import platform
 import importlib.util
 import sys
 
+import mylogging
+
 from ..paths import PathLike, WslPath, validate_path
 
 
@@ -101,15 +103,19 @@ def terminal_do_command(
 
     try:
         result = subprocess.run(command, shell=shell, cwd=cwd, capture_output=True, input=input_bytes)
+        stdout = result.stdout.decode("utf-8", errors="replace").strip("\r\n")
         if result.returncode == 0:
-            stdout = result.stdout.decode("utf-8", errors="replace").strip("\r\n")
             if verbose:
                 print(f"\n{stdout}\n")
             return stdout
         else:
             stderr = result.stderr.decode("utf-8", errors="replace").strip("\r\n")
-            stdout = result.stdout.decode("utf-8", errors="replace").strip("\r\n")
-            error = f"\n\nstderr:\n\n{stderr}\n\nstdout:\n\n{stdout}\n\n"
+            if stderr:
+                stderr = "\n\n" + stderr
+            else:
+                stderr = "\n"
+
+            error = f"\n\nstderr:{stderr}\n\nstdout:\n\n{stdout}\n\n"
 
             raise TerminalCommandError("Return code is not 0.")
 
@@ -120,11 +126,10 @@ def terminal_do_command(
 
         raise TerminalCommandError(
             f"{header}"
-            f"Running command in terminal failed. Try command below in the terminal {cwd_str} "
-            f"\n\n{command}\n\n"
-            "On windows use cmd so script paths resolved correctly. Try it with administrator rights in\n"
-            "your project root folder. Permission error may be one of the typical issue or some\n"
-            "necessary library missing or installed elsewhere than in used venv.\n\n"
+            "Used command"
+            f"\n\n{mylogging.colors.colorize(command)}\n\n"
+            f"Command execution in terminal failed. Try command above in the terminal on path {cwd_str} "
+            "On windows use cmd so script paths resolved correctly. Try it with administrator rights.\n\n"
             f"Captured error: {error}",
         ) from err
 

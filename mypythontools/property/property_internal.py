@@ -42,7 +42,7 @@ class MyPropertyClass(property, Generic[T]):
 
     def default_fset(self, used_object, content) -> None:
         """Define how new values will be stored."""
-        setattr(used_object, self.private_name, content)
+        object.__setattr__(used_object, self.private_name, content)
 
     def __set_name__(self, _, name):
         """Define names. Private usually with underscore."""

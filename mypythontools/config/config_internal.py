@@ -1,21 +1,20 @@
 """Module with functions for 'config' subpackage."""
 
-
-# TODO - check if some arg name not more times - would be overwritten
-# TODO - add frozen and dict_values in __init__
-# TODO - Remove one loop over vars (from propagate_base_config_map and do the logic in meta loop)
-# TODO - Redefine base_config_map and properties list on class, not in objects in meta
-
 from __future__ import annotations
 from typing import Any, TypeVar, Union
 from copy import deepcopy
 import argparse
 import sys
+from dataclasses import dataclass
 
-from typing_extensions import get_args
-from ..property import init_my_properties, MyProperty  # pylint: disable=unused-import
+from typeguard import check_type
+from typing_extensions import get_args, get_type_hints, Literal  # pylint: disable=unused-import
+
+from ..property import MyProperty, MyPropertyClass  # pylint: disable=unused-import
 from .. import misc
 from .. import types
+
+module_globals = globals()
 
 ConfigType = TypeVar("ConfigType", bound="Config")
 
@@ -39,27 +38,26 @@ class ConfigMeta(type):
             return
 
         def add_parent__init__(
-            self,
+            self: Config,
             *a,
             dict_values=None,
             frozen=None,
             **kw,
         ):
-
-            self.base_config_map = {}
-            self.myproperties_list = []
-            self.properties_list = []
+            self.config_fields = ConfigFields(
+                base_config_map={},
+                myproperties_list=[],
+                vars=[],
+                properties_list=[],
+                subconfigs=[],
+                types=get_type_hints(type(self), globalns=module_globals),
+            )
+            self.do = ConfigDo(self)
 
             # Call user defined init
             cls._original__init__(self, *a, **kw)
 
-            init_my_properties(self)
-
-            for i, j in vars(type(self)).items():
-                if isinstance(j, property):
-                    self.properties_list.append(i)
-
-            self.propagate_base_config_map()
+            self.do.internal_propagate_config()
 
             # Update values from dict param in init
             if dict_values:
@@ -67,9 +65,9 @@ class ConfigMeta(type):
                     setattr(self, i, j)
 
             if frozen is None:
-                self.frozen = True
+                self.config_fields.frozen = True
             else:
-                self.frozen = frozen
+                self.config_fields.frozen = frozen
 
         cls._original__init__ = cls.__init__
         cls.__init__ = add_parent__init__  # type: ignore
@@ -79,131 +77,61 @@ class ConfigMeta(type):
         return getattr(cls, key)
 
 
-class Config(metaclass=ConfigMeta):  # type: ignore
-    """Main config class.
+class ConfigDo:
+    def __init__(self, config: Config) -> None:
+        self.config = config
 
-    You can find working examples in module docstrings.
-    """
-
-    # Usually this config is created from someone else that user using this config. Therefore new attributes
-    # should not be created. It is possible to force it (raise error). It is possible to set frozen to False
-    # to enable creating new instances.
-    frozen = False
-
-    # You can access attribute from subconfig as well as from main config object, there is proxy mapping
-    # config dict. If attribute not found on defined object, it will search through this proxy. It's
-    # populated automatically in metaclass during init
-    base_config_map = {}
-
-    myproperties_list: list[str] = []
-    properties_list: list[str] = []
-
-    def __new__(cls, *args, **kwargs):
-        """Just control that class is subclassed and not instantiated."""
-        if cls is Config:
-            raise TypeError("Config is not supposed to be instantiated only to be subclassed.")
-        return object.__new__(cls, *args, **kwargs)
-
-    def __deepcopy__(self, memo):
-        """Provide copy functionality."""
-        cls = self.__class__
-        result = cls.__new__(cls)
-        memo[id(self)] = result
-        for i, j in self.__dict__.items():
-            if isinstance(j, staticmethod):
-                atr = j.__func__
-            else:
-                atr = j
-            setattr(result, i, deepcopy(atr, memo))
-        return result
-
-    def __getattr__(self, name: str):
-        """Control logic if attribute from other subconfig is used."""
-        try:
-            return getattr(self.base_config_map[name], name)
-
-        except KeyError:
-
-            if name not in [
-                "_pytestfixturefunction",
-                "__wrapped__",
-                "pytest_mock_example_attribute_that_shouldnt_exist",
-                "__bases__",
-                "__test__",
-            ]:
-
-                raise AttributeError(f"Variable '{name}' not found in config.") from None
-
-    def __setattr__(self, name: str, value: Any) -> None:
-        """Setup new config values. Define logic when setting attributes from other subconfig class."""
-        setter_name = name[1:] if name.startswith("_") else name
-
-        if (
-            not self.frozen
-            or name == "frozen"
-            or name
-            in [
-                *self.myproperties_list,
-                *self.properties_list,
-                *vars(self),
-            ]
-        ):
-            object.__setattr__(self, name, value)
-
-        elif setter_name in self.base_config_map:
-            setattr(
-                self.base_config_map[setter_name],
-                name,
-                value,
-            )
-
-        else:
-            raise AttributeError(
-                f"Object {str(self)} is frozen. New attributes cannot be set and attribute '{name}' "
-                "not found. Maybe you misspelled name. If you really need to change the value, set "
-                "attribute frozen to false."
-            )
-
-    def __getitem__(self, key):
-        """To be able to be able to use same syntax as if using dictionary."""
-        return getattr(self, key)
-
-    def __setitem__(self, key, value):
-        """To be able to be able to use same syntax as if using dictionary."""
-        setattr(self, key, value)
-
-    def __call__(self, *args: Any, **kwds) -> None:
-        """Just to be sure to not be used in unexpected way."""
-        raise TypeError("Class is not supposed to be called. Just inherit it to create custom config.")
-
-    def propagate_base_config_map(self) -> None:
+    def internal_propagate_config(self) -> None:
         """Provide transferring arguments from base or from sub configs.
 
         Config class has subconfigs. It is possible to access subconfigs attributes from main config or from
-        any other level because of this function.
+        any other level because of this recursive function.
         """
-        for k, i in vars(self).items():
-            if hasattr(i, "myproperties_list"):
-                for j in i.myproperties_list:
-                    self.base_config_map[j] = i
+        frozen = self.config.config_fields.frozen
+        self.config.config_fields.frozen = False
 
-            elif hasattr(i, "properties_list"):
-                for j in i.properties_list:
-                    self.base_config_map[j] = i
+        for i, j in vars(self.config).items():
+            if i.startswith("_") or (not isinstance(j, Config) and callable(j)):
+                continue
 
-            # i is iterated subconfig and self is higher level config
-            if isinstance(i, Config):
-                i.propagate_base_config_map()  #  type: ignore
-                self.base_config_map.update(i.base_config_map)
-                i.base_config_map.update(self.base_config_map)
+            # i is iterated subconfig and self.config is higher level config
+            if isinstance(j, Config):
+                self.config.config_fields.subconfigs.append(j)
+                self.config.config_fields.base_config_map.update(j.config_fields.base_config_map)
+                j.config_fields.base_config_map = self.config.config_fields.base_config_map
 
-    def copy(self: ConfigType) -> ConfigType:
+        for i, j in vars(type(self.config)).items():
+            if i.startswith("_"):
+                continue
+
+            if isinstance(j, property):
+                if isinstance(j, MyPropertyClass):
+                    self.config.config_fields.myproperties_list.append(i)
+                    # Create private variables (e.g. _variable) with content
+                    setattr(
+                        self.config,
+                        j.private_name,
+                        j.init_function,
+                    )
+                else:
+                    self.config.config_fields.properties_list.append(i)
+
+            if i not in ["config_fields", "do"] and not callable(i) and not isinstance(j, type):
+                self.config.config_fields.vars.append(i)
+                self.config.config_fields.base_config_map[i] = self.config
+
+        self.config.config_fields.frozen = frozen
+
+    def copy(self) -> Config:
         """Create deep copy of config and all it's attributes.
 
         Returns:
             ConfigType: Deep copy.
         """
-        return deepcopy(self)
+        frozen = self.config.config_fields.frozen
+        copy = deepcopy(self.config)
+        self.config.config_fields.frozen = frozen
+        return copy
 
     def update(self, content: dict) -> None:
         """Bulk update with dict values.
@@ -215,57 +143,31 @@ class Config(metaclass=ConfigMeta):  # type: ignore
             AttributeError: If some arg not found in config.
         """
         for i, j in content.items():
-            if hasattr(self, i):
-                setattr(self, i, j)
-            else:
-                raise AttributeError(f"Config has no attribute {i}")
+            setattr(self.config, i, j)
 
-    def reset(self) -> None:
-        """Reset config to it's default values."""
-        copy = type(self)()
-
-        for i in vars(copy).keys():
-            setattr(self, i, copy[i])
-
-        for i in copy.myproperties_list:
-            setattr(self, i, copy[i])
-
-        for i in copy.properties_list:
-            setattr(self, i, copy[i])
-
-    def get_dict(self) -> dict:
+    def get_dict(self, recursively: bool = True) -> dict:
         """Get flat dictionary with it's values.
+
+        Args:
+            recursively (bool, optional): If True, then values from subconfigurations will be also in result.
 
         Returns:
             dict: Flat config dict.
         """
-        normal_vars = {
-            key: value
-            for key, value in vars(self).items()
-            if not key.startswith("__")
-            and not callable(value)
-            and not hasattr(value, "myproperties_list")
-            and key not in ["myproperties_list", "properties_list", "frozen", "base_config_map"]
-        }
 
-        property_vars = {
+        dict_of_values = {
+            # Values from vars
+            **{key: getattr(self.config, key) for key in self.config.config_fields.vars},
             # Values from myproperties
-            **{key: getattr(self, key) for key in self.myproperties_list},
+            **{key: getattr(self.config, key) for key in self.config.config_fields.myproperties_list},
             # Values from properties
-            **{key: getattr(self, key) for key in self.properties_list},
+            **{key: getattr(self.config, key) for key in self.config.config_fields.properties_list},
         }
 
-        normal_vars = {
-            i: j for i, j in normal_vars.items() if not (i.startswith("_") and i[1:] in property_vars)
-        }
-
-        dict_of_values = {**normal_vars, **property_vars}
-
-        # From sub configs
-        for i in vars(self).values():
-            if hasattr(i, "myproperties_list"):
-                subconfig_dict = i.get_dict()
-                dict_of_values.update(subconfig_dict)
+        if recursively:
+            # From sub configs
+            for i in self.config.config_fields.subconfigs:
+                dict_of_values.update(i.do.get_dict())
 
         return dict_of_values
 
@@ -277,7 +179,7 @@ class Config(metaclass=ConfigMeta):  # type: ignore
         1) Create parser and add all arguments with help
         2) Parse users' sys args and update config ::
 
-            config.with_argparse()
+            config.do.with_argparse()
 
         Now you can use in terminal like. ::
 
@@ -293,7 +195,8 @@ class Config(metaclass=ConfigMeta):  # type: ignore
             SystemExit: If arg that do not exists in config.
 
         Note:
-            If using boolean, you must specify the value. Just occurrence, e.g. --my_arg is not True.
+            If using boolean, you must specify the value. Just occurrence, e.g. `--my_arg` is not True. so you
+            need to use `--my_arg True`.
         """
         if len(sys.argv) <= 1 or misc.GLOBAL_VARS.jupyter:
             return
@@ -305,9 +208,9 @@ class Config(metaclass=ConfigMeta):  # type: ignore
 
         for i in config_dict.keys():
             try:
-                help_str = type(self)[i].__doc__
+                help_str = type(self.config)[i].__doc__
             except AttributeError:
-                help_str = type(self.base_config_map[i])[i].__doc__
+                help_str = type(self.config.config_fields.base_config_map[i])[i].__doc__
 
             parser.add_argument(f"--{i}", help=help_str)
 
@@ -340,9 +243,9 @@ class Config(metaclass=ConfigMeta):  # type: ignore
                 continue
 
             try:
-                used_type = type(self)[i].allowed_types
+                used_type = type(self.config)[i].allowed_types
             except AttributeError:
-                used_type = type(self.base_config_map[i])[i].allowed_types
+                used_type = type(self.config.config_fields.base_config_map[i])[i].allowed_types
 
             if used_type is not str:
                 try:
@@ -373,3 +276,126 @@ class Config(metaclass=ConfigMeta):  # type: ignore
                 parser_args_dict[i] = j
 
         self.update(parser_args_dict)
+
+
+@dataclass
+class ConfigFields:
+    """Attributes of config class. The reason why it is separated is, that usually config values are the most
+    important for user. This would make namespace big and intellisense would not worked as expected.
+    """
+
+    frozen = False
+    """Usually this config is created from someone else that user using this config. Therefore new attributes
+    should not be created. It is possible to force it (raise error). It is possible to set frozen to False
+    to enable creating new attributes.
+    """
+
+    base_config_map: dict
+    """You can access attribute from subconfig as well as from main config object, there is proxy mapping
+    config dict. If attribute not found on defined object, it will search through this proxy. It's
+    populated automatically in metaclass during init.
+    """
+
+    types: dict
+    """Attribute types used for type validations."""
+
+    vars: list
+    """Simple variables."""
+
+    myproperties_list: list
+    """List of all custom properties"""
+
+    properties_list: list
+    """List of all properties (variables, that can have some getters and setters)."""
+
+    subconfigs: list
+    """List of subconfigurations."""
+
+
+class Config(metaclass=ConfigMeta):  # type: ignore
+    """Main config class.
+
+    You can find working examples in module docstrings.
+    """
+
+    config_fields: ConfigFields
+    do: ConfigDo
+
+    def __new__(cls, *args, **kwargs):
+        """Just control that class is subclassed and not instantiated."""
+        if cls is Config:
+            raise TypeError("Config is not supposed to be instantiated only to be subclassed.")
+        return object.__new__(cls, *args, **kwargs)
+
+    def __deepcopy__(self, memo):
+        """Provide copy functionality."""
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for i, j in self.__dict__.items():
+            if isinstance(j, staticmethod):
+                atr = j.__func__
+            else:
+                atr = j
+            object.__setattr__(result, i, deepcopy(atr, memo))
+        return result
+
+    def __getattr__(self, name: str):
+        """Control logic if attribute from other subconfig is used."""
+        try:
+            return getattr(self.config_fields.base_config_map[name], name)
+
+        except KeyError:
+
+            if name not in [
+                "_pytestfixturefunction",
+                "__wrapped__",
+                "pytest_mock_example_attribute_that_shouldnt_exist",
+                "__bases__",
+                "__test__",
+            ]:
+
+                raise AttributeError(f"Variable '{name}' not found in config.") from None
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        """Setup new config values. Define logic when setting attributes from other subconfig class."""
+        if (
+            name == "config_fields"
+            or not self.config_fields.frozen
+            or name
+            in [
+                *self.config_fields.vars,
+                *self.config_fields.myproperties_list,
+                *self.config_fields.properties_list,
+            ]
+        ):
+            if name != "config_fields" and name in self.config_fields.types:
+                check_type(expected_type=self.config_fields.types[name], value=value, argname=name)
+
+            object.__setattr__(self, name, value)
+
+        elif name in self.config_fields.base_config_map:
+            setattr(
+                self.config_fields.base_config_map[name],
+                name,
+                value,
+            )
+
+        else:
+            raise AttributeError(
+                f"Object {str(self)} is frozen. New attributes cannot be set and attribute '{name}' "
+                "not found. Maybe you misspelled name. If you really need to change the value, set "
+                "attribute frozen to false."
+            )
+
+    def __getitem__(self, key):
+        """To be able to be able to use same syntax as if using dictionary."""
+        return getattr(self, key)
+
+    def __setitem__(self, key, value):
+        """To be able to be able to use same syntax as if using dictionary."""
+        setattr(self, key, value)
+
+    def __call__(self, *args: Any, **kwds) -> None:
+        """Just to be sure to not be used in unexpected way."""
+        raise TypeError("Class is not supposed to be called. Just inherit it to create custom config.")

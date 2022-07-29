@@ -50,8 +50,8 @@ if __name__ == "__main__":
 
     config = SimpleConfig()
 
-    config.with_argparse("How it works.")
+    config.do.with_argparse("How it works.")
 
-    for i, j in config.get_dict().items():
+    for i, j in config.do.get_dict().items():
         if "666" in str(j) or j is True or j is None:
             print(i, j, str(type(j)))

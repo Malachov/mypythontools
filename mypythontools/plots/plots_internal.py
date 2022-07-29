@@ -16,6 +16,8 @@ from ..system import check_library_is_available
 # import matplotlib.pyplot as plt
 # from IPython import get_ipython
 
+# TODO add tests from plotly and add printscreen to docstrings
+
 if TYPE_CHECKING:
     import pandas as pd
 
