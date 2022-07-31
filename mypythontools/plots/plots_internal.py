@@ -16,7 +16,7 @@ from ..system import check_library_is_available
 # import matplotlib.pyplot as plt
 # from IPython import get_ipython
 
-# TODO add tests from plotly and add printscreen to docstrings
+# TODO add printscreen to docstrings
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -67,15 +67,6 @@ class GetPlotlyLayouts:
 get_plotly_layout = GetPlotlyLayouts()
 
 
-def _check_if_column_in_df(df: pd.DataFrame, column, parameter):
-    """Check if column exists in DataFrame and if not, raise an KeyError."""
-    if not column in df.columns:
-        raise KeyError(
-            f"Column {column} from parameter {parameter} not found in DataFrame. "
-            f"Possible columns are: {df.columns}"
-        )
-
-
 def plot(
     df: pd.DataFrame,
     plot_library: Literal["plotly", "matplotlib"] = "plotly",
@@ -91,8 +82,8 @@ def plot(
 ) -> None | str:
     """Plots the data.
 
-    Plotly or matplotlib can be used. It is possible to highlite two columns with different
-    formating. It is usually used for time series visualization, but it can be used for different use case of
+    Plotly or matplotlib can be used. It is possible to highlight two columns with different
+    formatting. It is usually used for time series visualization, but it can be used for different use case of
     course.
 
     Args:
@@ -276,3 +267,12 @@ def plot(
                 include_plotlyjs=False,
                 output_type="div",
             )
+
+
+def _check_if_column_in_df(df: pd.DataFrame, column, parameter):
+    """Check if column exists in DataFrame and if not, raise an KeyError."""
+    if not column in df.columns:
+        raise KeyError(
+            f"Column {column} from parameter {parameter} not found in DataFrame. "
+            f"Possible columns are: {df.columns}"
+        )

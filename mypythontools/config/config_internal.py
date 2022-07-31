@@ -6,6 +6,7 @@ from copy import deepcopy
 import argparse
 import sys
 from dataclasses import dataclass
+from typing import Generic
 
 from typeguard import check_type
 from typing_extensions import get_args, get_type_hints, Literal  # pylint: disable=unused-import
@@ -20,7 +21,7 @@ ConfigType = TypeVar("ConfigType", bound="Config")
 
 
 class ConfigMeta(type):
-    """Config metaclass changing init function.
+    """Config metaclass changing config init function.
 
     Main reason is for being able to define own __init__ but
     still has functionality from parent __init__ that is necessary. With this meta, there is no need
@@ -39,11 +40,11 @@ class ConfigMeta(type):
 
         def add_parent__init__(
             self: Config,
-            *a,
-            dict_values=None,
             frozen=None,
+            *a,
             **kw,
         ):
+
             self.config_fields = ConfigFields(
                 base_config_map={},
                 myproperties_list=[],
@@ -52,17 +53,12 @@ class ConfigMeta(type):
                 subconfigs=[],
                 types=get_type_hints(type(self), globalns=module_globals),
             )
-            self.do = ConfigDo(self)
+            self.do.setup(config=self)
 
             # Call user defined init
             cls._original__init__(self, *a, **kw)
 
             self.do.internal_propagate_config()
-
-            # Update values from dict param in init
-            if dict_values:
-                for i, j in dict_values.items():
-                    setattr(self, i, j)
 
             if frozen is None:
                 self.config_fields.frozen = True
@@ -77,9 +73,12 @@ class ConfigMeta(type):
         return getattr(cls, key)
 
 
-class ConfigDo:
-    def __init__(self, config: Config) -> None:
-        self.config = config
+class ConfigDo(Generic[ConfigType]):
+    def __init__(self) -> None:
+        self.config: ConfigType
+
+    def setup(self, config: ConfigType) -> None:
+        self.config: ConfigType = config
 
     def internal_propagate_config(self) -> None:
         """Provide transferring arguments from base or from sub configs.
@@ -122,7 +121,7 @@ class ConfigDo:
 
         self.config.config_fields.frozen = frozen
 
-    def copy(self) -> Config:
+    def copy(self) -> ConfigType:
         """Create deep copy of config and all it's attributes.
 
         Returns:
@@ -319,7 +318,9 @@ class Config(metaclass=ConfigMeta):  # type: ignore
     """
 
     config_fields: ConfigFields
-    do: ConfigDo
+
+    def __init_subclass__(cls) -> None:
+        cls.do = ConfigDo[cls]()  # type: ignore -
 
     def __new__(cls, *args, **kwargs):
         """Just control that class is subclassed and not instantiated."""

@@ -108,39 +108,3 @@ def test_delete_files():
 
 if __name__ == "__main__":
     pass
-
-from mypythontools.config import MyProperty, Config as ConfigBase
-
-
-class Config(ConfigBase):
-    def __init__(self) -> None:
-        self.subconfig1 = self.SubConfiguration1()
-        self.subconfig2 = self.SubConfiguration2()
-
-    class SubConfiguration1(ConfigBase):
-        def __init__(self) -> None:
-            self.subsubconfig = self.SubSubConfiguration()
-
-        class SubSubConfiguration(ConfigBase):
-
-            value1: Literal[0, 1, 2, 3] = 3
-
-            @MyProperty
-            def subconfig_value(self):
-                return self.value1 + 1
-
-    class SubConfiguration2(ConfigBase):
-        @MyProperty
-        def other_val(self):
-            return self.subconfig_value + 1
-
-    # Also main category can contain values itself
-    value3: int = 3
-
-
-config = Config()
-
-flattened = config.do.get_dict()
-
-
-a = 8

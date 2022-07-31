@@ -13,7 +13,7 @@ PathLike = Union[Path, str]  # Path is included in PathLike
 def find_path(
     name: str,
     folder: PathLike | None = None,
-    exclude_names: Sequence[str] = ("node_modules", "build", "dist"),
+    exclude_names: Sequence[str] = ("node_modules", "build", "dist", "venv"),
     exclude_paths: Sequence[PathLike] = (),
     levels: int = 5,
 ) -> Path:
@@ -25,7 +25,7 @@ def find_path(
         folder (PathLike | None, optional): Where to search. If None, then root is used (cwd by default).
             Defaults to None.
         exclude_names (Sequence[str], optional): List or tuple of ignored names. If this name is whenever in
-            path, it will be ignored. Defaults to ('node_modules', 'build', 'dist').
+            path, it will be ignored. Defaults to ('node_modules', 'build', 'dist', 'venv').
         exclude_paths (Sequence[PathLike], optional): List or tuple of ignored paths. If defined path is
             subpath of found file, it will be ignored. If relative, it has to be from cwd. Defaults to ().
         levels (str, optional): Recursive number of analyzed folders. Defaults to 5.
@@ -35,6 +35,11 @@ def find_path(
 
     Raises:
         FileNotFoundError: If file is not found.
+
+    Example:
+        >>> path = find_path("README.md", exclude_names=['venv'])
+        >>> path.exists()
+        True
     """
     validate_sequence(exclude_names, "exclude_names")
     validate_sequence(exclude_paths, "exclude_paths")
