@@ -5,8 +5,7 @@
     :alt: Python versions
 
 .. image:: https://badge.fury.io/py/mypythontools.svg
-    :target: https://badge.fury.io/py/mypythontools
-    :alt: PyPI version
+    :target: https://badge.fury.io/py/mypythontools:alt: PyPI version
 
 .. image:: https://pepy.tech/badge/mypythontools
     :target: https://pepy.tech/project/mypythontools
@@ -185,7 +184,7 @@ from mypythontools import config, misc, paths, plots, property, system, types
 
 __all__ = ["config", "misc", "paths", "plots", "property", "system", "types"]
 
-__version__ = "2.1.10"
+__version__ = "3.0.0"
 
 __author__ = "Daniel Malachov"
 __license__ = "MIT"
