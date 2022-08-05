@@ -1,2 +1,4 @@
 -r requirements.txt
 -r extras_plots.txt
+
+mypythontools_cicd[tests]~=0.0.33

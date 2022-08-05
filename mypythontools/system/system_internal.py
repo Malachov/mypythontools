@@ -125,7 +125,7 @@ def terminal_do_command(
         cwd_str = "on your project root" if cwd is None else f"in '{cwd}' folder"
 
         raise TerminalCommandError(
-            f"{header}"
+               f"{header}"
             "Used command"
             f"\n\n{mylogging.colors.colorize(command)}\n\n"
             f"Command execution in terminal failed. Try command above in the terminal on path {cwd_str} "

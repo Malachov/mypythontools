@@ -1,4 +1,4 @@
-mylogging
+mylogging~=4.0.6
 
 tabulate
 typeguard

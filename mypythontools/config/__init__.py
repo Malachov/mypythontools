@@ -48,14 +48,15 @@ Examples:
     2
     >>> config['simple_var']  # You can also access params as in a dictionary
     2
-    >>> config.simple_var = "String is problem"
+    >>> config.simple_var = "String is problem"  # doctest: +3.8
     Traceback (most recent call last):
     TypeError: ...
     ...
-    >>> config.simple_var = 4  # Literal is also validated
+    >>> config.simple_var = 4  # Literal is also validated  # doctest: +3.8
     Traceback (most recent call last):
     TypeError: ...
     ...
+    >>> config.simple_var = 2  # Restoring value as on 3.7 it's no validated, so test would fails
     >>> config.dynamic_var
     12
 
@@ -64,8 +65,8 @@ Examples:
 
     >>> config.dynamic_var = lambda self: self.simple_var + 100
     >>> config.dynamic_var
-    102
-    >>> config.dynamic_var = lambda self: "String is problem"
+    102 
+    >>> config.dynamic_var = lambda self: "String is problem"  # doctest: +3.8
     Traceback (most recent call last):
     TypeError: ...
 

@@ -51,8 +51,9 @@ class ConfigMeta(type):
                 vars=[],
                 properties_list=[],
                 subconfigs=[],
-                types=get_type_hints(type(self), globalns=module_globals),
+                types=types.get_type_hints(type(self), globalns=module_globals),
             )
+            self.do = ConfigDo()
             self.do.setup(config=self)
 
             # Call user defined init
@@ -320,7 +321,9 @@ class Config(metaclass=ConfigMeta):  # type: ignore
     config_fields: ConfigFields
 
     def __init_subclass__(cls) -> None:
-        cls.do = ConfigDo[cls]()  # type: ignore -
+        # It would be better to define do on instance level and not class as class variable, but this is the
+        # only way I found to have type hints in do methods. It is necessary to pass instance with do.setup
+        cls.do: ConfigDo[cls]
 
     def __new__(cls, *args, **kwargs):
         """Just control that class is subclassed and not instantiated."""
@@ -332,6 +335,7 @@ class Config(metaclass=ConfigMeta):  # type: ignore
         """Provide copy functionality."""
         cls = self.__class__
         result = cls.__new__(cls)
+        # result.do.setup(result)
         memo[id(self)] = result
         for i, j in self.__dict__.items():
             if isinstance(j, staticmethod):

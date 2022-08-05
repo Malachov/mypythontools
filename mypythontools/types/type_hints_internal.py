@@ -1,6 +1,7 @@
 """Module with functions for 'type_hints' subpackage."""
 
 from __future__ import annotations
+import sys
 
 # Import can be used in eval
 from typing import (
@@ -14,7 +15,14 @@ from typing import (
     Iterable,
 )  # pylint: disable=unused-import
 
-from typing_extensions import get_type_hints
+from typing_extensions import get_type_hints as get_type_hints_imported
+
+
+def get_type_hints(*args, **kwargs):
+    if sys.version_info.minor >= 8:
+        return get_type_hints_imported(*args, **kwargs)
+    else:
+        return {}
 
 
 def get_return_type_hints(func: Callable) -> Any:

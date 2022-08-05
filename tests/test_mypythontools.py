@@ -13,6 +13,7 @@ sys.path.insert(0, root_path)
 
 import mypythontools
 from mypythontools.system import get_console_str_with_quotes, PYTHON
+from mypythontools.config import MyProperty, Config
 
 # pylint: disable=missing-function-docstring
 
@@ -104,6 +105,27 @@ def test_delete_files():
 
     assert not dir_path.exists(), "Directory was not deleted."
     assert not (file_one.exists() and file_two.exists()), "Directory was not deleted."
+
+
+def test_config():
+    class ConfigTest(Config):
+        a: list[int] = [0]
+
+        @MyProperty
+        def b(self) -> int:
+            return self.a[0] + 1
+
+    config = ConfigTest()
+    config_copy = config.do.copy()
+
+    config_copy.do.update({"a": [10]})
+
+    assert config.b == 1
+    assert config_copy.b == 11
+
+    config.a[0] = 1
+    assert config.b == 2
+    assert config_copy.b == 11
 
 
 if __name__ == "__main__":
