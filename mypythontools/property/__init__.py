@@ -44,14 +44,15 @@ Examples:
     >>> config.var = 665
     >>> config.var
     665
-    >>> config.var = "String is problem"
+    >>> config.var = "String is problem"  # doctest: +3.8
     Traceback (most recent call last):
     TypeError: ...
     ...
-    >>> config.var_literal = 4
+    >>> config.var_literal = 4  # doctest: +3.8
     Traceback (most recent call last):
     TypeError: ...
     ...
+    >>> config.var = 665  # Restoring value as on 3.7 it's no validated, so test would fails
     >>> config.evaluated
     666
     

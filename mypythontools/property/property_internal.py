@@ -72,10 +72,23 @@ class MyPropertyClass(property, Generic[T]):
 
         if not hasattr(content, "myproperties_list") and callable(content):
             # Depends whether it's staticmethod or not
+            error = None
             try:
                 value = content(used_object)
-            except TypeError:
-                value = content()
+            except TypeError as errOrig:
+                try:
+                    value = content()
+                except Exception as err:
+                    # If the error is missing self parameter, we know the orig error is root cause
+                    if str(err.args[0]).endswith("'self'"):
+                        error = errOrig
+                    else:
+                        error = err
+            except Exception as err:
+                error = err
+
+            if error:
+                raise error
 
         else:
             value = content

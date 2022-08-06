@@ -13,9 +13,10 @@ from typing import (
     Tuple,
     Sequence,
     Iterable,
+    get_type_hints as get_type_hints_imported,
 )  # pylint: disable=unused-import
 
-from typing_extensions import get_type_hints as get_type_hints_imported
+from typing_extensions import Literal
 
 
 def get_type_hints(*args, **kwargs):
@@ -27,6 +28,9 @@ def get_type_hints(*args, **kwargs):
 
 def get_return_type_hints(func: Callable) -> Any:
     """Return function return types.
+    Note:
+        This is not working on older versions that 3.8. It will not raise, but return None. If you need it on
+        3.7, you can use `get_return_type_hints_evaluated`.
 
     Args:
         func (Callable): Function with type hints.
@@ -39,12 +43,12 @@ def get_return_type_hints(func: Callable) -> Any:
         >>> def union_return() -> int | float:
         ...     return 1
         >>> inferred_type = get_return_type_hints(union_return)
-        >>> 'int' in str(inferred_type) and 'float' in str(inferred_type)
+        >>> 'int' in str(inferred_type) and 'float' in str(inferred_type)  # doctest: +3.8
         True
         >>> def literal_return() -> Literal[1, 2, 3]:
         ...     return 1
         >>> inferred_type = get_return_type_hints(literal_return)
-        >>> 'Literal' in str(inferred_type)
+        >>> 'Literal' in str(inferred_type)  # doctest: +3.8
         True
     """
     if isinstance(func, staticmethod):
@@ -58,11 +62,14 @@ def get_return_type_hints(func: Callable) -> Any:
     return types
 
 
-def get_return_type_hints_old_versions(func: Callable) -> Any:
+def get_return_type_hints_evaluated(func: Callable) -> Any:
     """Return function return types on old versions of python (3.7).
 
     This is because `get_type_hints` result in error for some types in older versions of python and also that
     `__annotations__` contains only string, not types and it needs to be parsed.
+
+    If there is some imported type used in function, it should be correctly evaluated even if not imported in
+    module where type is inferred.
 
     Note:
         Sometimes it may use eval as literal_eval cannot use users globals so types like pd.DataFrame would
@@ -78,16 +85,25 @@ def get_return_type_hints_old_versions(func: Callable) -> Any:
         >>> # You can use Union as well as Literal
         >>> def union_return() -> int | float:
         ...     return 1
-        >>> inferred_type = get_return_type_hints(union_return)
+        >>> inferred_type = get_return_type_hints_evaluated(union_return)
         >>> 'int' in str(inferred_type) and 'float' in str(inferred_type)
         True
         >>> def literal_return() -> Literal[1, 2, 3]:
         ...     return 1
-        >>> inferred_type = get_return_type_hints(literal_return)
+        >>> inferred_type = get_return_type_hints_evaluated(literal_return)
         >>> 'Literal' in str(inferred_type)
         True
+        >>> import tabulate
+        >>> def imported_type() -> tabulate.TableFormat:
+        ...     return tabulate.TableFormat()
+        >>> inferred_type = get_return_type_hints_evaluated(imported_type)
+        >>> inferred_type["return"] == tabulate.TableFormat
+        True
     """
-    types = get_return_type_hints(func)
+    try:
+        types = get_type_hints_imported(func)
+    except TypeError:
+        types = func.__annotations__
 
     if isinstance(types, str) and "Union" in types:
         types = eval(types, func.__globals__)
