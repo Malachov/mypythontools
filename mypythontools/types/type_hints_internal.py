@@ -20,7 +20,7 @@ from typing_extensions import Literal
 
 
 def get_type_hints(*args, **kwargs):
-    if sys.version_info.minor >= 8:
+    if sys.version_info.minor >= 9:
         return get_type_hints_imported(*args, **kwargs)
     else:
         return {}
@@ -29,7 +29,7 @@ def get_type_hints(*args, **kwargs):
 def get_return_type_hints(func: Callable) -> Any:
     """Return function return types.
     Note:
-        This is not working on older versions that 3.8. It will not raise, but return None. If you need it on
+        This is not working on older versions that 3.9. It will not raise, but return None. If you need it on
         3.7, you can use `get_return_type_hints_evaluated`.
 
     Args:
@@ -43,12 +43,12 @@ def get_return_type_hints(func: Callable) -> Any:
         >>> def union_return() -> int | float:
         ...     return 1
         >>> inferred_type = get_return_type_hints(union_return)
-        >>> 'int' in str(inferred_type) and 'float' in str(inferred_type)  # doctest: +3.8
+        >>> 'int' in str(inferred_type) and 'float' in str(inferred_type)  # doctest: +3.9
         True
         >>> def literal_return() -> Literal[1, 2, 3]:
         ...     return 1
         >>> inferred_type = get_return_type_hints(literal_return)
-        >>> 'Literal' in str(inferred_type)  # doctest: +3.8
+        >>> 'Literal' in str(inferred_type)  # doctest: +3.9
         True
     """
     if isinstance(func, staticmethod):

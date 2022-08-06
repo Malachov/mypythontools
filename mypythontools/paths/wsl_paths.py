@@ -1,10 +1,10 @@
 """Module with functions for 'wsl_paths' class.
 
-This is just copy pasted from https://github.com/psychonaute/wsl-pathlib/blob/master/wsl_pathlib/path.py
+!! This is just copy pasted from https://github.com/psychonaute/wsl-pathlib/blob/master/wsl_pathlib/path.py !!
 to remove unnecessary requirements.
 """
 from os import name as os_name
-from pathlib import PosixPath, PurePosixPath, PureWindowsPath, WindowsPath
+from pathlib import PosixPath, PurePosixPath, PureWindowsPath, WindowsPath, Path
 
 base = WindowsPath
 if os_name == "posix":
@@ -29,7 +29,11 @@ def is_nt(path_in: str):
 
 
 class WslPath(base):
-    """Extend pathlib.Path by addding the properties wsl_path and win_path.
+    """This is just copy pasted from
+
+    https://github.com/psychonaute/wsl-pathlib/blob/master/wsl_pathlib/path.py
+
+    Extend pathlib.Path by addding the properties wsl_path and win_path.
     depending on the plateform base class either pathlib's
     PosixPath or WindowsPath.
     Path objects are instanciated with path representation matching
@@ -46,7 +50,7 @@ class WslPath(base):
         we change the path str to instanciate PosixPath('/mnt/c/foo').
         """
         path_in = str(args[0]).replace("\\", "/")
-
+        path_in = Path(path_in).resolve().as_posix()
         if is_mnt(path_in):
             if os_name == "posix":
                 crude_path = path_in

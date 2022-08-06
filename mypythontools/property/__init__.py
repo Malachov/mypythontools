@@ -1,8 +1,8 @@
 """Module contains MyProperty class that is alternative to normal python property. It's implemented via
 descriptor and edited `__get__` and `__set__` magic methods. 
 
-There is default setter, it's possible to auto init values on class init and values in setter can be
-validated. This result in much less code written when using a lot of similar properties.
+There is default setter, it's possible to auto init values on class init and values in setter are validated
+on python 3.9 and newer. This result in much less code written when using a lot of similar properties.
 
 First call is lazy evaluated during first call.
 
@@ -44,15 +44,15 @@ Examples:
     >>> config.var = 665
     >>> config.var
     665
-    >>> config.var = "String is problem"  # doctest: +3.8
+    >>> config.var = "String is problem"  # doctest: +3.9
     Traceback (most recent call last):
     TypeError: ...
     ...
-    >>> config.var_literal = 4  # doctest: +3.8
+    >>> config.var_literal = 4  # doctest: +3.9
     Traceback (most recent call last):
     TypeError: ...
     ...
-    >>> config.var = 665  # Restoring value as on 3.7 it's no validated, so test would fails
+    >>> config.var = 665  # Restoring value as on 3.9 it's no validated, so test would fails
     >>> config.evaluated
     666
     
